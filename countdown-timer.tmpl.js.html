@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="EN-AU">
+	<head>
+		<meta charset="UTF8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="user-scalable=yes, initial-scale=1.0, width=device-width, height=device-height" />
+		<title>countdown-time custom element</title>
+		<style type="text/css">
+.hide {
+	position: fixed;
+	left: -1000rem;
+	top: -1000rem;
+}
+		</style>
+		<script type="text/ecmascript" src="countdown-timer.tmpl.html.js"></script>
+	</head>
+	<body>
+		<h1>countdown-time custom element</h1>
+
+		<template id="countdown-timer">
+			<div>
+				<div id="rolling-numbers">
+				</div>
+				<div>
+					<pause-play action="play"></pause-play>
+					<reset-restart action="reset"></reset-restart>
+					<reset-restart action="restart"></reset-restart>
+				</div>
+			</div>
+		</template>
+
+		<template id="rolling-number">
+		</template>
+
+		<template id="pause-play">
+			<button><slot></slot></button>
+		</template>
+
+		<template id="reset-restart">
+		</template>
+
+
+	</body>
+</html>
