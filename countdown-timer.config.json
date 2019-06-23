@@ -1,0 +1,51 @@
+{
+  "initialValue": 500,
+  "displayMode": "pieChart",
+  "name": "",
+  "sound": "[URL]",
+  "speek": {
+    "quarters": true,
+    "thirds": true,
+    "half": true,
+    "minutes": true,
+    "30seconds": true,
+    "last20": true,
+    "allLast10"
+  },
+      "actionDescriptions": {
+        "Cancel": "go to default unconfigured state",
+        "Pause": "time stops decrementing timerRemaining",
+        "Play": "timer decrements timeRemaining",
+        "Reset": "set time remaining to initialValue (but do not start decrementing)",
+        "Start": "begin decrementing timer starting from initialValue",
+        "Start again": "set time remaining to initialValue and automatically start decrementing"
+      }
+    }
+  },
+  "ready": {
+    "notStarted": {
+      "actions": [
+        "Start",
+        "Cancel"
+      ],
+      "timeRemaining": "initialValue"
+    },
+    "inProgress": {
+      "actions": [
+        "play/pause",
+        "Cancel",
+        "Reset",
+        "Start again"
+      ],
+      "timeRemaining": "initialValue"
+    },
+    "complete": {
+      "actions": [
+        "Cancel",
+        "Reset",
+        "Start again"
+      ],
+      "timeRemaining": 0
+    }
+  }
+}

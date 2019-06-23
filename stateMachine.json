@@ -1,0 +1,72 @@
+{
+  "unconfigured": {
+    "config": {
+      "initialValue": 500,
+      "displayMode": "pieChart",
+      "displayModes": [
+        "pieChart",
+        "progressBar"
+      ],
+      "resetMode": "Start again",
+      "resetModes": [
+        "Once only",
+        "Reset",
+        "Start again"
+      ],
+      "name": "",
+      "sound": {"name": "", "url": ""},
+      "sounds": [{"name": "", "url": ""}],
+      "speek": [
+        "quarters",
+        "thirds",
+        "half",
+        "minutes",
+        "30 seconds",
+        "last 20 and 15 second intervals",
+        "all last 10 seconds"
+      ],
+      "speakLeadInOptions": [
+        -1,
+        0,
+        3,
+        5,
+        10
+      ],
+      "speakLeadIn": 3,
+      "actionDescriptions": {
+        "Cancel": "go to default unconfigured state",
+        "Pause": "time stops decrementing timerRemaining",
+        "Play": "timer decrements timeRemaining",
+        "Reset": "set time remaining to initialValue (but do not start decrementing)",
+        "Start": "begin decrementing timer starting from initialValue",
+        "Start again": "set time remaining to initialValue and automatically start decrementing"
+      }
+    }
+  },
+  "ready": {
+    "notStarted": {
+      "actions": [
+        "Start",
+        "Cancel"
+      ],
+      "timeRemaining": "initialValue"
+    },
+    "inProgress": {
+      "actions": [
+        "play/pause",
+        "Cancel",
+        "Reset",
+        "Start again"
+      ],
+      "timeRemaining": "initialValue"
+    },
+    "complete": {
+      "actions": [
+        "Cancel",
+        "Reset",
+        "Start again"
+      ],
+      "timeRemaining": 0
+    }
+  }
+}

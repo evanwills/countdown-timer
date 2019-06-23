@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf8" />
+		<title>Countdown timer HTML</title>
+		<link rel="stylesheet" type="text/css" href="countdown-timer.css" />
+	</head>
+	<body>
+		<h1>Count-down timer</h1>
+
+
+		<div class="">
+			<form>
+				<fieldset>
+					<legend>Timer Duration</legend>
+					<p class="duration">
+						<span id="hoursWrap" class="hide">
+							<label for="hours">Hours</label>
+							<input type="number" id="hours" name="hours" value="00" min="0" max="23" step="1" size="2" />
+						</span>
+						<span class="colon">:</span>
+						<span>
+							<label for="minutes">Minutes</label>
+							<input type="number" id="minutes" name="minutes" value="00" min="0" max="59" step="1" size="2" />
+						</span>
+						<span class="colon">:</span>
+						<span>
+							<label for="seconds">Seconds</label>
+							<input type="number" id="seconds" name="seconds" value="00" min="0" max="59" step="1" size="2" />
+						</span>
+					</p>
+				</fieldset>
+				<details>
+					<summary>Advanced settings</summary>
+					<p>
+						<label>
+							<input type="checkbox" id="showHours" name="showHours" value="1" />
+							Show hours input
+						</label>
+					</p>
+					<p>
+						<label for="displayMode">Visual timer display mode:</label>
+						<select id="displayMode" name="displayMode">
+							<option value="pie">Pie chart</option>
+							<option value="bar">Progress bar</option>
+						</select>
+					</p>
+					<p>
+						<label for="sound">Sound:</label>
+						<select id="sound" name="sound">
+							<option value="bell">Bell</option>
+							<option value="chime">Chime</option>
+						</select>
+					</p>
+					<fieldset>
+						<legend>Speek</legend>
+						<ul>
+							<li>
+								<label>
+									<input type="checkbox" value="1" id="quarters" checked="checked" aria-describedby="quarters-desc" />
+									Quarters
+								</label>
+								<span id="quarters-desc">
+									Speek three quarter and one quarter to go intervals
+								</span>
+							</li>
+							<li>
+								<label>
+									<input type="checkbox" value="1" id="thirds" checked="checked" aria-describedby="thirds-desc" />
+									Thirds
+								</label>
+								<span id="thirds-desc">
+									Speek two and one third intervals
+								</span>
+							</li>
+							<li>
+								<label>
+									<input type="checkbox" value="1" id="half" checked="checked" aria-describedby="half-desc" />
+									Half
+								</label>
+								<span id="thirds-desc">
+									Speek half way interval
+								</span>
+							</li>
+							<li>
+								<label>
+									<input type="checkbox" value="1" id="minutes" checked="checked" aria-describedby="minutes-desc" />
+									Minutes
+								</label>
+								<span id="minutes-desc">
+									Speek minutes to go interval
+								</span>
+							</li>
+							<li>
+								<label>
+									<input type="checkbox" value="1" id="minutes" checked="checked" aria-describedby="thirtSec-desc" />
+									Speak 30 second intervals
+								</label>
+								<span id="thirtSec-desc">
+									Speek 30 second intervals (if minutes are spoken it over-rides 60 second intervals)
+								</span>
+							</li>
+							<li>
+								<label>
+									<input type="checkbox" value="1" id="minutes" checked="checked" />
+									Speak last 20 &amp; 15 second intervals
+								</label>
+							</li>
+							<li>
+								<label>
+									<input type="checkbox" value="1" id="minutes" checked="checked" aria-describedby="minutes-desc" />
+									Speek last 10 second count-down
+								</label>
+							</li>
+						</ul>
+					</fieldset>
+				</details>
+				<button type="submit">Set timer</button>
+			</form>
+		</div>
+
+		<template id="countdown-timer">
+			<div>
+				<span class="remaining">
+					<decrement-time type="hour" start="0" />
+					:
+					<decrement-time type="minute" start="3" />
+					:
+					<decrement-time type="second"  start="0" />
+				</span>
+				<span class="control">
+					<pause-play action="play" />
+					<reset-restart action="reset" />
+					<reset-restart action="restart" />
+				</span>
+			</div>
+		</template>
+
+		<template id="decrement-time">
+			<span>${value}</span>
+		</template>
+		<template id="pause-play">
+			<button>Start</button>
+		</template>
+		<template id="reset-restart">
+			<button>Reset</button>
+		</template>
+
+	</body>
+</html>

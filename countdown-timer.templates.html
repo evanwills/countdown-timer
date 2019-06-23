@@ -1,0 +1,34 @@
+
+<!--
+ <countdown-timer time="00:00:30" autostart="false" />
+-->
+<template id="countdown-timer">
+	<div>
+		<span class="remaining">
+			<decrement-time type="hour" start="0" />
+			:
+			<decrement-time type="minute" start="3" />
+			:
+			<decrement-time type="second"  start="0" />
+		</span>
+		<progress value="0"></progress>
+		<span class="control">
+			<pause-play action="play" />
+			<reset-restart action="reset" />
+			<reset-restart action="restart" />
+		</span>
+	</div>
+</template>
+
+<!--
+	<decrement-time type="minute" start="3" />
+-->
+<template id="decrement-time">
+	<span>${value}</span>
+</template>
+<template id="pause-play">
+	<button>Start</button>
+</template>
+<template id="reset-restart">
+	<button>Reset</button>
+</template>

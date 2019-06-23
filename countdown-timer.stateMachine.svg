@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+<svg width="29cm" height="18cm" viewBox="11 14 572 348" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <style type="text/css">
+    svg {
+      font-family: Arial, Helvetica, sans-serif;
+      font-style: normal;
+      font-weight: 700;
+      font-size: 0.9em;
+    }
+    text {
+      fill: #000000;
+      text-anchor: middle;
+    }
+    .line {
+      fill: none;
+      fill-opacity: 0;
+      stroke-width: 2;
+      stroke: #000000;
+    }
+    .line-red { stroke: #FF0000; }
+    .line-darkGreen {
+      stroke: #009c00;
+    }
+    .line-dashed {
+      stroke-width: 1;
+      stroke-dasharray: 10;
+    }
+    .line-thin { stroke-width: 1.5; }
+    .box {
+      fill: #000000;
+      text-anchor:  middle;
+    }
+    .initialValue {
+      font-style: oblique;
+      font-weight: normal;
+    }
+    .yellow { fill: #ffff00; }
+    .orange { fill: #ffd380; }
+    .teal { fill: #00b6d8; }
+    .blue { fill: #9ccfff; }
+    .green { fill: #00ff00; }
+    .darkGreen { fill: #009c00; }
+    .lightRed { fill: #ffc0cb; }
+    .Red { fill: #ff0000; }
+    .black { fill: #000000; }
+    .white { fill: #ffffff; }
+    .text-small { font-size: 0.75em; }
+    .text-xSmall { font-size: 0.7em; }
+  </style>
+  <g>
+    <polyline class="line" points="135.056,70.082 148.031,70.082 148.031,116.018 128.947,116.018 128.947,172.071 144.352,172.071 "/>
+    <polygon class="black" points="151.852,172.071 141.852,177.071 144.352,172.071 141.852,167.071 "/>
+    <polygon class="line" points="151.852,172.071 141.852,177.071 144.352,172.071 141.852,167.071 "/>
+  </g>
+  <g>
+    <rect class="green" x="154.088" y="153.071" width="61.95" height="38"/>
+    <rect class="line" x="154.088" y="153.071" width="61.95" height="38"/>
+    <text x="185.063" y="176.871">
+      <tspan x="185.063" y="176.871">Ready</tspan>
+    </text>
+  </g>
+  <g>
+    <rect class="yellow" x="350.22" y="202.17" width="96.05" height="38"/>
+    <rect class="line" x="350.22" y="202.17" width="96.05" height="38"/>
+    <text x="398.245" y="225.97">
+      <tspan x="398.245" y="225.97">In progress</tspan>
+    </text>
+  </g>
+  <g>
+    <rect class="blue" x="499.617" y="202.419" width="83.05" height="38"/>
+    <rect class="line" x="499.617" y="202.419" width="83.05" height="38"/>
+    <text x="541.142" y="226.219">
+      <tspan x="541.142" y="226.219">Complete</tspan>
+    </text>
+  </g>
+  <g>
+    <polyline class="line" points="446.27,221.17 472.943,221.17 472.943,221.419 489.881,221.419 "/>
+    <polygon class="black" points="497.381,221.419 487.381,226.419 489.881,221.419 487.381,216.419 "/>
+    <polygon class="line" points="497.381,221.419 487.381,226.419 489.881,221.419 487.381,216.419 "/>
+  </g>
+  <g>
+    <polyline class="line line-darkGreen" points="398.245,240.17 398.245,292.082 185.063,292.082 185.063,200.807 "/>
+    <polygon class="darkGreen" points="185.063,193.307 190.063,203.307 185.063,200.807 180.063,203.307 "/>
+    <polygon class="line line-darkGreen" points="185.063,193.307 190.063,203.307 185.063,200.807 180.063,203.307 "/>
+  </g>
+  <g>
+    <polyline class="line line-red" points="561.904,240.419 561.904,360.858 73.8808,360.858 73.8808,106.818 "/>
+    <polygon class="red" points="73.8808,99.318 78.8808,109.318 73.8808,106.818 68.8808,109.318 "/>
+    <polygon class="line line-red" points="73.8808,99.318 78.8808,109.318 73.8808,106.818 68.8808,109.318 "/>
+  </g>
+  <g>
+    <polyline class="line line-red" points="422.257,240.17 422.257,347.103 73.8808,347.103 73.8808,106.818 "/>
+    <polygon class="line line-red" points="73.8808,99.318 78.8808,109.318 73.8808,106.818 68.8808,109.318 "/>
+  </g>
+  <g>
+    <polyline class="line line-red" points="169.575,191.071 169.575,332.431 73.8808,332.431 73.8808,106.818 "/>
+    <polygon class="line line-red" points="73.8808,99.318 78.8808,109.318 73.8808,106.818 68.8808,109.318 "/>
+  </g>
+  <g>
+    <polyline class="line line-darkGreen" points="541.142,240.419 541.142,305.837 185.063,305.837 185.063,200.807 "/>
+    <polygon class="line line-darkGreen darkGreen" points="185.063,193.307 190.063,203.307 185.063,200.807 180.063,203.307 "/>
+  </g>
+  <g>
+    <polygon class="line line-thin white" points="235.662,210.311 309.711,210.311 301.878,231.833 227.828,231.833 "/>
+    <text class="text-xSmall initialValue" x="268.77" y="225.711">
+      <tspan x="268.77" y="225.711">initial value</tspan>
+    </text>
+  </g>
+  <g>
+    <polyline class="line" points="520.379,240.419 520.379,271.908 264.853,271.908 264.853,241.57 "/>
+    <polygon class="line black" points="264.853,234.07 269.853,244.07 264.853,241.57 259.853,244.07 "/>
+  </g>
+  <g>
+    <polyline class="line" points="374.232,240.17 374.232,261.17 264.853,261.17 264.853,241.57 "/>
+    <polygon class="black" points="264.853,234.07 269.853,244.07 264.853,241.57 259.853,244.07 "/>
+    <polygon class="line black" points="264.853,234.07 269.853,244.07 264.853,241.57 259.853,244.07 "/>
+  </g>
+  <g>
+    <polyline class="line" points="216.038,172.071 272.686,172.071 272.686,200.575 "/>
+    <polygon class="black" points="272.686,208.075 267.686,198.075 272.686,200.575 277.686,198.075 "/>
+    <polygon class="line" points="272.686,208.075 267.686,198.075 272.686,200.575 277.686,198.075 "/>
+  </g>
+  <g>
+    <polyline class="line" points="306.421,221.072 328.32,221.072 328.32,221.17 340.484,221.17 "/>
+    <polygon class="black" points="347.984,221.17 337.984,226.17 340.484,221.17 337.984,216.17 "/>
+    <polygon class="line" points="347.984,221.17 337.984,226.17 340.484,221.17 337.984,216.17 "/>
+  </g>
+  <g>
+    <path class="line line-dashed" d="M 398.245 202.17 C 398.835,171.038 302.55,106.848 379.354,92.8089"/>
+    <polygon class="black" points="386.731,91.4603 377.793,98.1769 379.354,92.8089 375.995,88.3399 "/>
+    <polygon class="line line-thin" points="386.731,91.4603 377.793,98.1769 379.354,92.8089 375.995,88.3399 "/>
+  </g>
+  <g>
+    <g>
+      <path class="yellow" d="M 415.603 15.1481 L 554.463,15.1481 C 575.292,45.5926 582.235,60.8148 582.235,91.2592 C 582.235,121.704 575.292,136.926 554.463,167.37 L 415.603,167.37 L 387.831,91.2592 L 415.603,15.1481z"/>
+      <path class="line line-dashed" d="M 415.603 15.1481 L 554.463,15.1481 C 575.292,45.5926 582.235,60.8148 582.235,91.2592 C 582.235,121.704 575.292,136.926 554.463,167.37 L 415.603,167.37 L 387.831,91.2592 L 415.603,15.1481"/>
+      <text font-size="13.5467" x="485.033" y="96.3392">
+        <tspan x="485.033" y="96.3392">In progress</tspan>
+      </text>
+    </g>
+    <g>
+      <rect class="orange" x="449.94" y="29.8812" width="68.5" height="38"/>
+      <rect class="line" x="449.94" y="29.8812" width="68.5" height="38"/>
+      <text class="text-small" x="484.19" y="53.1257">
+        <tspan x="484.19" y="53.1257">Paused</tspan>
+      </text>
+    </g>
+    <g>
+      <rect class="teal" x="452.898" y="110.686" width="49.25" height="38"/>
+      <rect class="line" x="452.898" y="110.686" width="49.25" height="38"/>
+      <text class="text-small" x="477.523" y="133.931">
+        <tspan x="477.523" y="133.931">Play</tspan>
+      </text>
+    </g>
+    <g>
+      <polyline class="line" points="502.148,129.686 539.44,129.686 539.44,48.8812 528.176,48.8812 "/>
+      <polygon class="black" points="520.676,48.8812 530.676,43.8812 528.176,48.8812 530.676,53.8812 "/>
+      <polygon class="line" points="520.676,48.8812 530.676,43.8812 528.176,48.8812 530.676,53.8812 "/>
+    </g>
+    <g>
+      <polyline class="line" points="449.94,48.8812 428.94,48.8812 428.94,129.686 443.162,129.686 "/>
+      <polygon class="black" points="450.662,129.686 440.662,134.686 443.162,129.686 440.662,124.686 "/>
+      <polygon class="line" points="450.662,129.686 440.662,134.686 443.162,129.686 440.662,124.686 "/>
+    </g>
+  </g>
+  <g>
+    <rect class="lightRed" x="12.7058" y="43.082" width="122.35" height="54"/>
+    <rect class="line" x="12.7058" y="43.082" width="122.35" height="54"/>
+    <text x="73.8808" y="66.882">
+      <tspan x="73.8808" y="66.882">Unconvigured /</tspan>
+      <tspan x="73.8808" y="82.882">reconfigure</tspan>
+    </text>
+  </g>
+</svg>
