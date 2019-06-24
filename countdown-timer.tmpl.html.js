@@ -260,7 +260,9 @@ class CountdownTimer extends HTMLElement {
 
   startPlaying () {
     console.log('start playing')
-    this.ticker = window.setInterval(this.getTickTock(), 1000)
+    const tickTock = this.getTickTock()
+    tickTock()
+    this.ticker = window.setInterval(tickTock, 1000)
     this.playPauseBtn.classList.add('playing')
     this.playPauseTxt.innerHTML = 'Pause '
     this.playPauseIcon.innerHTML = '&Verbar;'
