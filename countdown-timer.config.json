@@ -10,17 +10,15 @@
     "minutes": true,
     "30seconds": true,
     "last20": true,
-    "allLast10"
+    "allLast10": true
   },
-      "actionDescriptions": {
-        "Cancel": "go to default unconfigured state",
-        "Pause": "time stops decrementing timerRemaining",
-        "Play": "timer decrements timeRemaining",
-        "Reset": "set time remaining to initialValue (but do not start decrementing)",
-        "Start": "begin decrementing timer starting from initialValue",
-        "Start again": "set time remaining to initialValue and automatically start decrementing"
-      }
-    }
+  "actionDescriptions": {
+    "Cancel": "go to default unconfigured state",
+    "Pause": "time stops decrementing timerRemaining",
+    "Play": "timer decrements timeRemaining",
+    "Reset": "set time remaining to initialValue (but do not start decrementing)",
+    "Start": "begin decrementing timer starting from initialValue",
+    "Start again": "set time remaining to initialValue and automatically start decrementing"
   },
   "ready": {
     "notStarted": {
