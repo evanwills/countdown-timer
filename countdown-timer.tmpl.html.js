@@ -475,6 +475,21 @@ class CountdownTimer extends HTMLElement {
       return zero + Math.round(value) + colon + accumulate
     }, '')
   }
+
+  getResetClick () {
+    const resetClick = () => {
+    }
+  }
+
+  getRestartClick () {
+    const restartClick = () => {
+    }
+  }
+
+  getCloseClick () {
+    const closeClick = () => {
+    }
+  }
 }
 
 customElements.define('countdown-timer', CountdownTimer)
