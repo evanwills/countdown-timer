@@ -1,3 +1,6 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
 .hide {
   display: none;
 }
@@ -29,4 +32,7 @@
   align-items: baseline;
   font-size: 4rem;
   padding: 1.1rem 0.1rem 0;
+}
+countdown-timer {
+  display: block;
 }

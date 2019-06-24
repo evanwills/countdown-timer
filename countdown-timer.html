@@ -2,13 +2,13 @@
 <html>
 	<head>
 		<meta charset="utf8" />
-		<title>Countdown timer HTML</title>
+		<title>countdown-timer Custom element</title>
 		<link rel="stylesheet" type="text/css" href="countdown-timer.css" />
 	</head>
 	<body>
-		<h1>Count-down timer</h1>
+		<h1><code style="font-size:1.35em; padding-right: 0.5rem;">&lt;countdown-timer&gt;</code> Custom element</h1>
 
-
+		<!--
 		<div class="">
 			<form>
 				<fieldset>
@@ -117,7 +117,9 @@
 				</details>
 				<button type="submit">Set timer</button>
 			</form>
-		</div>
+		</div> -->
+
+		<countdown-timer start="01:10" playing="playing">Evan's timer</countdown-timer>
 
 		<template id="countdown-timer">
 			<div>
@@ -146,5 +148,6 @@
 			<button>Reset</button>
 		</template>
 
+		<script type="text/ecmascript" src="countdown-timer.tmpl.html.js"></script>
 	</body>
 </html>
