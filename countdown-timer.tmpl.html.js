@@ -143,6 +143,7 @@ class CountdownTimer extends HTMLElement {
           this.currentValue = this.initialStart
           window.clearInterval(this.ticker)
           this.numbers.classList.add('finished')
+          this.playPauseBtn.classList.add('finished')
         }
         this.numbers.innerHTML = this.currentValueToString(this.currentValue)
         this.progress.value = (1 - (this.currentSeconds / this.initialSeconds))
@@ -255,6 +256,9 @@ class CountdownTimer extends HTMLElement {
       }
       .playPauseBtn.playing .icon {
         transform: translateY(-0.05em);
+      }
+      .playPauseBtn.finished {
+        opacity: 0;
       }
       .restartBtn .icon {
         font-size: 1.5em;
@@ -474,6 +478,43 @@ class CountdownTimer extends HTMLElement {
       const colon = (accumulate === '') ? '' : ':'
       return zero + Math.round(value) + colon + accumulate
     }, '')
+  }
+
+  getTickTock () {
+    const tickTock = () => {
+      console.log('tickTock()')
+      console.log('this.currentSeconds:', this.currentSeconds)
+      this.currentSeconds -= 1
+
+      if (this.currentSeconds >= 0) {
+        if (this.currentValue[0] > 0) {
+          this.currentValue[0] -= 1
+        } else {
+          if (this.currentSeconds >= 59) {
+            this.currentValue[0] = 59
+            if (this.currentValue[1] > 0) {
+              this.currentValue[1] -= 1
+            } else {
+              if (this.currentSeconds >= 3599) {
+                this.currentValue[1] = 59
+                if (this.currentValue[2] > 0) {
+                  this.currentValue[2] -= 1
+                }
+              }
+            }
+          }
+        }
+      }
+      if (Math.floor(this.currentSeconds) === 0) {
+        this.currentValue = this.initialStart
+        window.clearInterval(this.ticker)
+        this.numbers.classList.add('finished')
+        this.playPauseBtn.classList.add('finished')
+      }
+      this.numbers.innerHTML = this.currentValueToString(this.currentValue)
+      this.progress.value = (1 - (this.currentSeconds / this.initialSeconds))
+    }
+    return tickTock
   }
 }
 
