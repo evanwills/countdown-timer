@@ -258,10 +258,14 @@ class CountdownTimer extends HTMLElement {
     return playPauseClick
   }
 
-  startPlaying () {
-    console.log('start playing')
+  startPlaying (noDelay) {
+    noDelay = (typeof noDelay !== 'boolean' || noDelay === true)
+
     const tickTock = this.getTickTock()
-    tickTock()
+    if (noDelay) {
+      tickTock()
+    }
+
     this.ticker = window.setInterval(tickTock, 1000)
     this.playPauseBtn.classList.add('playing')
     this.playPauseTxt.innerHTML = 'Pause '
@@ -270,7 +274,6 @@ class CountdownTimer extends HTMLElement {
   }
 
   pausePlaying () {
-    console.log('pausing')
     window.clearInterval(this.ticker)
     this.ticker = null
 
@@ -301,7 +304,7 @@ class CountdownTimer extends HTMLElement {
     const restartClick = () => {
       console.log('restart clicked')
       this.resetClick()
-      this.startPlaying()
+      this.startPlaying(false)
     }
 
     return restartClick
