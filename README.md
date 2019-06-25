@@ -51,22 +51,39 @@ By default all options are spoken
   Only speak minute intervals and countdown last 10 seconds
 </countdown-timer>
 
-<countdown-timer start="03:00" no-speak="quarters halfway last20">
-  Self destruct after 30 seconds
+<countdown-timer start="03:00" no-speak="quarters halfway last20 minutes">
+  Only speak thirds, 30 second intervals (when they're not thirds) and
+  last second announcements
 </countdown-timer>
 
 <countdown-timer start="03:00">
+  Speak all announcements
+</countdown-timer>
+
+<countdown-timer start="03:00" speak="">
+  Nothing in speak (i.e. empty whitelist)
+  Don't speak any announcments - Silent
 </countdown-timer>
 ```
+
+> __NOTE:__ When announcements overlap (e.g. 3 minute time with minutes and thirds) Minute announcements are spoken and fractions are skipped
 
 ### `auto-destruct`
 
 If `auto-destruct` is set, then the timer will remove itself thirty seconds after completion or as many seconds as the timer ran for (which ever is shorter).
 
 ``` HTML
-<countdown-timer start="03:00" auto-destruct>Self destruct after 30 seconds</countdown-timer>
-<countdown-timer start="03:00" auto-destruct="true">Self destruct after 30 seconds</countdown-timer>
-<countdown-timer start="03:00" auto-destruct="600">Self destruct after 10 minutes</countdown-timer>
+<countdown-timer start="03:00" auto-destruct>
+  Self destruct after 30 seconds
+</countdown-timer>
+
+<countdown-timer start="03:00" auto-destruct="true">
+  Self destruct after 30 seconds
+</countdown-timer>
+
+<countdown-timer start="03:00" auto-destruct="600">
+  Self destruct after 10 minutes
+</countdown-timer>
 ```
 
 > __NOTE:__ If `auto-destruct` has a numeric value, then that number will set the number of seconds, after which, the node will remove itself.
