@@ -9,6 +9,12 @@ class CountdownTimer extends HTMLElement {
 
     this.initialValue = [0, 0, 0]
     this.currentValue = []
+    this.initialSeconds = 0
+    this.currentSeconds = 0
+    this.initialMilliseconds = 0
+    this.currentMilliseconds = 0
+
+    this.adjustmentFactor = 1
 
     this.selfDestruct = false
     // this.noReconfigure = false
@@ -22,7 +28,6 @@ class CountdownTimer extends HTMLElement {
     this.restartBtn = null
     this.closeBtn = null
     this.numbers = null
-    this.ticker = null
     this.progressTicker = null
 
     let shadowRoot = this.attachShadow({ mode: 'open' })
@@ -55,7 +60,7 @@ class CountdownTimer extends HTMLElement {
       this.setTickTock()
       this.resetTimerValues()
 
-      this.adjustmentFactor = 1// - (1 / this.initialSeconds)
+      // this.adjustmentFactor = 1 - (1 / this.initialSeconds)
 
       this.inProgress = false
     }
@@ -149,12 +154,7 @@ class CountdownTimer extends HTMLElement {
   startPlaying (noDelay) {
     // noDelay = (typeof noDelay !== 'boolean' || noDelay === true)
 
-    // const tickTock = this.setTickTock()
-    // // if (noDelay) {
-    //   tickTock()
-    // // }
     this.setProgressTicker(20)
-    // this.ticker = window.setInterval(tickTock, 1000)
     this.playPauseBtn.classList.add('playing')
     this.playPauseTxt.innerHTML = 'Pause '
     this.playPauseIcon.innerHTML = '&Verbar;'
@@ -211,8 +211,8 @@ class CountdownTimer extends HTMLElement {
 
   getCloseClick () {
     const closeClick = (event) => {
-      if (this.ticker !== null) {
-        window.clearInterval(this.ticker)
+      if (this.progressTicker !== null) {
+        window.clearInterval(this.progressTicker)
       }
 
       this.playPauseBtn.removeEventListener('click', this.playPauseClick)
@@ -504,60 +504,58 @@ class CountdownTimer extends HTMLElement {
    *
    * @returns {function} callback function
    */
-  setTickTock () {
-    const tickTock = () => {
-      this.currentSeconds -= 1
+  tickTock () {
+    this.currentSeconds -= 1
 
-      if (this.currentSeconds >= 0) {
-        if (this.currentValue[0] > 0) {
-          this.currentValue[0] -= 1
-        } else {
-          if (this.currentSeconds >= 59) {
-            this.currentValue[0] = 59
-            if (this.currentValue[1] > 0) {
-              this.currentValue[1] -= 1
-            } else {
-              if (this.currentSeconds >= 3599) {
-                this.currentValue[1] = 59
-                if (this.currentValue[2] > 0) {
-                  this.currentValue[2] -= 1
-                }
+    if (this.currentSeconds >= 0) {
+      if (this.currentValue[0] > 0) {
+        this.currentValue[0] -= 1
+      } else {
+        if (this.currentSeconds >= 59) {
+          this.currentValue[0] = 59
+          if (this.currentValue[1] > 0) {
+            this.currentValue[1] -= 1
+          } else {
+            if (this.currentSeconds >= 3599) {
+              this.currentValue[1] = 59
+              if (this.currentValue[2] > 0) {
+                this.currentValue[2] -= 1
               }
             }
           }
         }
       }
-      this.numbers.innerHTML = this.currentValueToString(this.currentValue)
     }
-    this.ticker = tickTock
+
+    this.numbers.innerHTML = this.currentValueToString(this.currentValue)
   }
 
   /**
+   * setProgressTicker()
    *
-   * @param {integer} interval number of miliseconds the interval
+   * @param {integer} interval number of Milliseconds the interval
    *                 should be between when the progress bar is
    *                 updated.
    * @returns {void}
    */
   setProgressTicker (interval) {
     const progressTickTock = () => {
-      this.currentMiliSeconds -= (interval + 1)
+      this.currentMilliseconds -= (interval + 1)
       let tmp = new Promise((resolve, reject) => {
-        this.progress.value = (1 - (this.currentMiliSeconds / this.initialMiliSeconds))
-        // console.log('(currentMiliSeconds / 1000):', (this.currentMiliSeconds / 1000))
-        if (Math.floor(this.currentMiliSeconds) < 0) {
+        this.progress.value = (1 - (this.currentMilliseconds / this.initialMilliseconds))
+        // console.log('(currentMilliseconds / 1000):', (this.currentMilliseconds / 1000))
+        if (Math.floor(this.currentMilliseconds) < 0) {
           this.resetTickTock()
 
           this.numbers.classList.add('finished')
           this.playPauseBtn.classList.add('finished')
         }
       })
-      // if (this.currentMiliSeconds > ((this.currentSeconds - 1) * 1000)) {
-      if (this.currentMiliSeconds < ((this.currentSeconds * 1000) * this.adjustmentFactor)) {
-        let tpm = new Promise((resolve, reject) => { this.ticker() })
+      // if (this.currentMilliseconds > ((this.currentSeconds - 1) * 1000)) {
+      if ((this.currentMilliseconds * this.adjustmentFactor) < (this.currentSeconds * 1000)) {
+        let tpm = new Promise((resolve, reject) => { this.tickTock() })
       }
     }
-    this.ticker()
     this.progressTicker = setInterval(progressTickTock, interval)
   }
 
@@ -657,8 +655,8 @@ class CountdownTimer extends HTMLElement {
         this.resetTimerValues()
         this.initialSeconds = tmpValue
         this.currentSeconds = tmpValue
-        this.initialMiliSeconds = tmpValue * 1000
-        this.currentMiliSeconds = tmpValue * 1000
+        this.initialMilliseconds = tmpValue * 1000
+        this.currentMilliseconds = tmpValue * 1000
         this.fields = tmpStart.length
         return true
       }
@@ -694,7 +692,7 @@ class CountdownTimer extends HTMLElement {
   resetTimerValues () {
     this.currentValue = this.initialValue.map(value => value)
     this.currentSeconds = this.initialSeconds
-    this.currentMiliSeconds = (this.initialSeconds) * 1000
+    this.currentMilliseconds = this.initialSeconds * 1000
     this.resetTickTock()
   }
 
@@ -725,9 +723,9 @@ class CountdownTimer extends HTMLElement {
    */
   speakAfterSeconds (text, seconds) {
     const speakAfterSecondsCallback = async () => {
-      const miliSeconds = seconds * 1000
+      const Milliseconds = seconds * 1000
       // SpeechSynthesis.speak(text)
-      window.setTimeout(text, miliSeconds)
+      window.setTimeout(text, Milliseconds)
     }
     return speakAfterSecondsCallback
   }
