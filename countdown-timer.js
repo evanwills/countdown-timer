@@ -7,7 +7,7 @@ class CountdownTimer extends HTMLElement {
   constructor () {
     super()
 
-    this.initialStart = [0, 0, 0]
+    this.initialValue = [0, 0, 0]
     this.currentValue = []
 
     this.selfDestruct = false
@@ -23,6 +23,7 @@ class CountdownTimer extends HTMLElement {
     this.closeBtn = null
     this.numbers = null
     this.ticker = null
+    this.progressTicker = null
 
     let shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(this.getDOM())
@@ -32,8 +33,45 @@ class CountdownTimer extends HTMLElement {
     return ['start', 'playing']
   }
 
+  // ======================================================
+  // START: standard custom element callbacks
+
+  connectedCallback () {
+    if (this.hasAttribute('start') && this.validateStart(this.getAttribute('start'))) {
+      this.numbers.innerHTML = this.currentValueToString(this.initialValue)
+
+      this.playPauseClick = this.getPlayPauseClick()
+      this.playPauseBtn.addEventListener('click', this.playPauseClick)
+
+      this.resetClick = this.getResetClick()
+      this.resetBtn.addEventListener('click', this.resetClick)
+
+      this.restartClick = this.getRestartClick()
+      this.restartBtn.addEventListener('click', this.restartClick)
+
+      this.closeClick = this.getCloseClick()
+      this.closeBtn.addEventListener('click', this.closeClick)
+
+      this.setTickTock()
+      this.resetTimerValues()
+
+      this.adjustmentFactor = 1// - (1 / this.initialSeconds)
+
+      this.inProgress = false
+    }
+  }
+
+  disconnectedCallback () {
+    this.playPauseBtn.removeEventListener('click', this.playPauseClick)
+    this.closeBtn.removeEventListener('click', this.closeClick)
+  }
+
+  //  END:  standard custom element callbacks
+  // ======================================================
+  // START: getters & setters
+
   get start () {
-    return this.initialStart.reduce((accumulate, value) => {
+    return this.initialValue.reduce((accumulate, value) => {
       const zero = (value < 10) ? '0' : ''
       const colon = (accumulate === '') ? '' : ':'
       return zero + Math.round(value) + colon + accumulate
@@ -64,196 +102,71 @@ class CountdownTimer extends HTMLElement {
     }
   }
 
-  get autoDestruct () {
+  get autodestruct () {
 
   }
 
-  connectedCallback () {
-    if (this.hasAttribute('start') && this.validateStart(this.getAttribute('start'))) {
-      this.numbers.innerHTML = this.currentValueToString(this.initialStart)
-
-      this.playPauseClick = this.getPlayPauseClick()
-      this.playPauseBtn.addEventListener('click', this.playPauseClick)
-
-      this.resetClick = this.getResetClick()
-      this.resetBtn.addEventListener('click', this.resetClick)
-
-      this.restartClick = this.getRestartClick()
-      this.restartBtn.addEventListener('click', this.restartClick)
-
-      this.closeClick = this.getCloseClick()
-      this.closeBtn.addEventListener('click', this.closeClick)
-    }
-  }
-
-  disconnectedCallback () {
-    this.playPauseBtn.removeEventListener('click', this.playPauseClick)
-    this.closeBtn.removeEventListener('click', this.closeClick)
-  }
-
-  playPause (event) {
+  set autodestruct (val) {
 
   }
 
-  getDOM () {
-    const wrap = document.createElement('div')
-    wrap.setAttribute('class', 'countdownTimer-wrapper')
+  get nospeak () {
 
-    const css = this.initStyle()
-    const style = document.createElement('style')
-    style.appendChild(css)
-
-    const h1 = document.createElement('h1')
-    const slot = document.createElement('slot')
-    h1.appendChild(slot)
-    wrap.appendChild(h1)
-
-    const progress = document.createElement('progress')
-    progress.setAttribute('max', 1)
-    progress.setAttribute('value', 0)
-    wrap.appendChild(progress)
-    this.progress = progress
-
-    const numbers = document.createElement('span')
-    numbers.setAttribute('class', 'timer-text')
-    // numbers.appendChild(document.createTextNode(startTime))
-    wrap.appendChild(numbers)
-
-    this.numbers = numbers
-
-    wrap.appendChild(this.initMainBtns())
-    wrap.appendChild(this.initCloseBtn())
-    wrap.appendChild(style)
-
-    return wrap
   }
 
-  onlyGreaterThanZero (currentValue) {
-    let tmpValue = [currentValue[0]]
+  set nospeak (val) {
 
-    const useMinutes = (typeof currentValue[1] === 'number' && currentValue[1] > 0)
-    const useHours = (typeof currentValue[2] === 'number' && currentValue[2] > 0)
-
-    if (useHours === true) {
-      tmpValue.push(currentValue[1])
-      tmpValue.push(currentValue[2])
-    } else if (useMinutes === true) {
-      tmpValue.push(currentValue[1])
-    }
-
-    return tmpValue
   }
 
-  validateStart (hoursMinutesSeconds) {
-    const regex = new RegExp('^(?:(?:(?:([0-1][0-9]|2[0-4]):)?([0-5][0-9]):)?([0-5][0-9])|([6-9][0-9]|[1-9][0-9]{2,5}))$')
+  get speak () {
 
-    if (typeof hoursMinutesSeconds === 'string') {
-      let tmpStart = []
-      let tmpValue = 0
-      const matches = regex.exec(hoursMinutesSeconds)
-      const len = matches.length
-      if (len === 5 && typeof matches[4] !== 'undefined') {
-        let seconds = matches[4] * 1
-
-        if (seconds >= 86400) {
-          // limit the maximum duration of the timer to 24 hours
-          // (minus 1 second)
-          seconds = 86399
-        }
-
-        tmpValue = seconds
-
-        let hours = Math.floor(seconds / 3600)
-        seconds -= hours * 3600
-        let minutes = Math.floor(seconds / 60)
-        seconds -= minutes * 60
-
-        this.initialStart = this.onlyGreaterThanZero([seconds, minutes, hours])
-        this.resetCurrentValue()
-        this.initialSeconds = seconds
-        this.currentSeconds = seconds
-      } else if (len > 0) {
-        // seconds is always the last value
-        tmpValue += matches[3] * 1
-        tmpStart.push(matches[3] * 1)
-
-        if (matches[2] !== '' && typeof matches[2] !== 'undefined') {
-          // minutes is always the second value (if present)
-          tmpValue += matches[2] * 60
-          tmpStart.push(matches[2] * 1)
-        } else {
-          tmpStart.push(0)
-        }
-
-        if (matches[1] !== '' && typeof matches[1] !== 'undefined') {
-          // hours is always the first value (if present)
-          tmpValue += matches[1] * 3600
-          tmpStart.push(matches[1] * 1)
-        } else {
-          tmpStart.push(0)
-        }
-      }
-
-      if (tmpValue === 0) {
-        console.error('countdown-timer must have a start value matching the following one of the following patterns: "SS", "MM:SS" or "HH:MM:SS". "' + hoursMinutesSeconds + '" does not match any of these patterns.')
-        return false
-      } else {
-        this.initialStart = this.onlyGreaterThanZero(tmpStart)
-        this.resetCurrentValue()
-        this.initialSeconds = tmpValue
-        this.currentSeconds = tmpValue
-        this.fields = tmpStart.length
-        return true
-      }
-    } else {
-      console.error('countdown-timer must have a start value matching the following one of the following patterns: "SS", "MM:SS" or "HH:MM:SS". Empty string provided.')
-      return false
-    }
   }
 
-  currentValueToString (currentValue) {
-    return currentValue.reduce((accumulate, value) => {
-      const zero = (value < 10) ? '0' : ''
-      const colon = (accumulate === '') ? '' : ':'
-      return zero + Math.round(value) + colon + accumulate
-    }, '')
+  set speak (val) {
+
   }
 
-  getTickTock () {
-    const tickTock = () => {
-      console.log('tickTock()')
-      console.log('this.currentSeconds:', this.currentSeconds)
-      this.currentSeconds -= 1
+  get norestart () {
 
-      if (this.currentSeconds >= 0) {
-        if (this.currentValue[0] > 0) {
-          this.currentValue[0] -= 1
-        } else {
-          if (this.currentSeconds >= 59) {
-            this.currentValue[0] = 59
-            if (this.currentValue[1] > 0) {
-              this.currentValue[1] -= 1
-            } else {
-              if (this.currentSeconds >= 3599) {
-                this.currentValue[1] = 59
-                if (this.currentValue[2] > 0) {
-                  this.currentValue[2] -= 1
-                }
-              }
-            }
-          }
-        }
-      }
-      if (Math.floor(this.currentSeconds) === 0) {
-        this.resetCurrentValue()
-        window.clearInterval(this.ticker)
-        this.numbers.classList.add('finished')
-        this.playPauseBtn.classList.add('finished')
-      }
-      this.numbers.innerHTML = this.currentValueToString(this.currentValue)
-      this.progress.value = (1 - (this.currentSeconds / this.initialSeconds))
-    }
-    return tickTock
+  }
+
+  set norestart (val) {
+
+  }
+
+  get noreset () {
+    return this.noReset
+  }
+
+  set noreset (val) {
+
+  }
+
+  //  END:  getters & setters
+  // ======================================================
+  // START: click handlers
+
+  startPlaying (noDelay) {
+    // noDelay = (typeof noDelay !== 'boolean' || noDelay === true)
+
+    // const tickTock = this.setTickTock()
+    // // if (noDelay) {
+    //   tickTock()
+    // // }
+    this.setProgressTicker(20)
+    // this.ticker = window.setInterval(tickTock, 1000)
+    this.playPauseBtn.classList.add('playing')
+    this.playPauseTxt.innerHTML = 'Pause '
+    this.playPauseIcon.innerHTML = '&Verbar;'
+    this.play = true
+  }
+
+  pausePlaying () {
+    this.resetTickTock()
+    this.playPauseBtn.classList.remove('playing')
+    this.playPauseTxt.innerHTML = 'Play '
+    this.playPauseIcon.innerHTML = '&bigtriangledown;'
+    this.play = false
   }
 
   getPlayPauseClick () {
@@ -270,37 +183,11 @@ class CountdownTimer extends HTMLElement {
     return playPauseClick
   }
 
-  startPlaying (noDelay) {
-    noDelay = (typeof noDelay !== 'boolean' || noDelay === true)
-
-    const tickTock = this.getTickTock()
-    if (noDelay) {
-      tickTock()
-    }
-
-    this.ticker = window.setInterval(tickTock, 1000)
-    this.playPauseBtn.classList.add('playing')
-    this.playPauseTxt.innerHTML = 'Pause '
-    this.playPauseIcon.innerHTML = '&Verbar;'
-    this.play = true
-  }
-
-  pausePlaying () {
-    window.clearInterval(this.ticker)
-    this.ticker = null
-
-    this.playPauseBtn.classList.remove('playing')
-    this.playPauseTxt.innerHTML = 'Play '
-    this.playPauseIcon.innerHTML = '&bigtriangledown;'
-    this.play = false
-  }
-
   getResetClick () {
     const resetClick = () => {
       console.log('reset clicked')
       this.pausePlaying()
-      this.currentSeconds = this.initialSeconds
-      this.resetCurrentValue()
+      this.resetTimerValues()
       this.numbers.innerHTML = this.currentValueToString(this.currentValue)
       this.progress.value = (0)
       this.playPauseTxt.innerHTML = 'Start '
@@ -338,8 +225,58 @@ class CountdownTimer extends HTMLElement {
     return closeClick
   }
 
-  resetCurrentValue () {
-    this.currentValue = this.initialStart.map(value => value)
+  //  END:  click handlers
+  // ======================================================
+  // START: DOM builders
+
+  /**
+   * getDOM builds the shadow DOM for the custom element
+   *
+   * Creates the following nodes:
+   * 1. wrapping div used as the shell of the element
+   * 2. a style element with all the CSS for the element
+   * 3. the heading containing the user supplied content for the
+   *    title of the timer
+   * 4. the progress bar to show where the timer is at visually
+   * 5. a span containing the numbers for the textual representation
+   *    of the timer's progress
+   * 6. a wrapping div containing the buttons for
+   *    * pause/play
+   *    * restart ("Start again")
+   *    * reset
+   * 7. a close button to dismis the timer
+   */
+  getDOM () {
+    const wrap = document.createElement('div')
+    wrap.setAttribute('class', 'countdownTimer-wrapper')
+
+    const css = this.initStyle()
+    const style = document.createElement('style')
+    style.appendChild(css)
+
+    const h1 = document.createElement('h1')
+    const slot = document.createElement('slot')
+    h1.appendChild(slot)
+    wrap.appendChild(h1)
+
+    const progress = document.createElement('progress')
+    progress.setAttribute('max', 1)
+    progress.setAttribute('value', 0)
+    wrap.appendChild(progress)
+    this.progress = progress
+
+    const numbers = document.createElement('span')
+    numbers.setAttribute('class', 'timer-text')
+    // numbers.appendChild(document.createTextNode(startTime))
+    wrap.appendChild(numbers)
+
+    this.numbers = numbers
+
+    wrap.appendChild(this.initMainBtns())
+    wrap.appendChild(this.initCloseBtn())
+    wrap.appendChild(style)
+
+    return wrap
   }
 
   initCloseBtn () {
@@ -367,9 +304,9 @@ class CountdownTimer extends HTMLElement {
    * initMainBtns() builds three buttons and wraps them in a <div>
    *
    * Buttons are:
-   *   * pausePlay used to control the countdown timing process
-   *   * restart used to trigger a reset, play action
-   *   * reset used to trigger a stop, reset action
+   *   * pausePlay - used to control the countdown timing process
+   *   * restart - used to trigger a reset, play action
+   *   * reset - used to trigger a stop, reset action
    *
    * @returns {DOMnode}
    */
@@ -554,6 +491,229 @@ class CountdownTimer extends HTMLElement {
     )
   }
 
+  //  END:  DOM builders
+  // ======================================================
+  // START: timer callbacks
+
+  /**
+   * setTickTock() returns a callback function to be passed to
+   * `window.setInterval()` or `window.clearInterval()`
+   *
+   * The callback handles updating the textual representation of the
+   * time remaining in the countdown
+   *
+   * @returns {function} callback function
+   */
+  setTickTock () {
+    const tickTock = () => {
+      this.currentSeconds -= 1
+
+      if (this.currentSeconds >= 0) {
+        if (this.currentValue[0] > 0) {
+          this.currentValue[0] -= 1
+        } else {
+          if (this.currentSeconds >= 59) {
+            this.currentValue[0] = 59
+            if (this.currentValue[1] > 0) {
+              this.currentValue[1] -= 1
+            } else {
+              if (this.currentSeconds >= 3599) {
+                this.currentValue[1] = 59
+                if (this.currentValue[2] > 0) {
+                  this.currentValue[2] -= 1
+                }
+              }
+            }
+          }
+        }
+      }
+      this.numbers.innerHTML = this.currentValueToString(this.currentValue)
+    }
+    this.ticker = tickTock
+  }
+
+  /**
+   *
+   * @param {integer} interval number of miliseconds the interval
+   *                 should be between when the progress bar is
+   *                 updated.
+   * @returns {void}
+   */
+  setProgressTicker (interval) {
+    const progressTickTock = () => {
+      this.currentMiliSeconds -= (interval + 1)
+      let tmp = new Promise((resolve, reject) => {
+        this.progress.value = (1 - (this.currentMiliSeconds / this.initialMiliSeconds))
+        // console.log('(currentMiliSeconds / 1000):', (this.currentMiliSeconds / 1000))
+        if (Math.floor(this.currentMiliSeconds) < 0) {
+          this.resetTickTock()
+
+          this.numbers.classList.add('finished')
+          this.playPauseBtn.classList.add('finished')
+        }
+      })
+      // if (this.currentMiliSeconds > ((this.currentSeconds - 1) * 1000)) {
+      if (this.currentMiliSeconds < ((this.currentSeconds * 1000) * this.adjustmentFactor)) {
+        let tpm = new Promise((resolve, reject) => { this.ticker() })
+      }
+    }
+    this.ticker()
+    this.progressTicker = setInterval(progressTickTock, interval)
+  }
+
+  //  END:  timer callbacks
+  // ======================================================
+  // START: utility methods
+
+  /**
+   * onlyGreaterThanZero() ensures that the most significant number
+   * is non-zero
+   *
+   * @param {array} currentValue containing seconds, minutes & hours
+   *                representing the timer's duration
+   * @returns {array}
+   */
+  onlyGreaterThanZero (currentValue) {
+    let tmpValue = [currentValue[0]]
+
+    if (typeof currentValue[2] === 'number' && currentValue[2] > 0) {
+      tmpValue.push(currentValue[1])
+      tmpValue.push(currentValue[2])
+    } else if (typeof currentValue[1] === 'number' && currentValue[1] > 0) {
+      tmpValue.push(currentValue[1])
+    }
+
+    return tmpValue
+  }
+
+  /**
+   * validateStart() validates the value of the element's `start`
+   * attribute
+   *
+   * __NOTE:__ the parsed value of `start` must be less than 24 hours
+   *
+   * __NOTE ALSO:__ this method also assignes parsed values to object
+   *       properties
+   *
+   * @param {string} hoursMinutesSeconds the string value of the
+   *                 element's `start` attribute
+   * @returns {void}
+   */
+  validateStart (hoursMinutesSeconds) {
+    const regex = new RegExp('^(?:(?:(?:([0-1][0-9]|2[0-4]):)?([0-5][0-9]):)?([0-5][0-9])|([6-9][0-9]|[1-9][0-9]{2,5}))$')
+
+    if (typeof hoursMinutesSeconds === 'string') {
+      let tmpStart = []
+      let tmpValue = 0
+      const matches = regex.exec(hoursMinutesSeconds)
+      const len = matches.length
+      if (len === 5 && typeof matches[4] !== 'undefined') {
+        let seconds = matches[4] * 1
+
+        if (seconds >= 86400) {
+          // limit the maximum duration of the timer to 24 hours
+          // (minus 1 second)
+          seconds = 86399
+        }
+
+        tmpValue = seconds
+
+        let hours = Math.floor(seconds / 3600)
+        seconds -= hours * 3600
+        let minutes = Math.floor(seconds / 60)
+        seconds -= minutes * 60
+
+        this.initialValue = this.onlyGreaterThanZero([seconds, minutes, hours])
+        this.resetTimerValues()
+        this.initialSeconds = seconds
+        this.currentSeconds = seconds
+      } else if (len > 0) {
+        // seconds is always the last value
+        tmpValue += matches[3] * 1
+        tmpStart.push(matches[3] * 1)
+
+        if (matches[2] !== '' && typeof matches[2] !== 'undefined') {
+          // minutes is always the second value (if present)
+          tmpValue += matches[2] * 60
+          tmpStart.push(matches[2] * 1)
+        } else {
+          tmpStart.push(0)
+        }
+
+        if (matches[1] !== '' && typeof matches[1] !== 'undefined') {
+          // hours is always the first value (if present)
+          tmpValue += matches[1] * 3600
+          tmpStart.push(matches[1] * 1)
+        } else {
+          tmpStart.push(0)
+        }
+      }
+
+      if (tmpValue === 0) {
+        console.error('countdown-timer must have a start value matching the following one of the following patterns: "SS", "MM:SS" or "HH:MM:SS". "' + hoursMinutesSeconds + '" does not match any of these patterns.')
+        return false
+      } else {
+        this.initialValue = this.onlyGreaterThanZero(tmpStart)
+        this.resetTimerValues()
+        this.initialSeconds = tmpValue
+        this.currentSeconds = tmpValue
+        this.initialMiliSeconds = tmpValue * 1000
+        this.currentMiliSeconds = tmpValue * 1000
+        this.fields = tmpStart.length
+        return true
+      }
+    } else {
+      console.error('countdown-timer must have a start value matching the following one of the following patterns: "SS", "MM:SS" or "HH:MM:SS". Empty string provided.')
+      return false
+    }
+  }
+
+  /**
+   * currentValueToString() converts the current time remaining for
+   * the countdown into a human readable string
+   * @param {array} currentValue seconds, minutes and hours value
+   *                representing the timer remaining for the timer.
+   * @returns {string} has the following structure "SS", "MM:SS" or
+   *                "HH:MM:SS" depending on the value of the `start`
+   *                attribute
+   */
+  currentValueToString (currentValue) {
+    return currentValue.reduce((accumulate, value) => {
+      const zero = (value < 10) ? '0' : ''
+      const colon = (accumulate === '') ? '' : ':'
+      return zero + Math.round(value) + colon + accumulate
+    }, '')
+  }
+
+  /**
+   * resetTimerValues() resets all the timer values to their original
+   * state then clears the interval timers
+   *
+   * @returns {void}
+   */
+  resetTimerValues () {
+    this.currentValue = this.initialValue.map(value => value)
+    this.currentSeconds = this.initialSeconds
+    this.currentMiliSeconds = (this.initialSeconds) * 1000
+    this.resetTickTock()
+  }
+
+  /**
+   * resetTickTock() clears interval timers and resets the
+   * timer IDs to null
+   *
+   * @returns {void}
+   */
+  resetTickTock () {
+    window.clearInterval(this.progressTicker)
+
+    this.progressTicker = null
+  }
+
+  //  END:  utility methods
+  // ======================================================
+  // START: speak aloud methods
+
   /**
    * speakAfterSeconds() uses the Web Speech API's Speech Synthisis
    * interface to announce time intervals for the countdown-timer
@@ -564,12 +724,12 @@ class CountdownTimer extends HTMLElement {
    * @returns {Promise}
    */
   speakAfterSeconds (text, seconds) {
-    const callback = async () => {
+    const speakAfterSecondsCallback = async () => {
       const miliSeconds = seconds * 1000
       // SpeechSynthesis.speak(text)
       window.setTimeout(text, miliSeconds)
     }
-    return
+    return speakAfterSecondsCallback
   }
 
   /**
@@ -600,6 +760,9 @@ class CountdownTimer extends HTMLElement {
   speakIntervalAfterSeconds (text, interval, seconds) {
 
   }
+
+  //  END:  speak aloud methods
+  // ======================================================
 }
 
 customElements.define('countdown-timer', CountdownTimer)
