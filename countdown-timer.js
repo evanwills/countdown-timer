@@ -1,3 +1,4 @@
+
 // references:
 //   https://developers.google.com/web/fundamentals/web-components/customelements
 //  https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
@@ -10,8 +11,11 @@ class CountdownTimer extends HTMLElement {
     this.currentValue = []
 
     this.selfDestruct = false
-    this.noReconfigure = false
-    this.restartOnReset = true
+    // this.noReconfigure = false
+    // this.restartOnReset = true
+    this.autoDestruct = 0
+    this.noReset = false
+    this.noRestart = false
     this.play = false
     this.playPauseBtn = null
     this.resetBtn = null
@@ -41,14 +45,22 @@ class CountdownTimer extends HTMLElement {
   }
 
   get playing () {
-    return this.hasAttribute('playing')
+    return this.playing
   }
 
   set playing (val) {
     if (val) {
       this.setAttribute('playing', 'playing')
+      if (!this.playing) {
+        this.startPlaying()
+      }
+      this.playing = true
     } else {
       this.removeAttribute('playing')
+      if (this.playing) {
+        this.pausePlaying()
+      }
+      this.playing = false
     }
   }
 
@@ -351,6 +363,16 @@ class CountdownTimer extends HTMLElement {
     return close
   }
 
+  /**
+   * initMainBtns() builds three buttons and wraps them in a <div>
+   *
+   * Buttons are:
+   *   * pausePlay used to control the countdown timing process
+   *   * restart used to trigger a reset, play action
+   *   * reset used to trigger a stop, reset action
+   *
+   * @returns {DOMnode}
+   */
   initMainBtns () {
     const btnWrap = document.createElement('div')
     btnWrap.setAttribute('class', 'wrapper')
@@ -377,7 +399,6 @@ class CountdownTimer extends HTMLElement {
     restart.appendChild(document.createTextNode('Start again '))
     restart.appendChild(restartIcon)
 
-
     const resetIcon = document.createElement('span')
     resetIcon.setAttribute('class', 'non-sr icon')
     resetIcon.innerHTML = '&hookleftarrow;'
@@ -400,6 +421,12 @@ class CountdownTimer extends HTMLElement {
     return btnWrap
   }
 
+  /**
+   * initStyle() returns block of CSS for styling the <countdown-timer>
+   * element's shadow DOM
+   *
+   * @returns {textNode} CSS string
+   */
   initStyle () {
     return document.createTextNode(`
       :root {
@@ -525,6 +552,53 @@ class CountdownTimer extends HTMLElement {
         color: #fff;
       }`
     )
+  }
+
+  /**
+   * speakAfterSeconds() uses the Web Speech API's Speech Synthisis
+   * interface to announce time intervals for the countdown-timer
+   *
+   * @param {string} text Information to be spoken
+   * @param {number} seconds time before the text is to be spoken.
+   *
+   * @returns {Promise}
+   */
+  speakAfterSeconds (text, seconds) {
+    const callback = async () => {
+      const miliSeconds = seconds * 1000
+      // SpeechSynthesis.speak(text)
+      window.setTimeout(text, miliSeconds)
+    }
+    return
+  }
+
+  /**
+   * speakInterval() uses the Web Speech API's Speech Synthisis
+   * interface to announce time intervals at a fixed interval
+   *
+   * @param {string} text Information to be spoken
+   * @param {number} interval number of seconds for the interval
+   *                 between when last text was spoken and when the
+   *                 next speeking commences
+   *
+   * @returns {Promise}
+   */
+  speakInterval (text, interval) {
+
+  }
+
+  /**
+   * speakIntervalAfterSeconds() uses the Web Speech API's Speech
+   * Synthisis interface to announce time intervals at a fixed
+   * interval starting after a specified number of seconds
+   *
+   * @param {string} text Information to be spoken
+   * @param {number} seconds time before the text is to be spoken.
+   *
+   * @returns {Promise}
+   */
+  speakIntervalAfterSeconds (text, interval, seconds) {
+
   }
 }
 
