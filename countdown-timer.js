@@ -543,9 +543,10 @@ class CountdownTimer extends HTMLElement {
       this.currentMilliseconds -= (interval + 1)
       let tmp = new Promise((resolve, reject) => {
         this.progress.value = (1 - (this.currentMilliseconds / this.initialMilliseconds))
-        // console.log('(currentMilliseconds / 1000):', (this.currentMilliseconds / 1000))
+
         if (Math.floor(this.currentMilliseconds) < 0) {
           this.resetTickTock()
+          this.endSound()
 
           this.numbers.classList.add('finished')
           this.playPauseBtn.classList.add('finished')
@@ -757,6 +758,62 @@ class CountdownTimer extends HTMLElement {
    */
   speakIntervalAfterSeconds (text, interval, seconds) {
 
+  }
+
+  endSound () {
+    /**
+     * @var {number} duration the length of time (in seconds) a
+     *               sound makes
+     */
+    const durationTime = 0.75
+    /**
+     * @var {number} interval the number of seconds between sounds
+     *               starting
+     */
+    const interval = 0.5
+    /**
+     * @var {number} ramp no idea what this is for. See MDN docs
+     * https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/exponentialRampToValueAtTime
+     */
+    const ramp = 0.00001
+    /**
+     * @var {array} tones list of frequencies to be played
+     */
+    const tones = [440, 261.6, 830.6, 440, 261.6, 830.6, 392, 440, 261.6, 830.6, 440, 261.6, 830.6, 392]
+
+    /**
+     * @var {number} offset number of milliseconds from calling the
+     *               sound is to start playing
+     */
+    let offset = 0
+
+    var context = new AudioContext()
+
+    function playTone (frequency, duration, offset) {
+      return function (resolve, reject) {
+        var oscillator = context.createOscillator()
+        var gain = context.createGain()
+
+        oscillator.connect(gain)
+
+        gain.connect(context.destination)
+        gain.gain.exponentialRampToValueAtTime(
+          ramp,
+          context.currentTime + duration
+        )
+
+        oscillator.frequency.value = frequency
+        oscillator.start(0)
+      }
+    }
+
+    for (let a = 0; a < tones.length; a += 1) {
+      let tmp = new Promise(function (resolve, reject) {
+        const toneFunc = playTone(tones[a], durationTime, offset)
+        window.setTimeout(toneFunc, offset)
+      })
+      offset += (interval * 1000)
+    }
   }
 
   //  END:  speak aloud methods
