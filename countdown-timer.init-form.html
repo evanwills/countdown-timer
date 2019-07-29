@@ -32,6 +32,14 @@
 						</span>
 					</p>
 				</fieldset>
+				<p>
+					<label for="timerTitle">Timer label</label>
+					<input type="text" name="timerTitle" id="timerTitle" value="" placeholder="My anoying timer" />
+				</p>
+				<input type="checkbox" value="new" id="newTimer" name="newTimer" />
+				<label for="newTimer" >
+					Create new timer
+				</label>
 				<details>
 					<summary>Advanced settings</summary>
 					<p>
@@ -44,7 +52,7 @@
 						<label for="displayMode">Visual timer display mode:</label>
 						<select id="displayMode" name="displayMode">
 							<option value="pie">Pie chart</option>
-							<option value="bar">Progress bar</option>
+							<option value="bar" selected="selected">Progress bar</option>
 						</select>
 					</p>
 					<p>

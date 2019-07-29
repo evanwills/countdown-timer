@@ -541,7 +541,8 @@ class CountdownTimer extends HTMLElement {
    */
   setProgressTicker (interval) {
     const progressTickTock = () => {
-      this.currentMilliseconds -= (interval + 1)
+      // this.currentMilliseconds -= (interval + 1)
+      this.currentMilliseconds -= interval
       let tmp = new Promise((resolve, reject) => {
         this.progress.value = (1 - (this.currentMilliseconds / this.initialMilliseconds))
 
@@ -723,12 +724,14 @@ class CountdownTimer extends HTMLElement {
 
   saySomething (text) {
     const sayThis = new SpeechSynthesisUtterance(text)
-    const voiceName = 'English (Australia)';
+    const voiceName = 'English (Australia)'
 
-    sayThis.volume = 1;
-    sayThis.rate = 1;
-    sayThis.pitch = 1;
-    sayThis.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == voiceName; })[0];
+    sayThis.volume = 1
+    sayThis.rate = 1
+    sayThis.pitch = 1
+    sayThis.voice = speechSynthesis.getVoices().filter(function (voice) {
+      return voice.name === voiceName
+    })[0]
 
     this.voice.speak(sayThis)
   }

@@ -4,10 +4,10 @@ if ('speechSynthesis' in window) {
   // the queue.
   function speak(text, voiceName, volume, rate, pitch) {
     // Create a new instance of SpeechSynthesisUtterance.
-    var msg = new SpeechSynthesisUtterance();
-  
+    var msg = new SpeechSynthesisUtterance()
+
     // Set the text.
-    msg.text = text;
+    msg.text = text
 
     voiceName = (typeof voiceName != 'string') ? voiceName : 'English (Australia)';
     volume = (typeof volume === 'number' && volume >= 0 && volume <= 1) ? volume : 1;
@@ -18,13 +18,13 @@ if ('speechSynthesis' in window) {
     msg.volume = parseFloat(volume);
     msg.rate = parseFloat(rate);
     msg.pitch = parseFloat(pitchInput.value);
-  
+
     // If a voice has been selected, find the voice and set the
     // utterance instance's voice attribute.
     if (voiceName) {
       msg.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == voiceName; })[0];
     }
-  
+
   // Queue this utterance.
     window.speechSynthesis.speak(msg);
   }
