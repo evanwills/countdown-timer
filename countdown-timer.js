@@ -504,7 +504,7 @@ class CountdownTimer extends HTMLElement {
    *
    * @returns {function} callback function
    */
-  tickTock () {
+  setTickTock () {
     this.currentSeconds -= 1
 
     if (this.currentSeconds >= 0) {
@@ -554,7 +554,7 @@ class CountdownTimer extends HTMLElement {
       })
       // if (this.currentMilliseconds > ((this.currentSeconds - 1) * 1000)) {
       if ((this.currentMilliseconds * this.adjustmentFactor) < (this.currentSeconds * 1000)) {
-        let tpm = new Promise((resolve, reject) => { this.tickTock() })
+        let tpm = new Promise((resolve, reject) => { this.setTickTock() })
       }
     }
     this.progressTicker = setInterval(progressTickTock, interval)
@@ -599,52 +599,56 @@ class CountdownTimer extends HTMLElement {
    * @returns {void}
    */
   validateStart (hoursMinutesSeconds) {
-    const regex = new RegExp('^(?:(?:(?:([0-1][0-9]|2[0-4]):)?([0-5][0-9]):)?([0-5][0-9])|([6-9][0-9]|[1-9][0-9]{2,5}))$')
+    const regex = new RegExp('^(?:(?:(?:([0-1]?[0-9]|2[0-4]):)?([0-5]?[0-9]):)?([0-5]?[0-9])|([6-9][0-9]|[1-9][0-9]{2,5}))$')
 
     if (typeof hoursMinutesSeconds === 'string') {
       let tmpStart = []
       let tmpValue = 0
       const matches = regex.exec(hoursMinutesSeconds)
-      const len = matches.length
-      if (len === 5 && typeof matches[4] !== 'undefined') {
-        let seconds = matches[4] * 1
 
-        if (seconds >= 86400) {
-          // limit the maximum duration of the timer to 24 hours
-          // (minus 1 second)
-          seconds = 86399
-        }
+      if (matches !== null) {
+        const len = matches.length
 
-        tmpValue = seconds
+        if (len === 5 && typeof matches[4] !== 'undefined') {
+          let seconds = matches[4] * 1
 
-        let hours = Math.floor(seconds / 3600)
-        seconds -= hours * 3600
-        let minutes = Math.floor(seconds / 60)
-        seconds -= minutes * 60
+          if (seconds >= 86400) {
+            // limit the maximum duration of the timer to 24 hours
+            // (minus 1 second)
+            seconds = 86399
+          }
 
-        this.initialValue = this.onlyGreaterThanZero([seconds, minutes, hours])
-        this.resetTimerValues()
-        this.initialSeconds = seconds
-        this.currentSeconds = seconds
-      } else if (len > 0) {
-        // seconds is always the last value
-        tmpValue += matches[3] * 1
-        tmpStart.push(matches[3] * 1)
+          tmpValue = seconds
 
-        if (matches[2] !== '' && typeof matches[2] !== 'undefined') {
-          // minutes is always the second value (if present)
-          tmpValue += matches[2] * 60
-          tmpStart.push(matches[2] * 1)
-        } else {
-          tmpStart.push(0)
-        }
+          let hours = Math.floor(seconds / 3600)
+          seconds -= hours * 3600
+          let minutes = Math.floor(seconds / 60)
+          seconds -= minutes * 60
 
-        if (matches[1] !== '' && typeof matches[1] !== 'undefined') {
-          // hours is always the first value (if present)
-          tmpValue += matches[1] * 3600
-          tmpStart.push(matches[1] * 1)
-        } else {
-          tmpStart.push(0)
+          this.initialValue = this.onlyGreaterThanZero([seconds, minutes, hours])
+          this.resetTimerValues()
+          this.initialSeconds = seconds
+          this.currentSeconds = seconds
+        } else if (len > 0) {
+          // seconds is always the last value
+          tmpValue += matches[3] * 1
+          tmpStart.push(matches[3] * 1)
+
+          if (matches[2] !== '' && typeof matches[2] !== 'undefined') {
+            // minutes is always the second value (if present)
+            tmpValue += matches[2] * 60
+            tmpStart.push(matches[2] * 1)
+          } else {
+            tmpStart.push(0)
+          }
+
+          if (matches[1] !== '' && typeof matches[1] !== 'undefined') {
+            // hours is always the first value (if present)
+            tmpValue += matches[1] * 3600
+            tmpStart.push(matches[1] * 1)
+          } else {
+            tmpStart.push(0)
+          }
         }
       }
 
