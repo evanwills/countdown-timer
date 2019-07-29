@@ -723,7 +723,13 @@ class CountdownTimer extends HTMLElement {
 
   saySomething (text) {
     const sayThis = new SpeechSynthesisUtterance(text)
-    // sayThis.voice = 'en-au'
+    const voiceName = 'English (Australia)';
+
+    sayThis.volume = 1;
+    sayThis.rate = 1;
+    sayThis.pitch = 1;
+    sayThis.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == voiceName; })[0];
+
     this.voice.speak(sayThis)
   }
 
