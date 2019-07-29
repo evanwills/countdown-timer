@@ -548,9 +548,9 @@ class CountdownTimer extends HTMLElement {
         if (Math.floor(this.currentMilliseconds) < 0) {
           this.resetTickTock()
           let tmq = new Promise((resolve, reject) => {
-            this.saySomething('The end')
+            this.saySomething('Time\'s up')
           })
-          // this.endSound()
+          this.endSound()
 
           this.numbers.classList.add('finished')
           this.playPauseBtn.classList.add('finished')
@@ -738,9 +738,9 @@ class CountdownTimer extends HTMLElement {
    */
   speakAfterSeconds (text, seconds) {
     const speakAfterSecondsCallback = async () => {
-      const Milliseconds = seconds * 1000
+      const milliseconds = seconds * 1000
       // SpeechSynthesis.speak(text)
-      window.setTimeout(text, Milliseconds)
+      window.setTimeout(text, milliseconds)
     }
     return speakAfterSecondsCallback
   }
@@ -770,7 +770,7 @@ class CountdownTimer extends HTMLElement {
    *
    * @returns {Promise}
    */
-  speakIntervalAfterSeconds (text, interval, seconds) {
+  speakIntervalAfterSeconds (text, seconds) {
 
   }
 
@@ -793,7 +793,7 @@ class CountdownTimer extends HTMLElement {
     /**
      * @var {array} tones list of frequencies to be played
      */
-    const tones = [440, 261.6, 830.6, 440, 261.6, 830.6, 392, 440, 261.6, 830.6, 440, 261.6, 830.6, 392]
+    const tones = [440, 261.6, 830.6, 440, 261.6, 830.6, 392, 440, 261.6, 830.6, 440, 261.6, 830.6, 392, 440]
 
     /**
      * @var {number} offset number of milliseconds from calling the
