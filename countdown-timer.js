@@ -7,12 +7,22 @@ class CountdownTimer extends HTMLElement {
   constructor () {
     super()
 
-    this.initialValue = [0, 0, 0]
-    this.currentValue = []
-    this.initialSeconds = 0
-    this.currentSeconds = 0
+    this.initialValue = {
+      hours: 0,
+      minutes: 0,
+      seconds: 0
+    }
+    this.currentValue = {
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      tenths: 0
+    }
+
+    this.endTime = 0
+
     this.initialMilliseconds = 0
-    this.currentMilliseconds = 0
+    this.remainingMilliseconds = 0
 
     this.adjustmentFactor = 1
 
@@ -30,6 +40,9 @@ class CountdownTimer extends HTMLElement {
     this.numbers = null
     this.progressTicker = null
 
+    this.endText = 'Time\'s up'
+    this.multipliers = { hours: 3600000, minutes: 60000, seconds: 1000, tenths: 100 }
+
     let shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(this.getDOM())
   }
@@ -43,7 +56,7 @@ class CountdownTimer extends HTMLElement {
 
   connectedCallback () {
     if (this.hasAttribute('start') && this.validateStart(this.getAttribute('start'))) {
-      this.numbers.innerHTML = this.currentValueToString(this.initialValue)
+      this.numbers.innerHTML = this.timeObjToString(this.onlyGreaterThanZero(this.initialValue))
 
       this.playPauseClick = this.getPlayPauseClick()
       this.playPauseBtn.addEventListener('click', this.playPauseClick)
@@ -63,7 +76,7 @@ class CountdownTimer extends HTMLElement {
       // this.adjustmentFactor = 1 - (1 / this.initialSeconds)
 
       this.inProgress = false
-      this.voice = window.speechSynthesis;
+      this.voice = window.speechSynthesis
     }
   }
 
@@ -76,21 +89,13 @@ class CountdownTimer extends HTMLElement {
   // ======================================================
   // START: getters & setters
 
-  get start () {
-    return this.initialValue.reduce((accumulate, value) => {
-      const zero = (value < 10) ? '0' : ''
-      const colon = (accumulate === '') ? '' : ':'
-      return zero + Math.round(value) + colon + accumulate
-    }, '')
-  }
+  get start () { return this.timeObjToString(this.initialValue) }
 
   set start (hoursMinutesSeconds) {
     this.validateStart(hoursMinutesSeconds)
   }
 
-  get playing () {
-    return this.playing
-  }
+  get playing () { return this.playing }
 
   set playing (val) {
     if (val) {
@@ -108,44 +113,41 @@ class CountdownTimer extends HTMLElement {
     }
   }
 
-  get autodestruct () {
-
-  }
+  get autodestruct () { return false }
 
   set autodestruct (val) {
 
   }
 
-  get nospeak () {
-
-  }
+  get nospeak () { return false }
 
   set nospeak (val) {
-
   }
 
-  get speak () {
-
-  }
+  get speak () { return true }
 
   set speak (val) {
 
   }
 
-  get norestart () {
-
-  }
+  // get norestart () { return this.noRestart }
 
   set norestart (val) {
 
   }
 
-  get noreset () {
-    return this.noReset
-  }
+  // get noreset () { return this.noReset }
 
   set noreset (val) {
 
+  }
+
+  // get endText () { return this.endText }
+
+  set endText (text) {
+    // if (typeof text === 'string') {
+    //   this.endText = text
+    // }
   }
 
   //  END:  getters & setters
@@ -154,6 +156,8 @@ class CountdownTimer extends HTMLElement {
 
   startPlaying (noDelay) {
     // noDelay = (typeof noDelay !== 'boolean' || noDelay === true)
+
+    this.endTime = Date.now() + this.remainingMilliseconds
 
     this.setProgressTicker(20)
     this.playPauseBtn.classList.add('playing')
@@ -189,7 +193,7 @@ class CountdownTimer extends HTMLElement {
       console.log('reset clicked')
       this.pausePlaying()
       this.resetTimerValues()
-      this.numbers.innerHTML = this.currentValueToString(this.currentValue)
+      this.numbers.innerHTML = this.timeObjToString(this.currentValue)
       this.progress.value = (0)
       this.playPauseTxt.innerHTML = 'Start '
 
@@ -503,7 +507,7 @@ class CountdownTimer extends HTMLElement {
    * The callback handles updating the textual representation of the
    * time remaining in the countdown
    *
-   * @returns {function} callback function
+   * @returns {void}
    */
   setTickTock () {
     this.currentSeconds -= 1
@@ -528,7 +532,7 @@ class CountdownTimer extends HTMLElement {
       }
     }
 
-    this.numbers.innerHTML = this.currentValueToString(this.currentValue)
+    this.numbers.innerHTML = this.timeObjToString(this.currentValue)
   }
 
   /**
@@ -540,16 +544,22 @@ class CountdownTimer extends HTMLElement {
    * @returns {void}
    */
   setProgressTicker (interval) {
+    if (this.endTime === 0) {
+      this.endTime = Date.now() + this.remainingMilliseconds
+    }
     const progressTickTock = () => {
       // this.currentMilliseconds -= (interval + 1)
-      this.currentMilliseconds -= interval
-      let tmp = new Promise((resolve, reject) => {
-        this.progress.value = (1 - (this.currentMilliseconds / this.initialMilliseconds))
+      this.remainingMilliseconds = this.endTime - Date.now()
+      // console.log('this.currentMilliseconds:', this.remainingMilliseconds)
 
-        if (Math.floor(this.currentMilliseconds) < 0) {
+      const promise1 = new Promise((resolve, reject) => {
+        this.progress.value = (1 - (this.remainingMilliseconds / this.initialMilliseconds))
+        this.currentValue = this.millisecondsToTimeObj(this.remainingMilliseconds)
+
+        if (Math.floor(this.remainingMilliseconds) <= 0) {
           this.resetTickTock()
-          let tmq = new Promise((resolve, reject) => {
-            this.saySomething('Time\'s up')
+          const promise2 = new Promise((resolve, reject) => {
+            this.saySomething(this.endText)
           })
           this.endSound()
 
@@ -558,9 +568,9 @@ class CountdownTimer extends HTMLElement {
         }
       })
       // if (this.currentMilliseconds > ((this.currentSeconds - 1) * 1000)) {
-      if ((this.currentMilliseconds * this.adjustmentFactor) < (this.currentSeconds * 1000)) {
-        let tpm = new Promise((resolve, reject) => { this.setTickTock() })
-      }
+      // if ((this.currentMilliseconds * this.adjustmentFactor) < (this.currentSeconds * 1000)) {
+      const promise3 = new Promise((resolve, reject) => { this.setTickTock() })
+      // }
     }
     this.progressTicker = setInterval(progressTickTock, interval)
   }
@@ -570,21 +580,26 @@ class CountdownTimer extends HTMLElement {
   // START: utility methods
 
   /**
-   * onlyGreaterThanZero() ensures that the most significant number
-   * is non-zero
+   * onlyGreaterThanZero() ensures that the most significant field in
+   * the returned timeObj is non-zero
    *
-   * @param {array} currentValue containing seconds, minutes & hours
+   * @param {object} currentValue containing seconds, minutes & hours
    *                representing the timer's duration
-   * @returns {array}
+   * @returns {object} object containing only the least significant
+   *                fields greater than zero
    */
   onlyGreaterThanZero (currentValue) {
-    let tmpValue = [currentValue[0]]
+    const fields = ['hours', 'minutes', 'seconds', 'tenths']
+    let tmpValue = {}
+    let allTheRest = false
 
-    if (typeof currentValue[2] === 'number' && currentValue[2] > 0) {
-      tmpValue.push(currentValue[1])
-      tmpValue.push(currentValue[2])
-    } else if (typeof currentValue[1] === 'number' && currentValue[1] > 0) {
-      tmpValue.push(currentValue[1])
+    for (let a = 0; a < 4; a += 1) {
+      const field = fields[a]
+      const isNum = typeof currentValue[field] === 'number'
+      if (allTheRest === true || (isNum === true && currentValue[field] > 0)) {
+        tmpValue[field] = (isNum === true) ? currentValue[field] : 0
+        allTheRest = true
+      }
     }
 
     return tmpValue
@@ -607,69 +622,41 @@ class CountdownTimer extends HTMLElement {
     const regex = new RegExp('^(?:(?:(?:([0-1]?[0-9]|2[0-4]):)?([0-5]?[0-9]):)?([0-5]?[0-9])|([6-9][0-9]|[1-9][0-9]{2,5}))$')
 
     if (typeof hoursMinutesSeconds === 'string') {
-      let tmpStart = []
-      let tmpValue = 0
+      let tmpStart = { hours: 0, minutes: 0, seconds: 0 }
       const matches = regex.exec(hoursMinutesSeconds)
+      console.log('hoursMinutesSeconds:', hoursMinutesSeconds)
+      console.log('matches:', matches)
+      console.log('regex:', regex)
 
       if (matches !== null) {
         const len = matches.length
 
         if (len === 5 && typeof matches[4] !== 'undefined') {
-          let seconds = matches[4] * 1
+          let seconds = Number.parseInt(matches[4])
 
-          if (seconds >= 86400) {
+          if (seconds > 86400) {
             // limit the maximum duration of the timer to 24 hours
-            // (minus 1 second)
-            seconds = 86399
+            seconds = 86400
           }
 
-          tmpValue = seconds
-
-          let hours = Math.floor(seconds / 3600)
-          seconds -= hours * 3600
-          let minutes = Math.floor(seconds / 60)
-          seconds -= minutes * 60
-
-          this.initialValue = this.onlyGreaterThanZero([seconds, minutes, hours])
-          this.resetTimerValues()
-          this.initialSeconds = seconds
-          this.currentSeconds = seconds
+          this.initialMilliseconds = seconds * 1000
+          this.initialValue = this.millisecondsToTimeObj(this.milliseconds)
         } else if (len > 0) {
-          // seconds is always the last value
-          tmpValue += matches[3] * 1
-          tmpStart.push(matches[3] * 1)
+          tmpStart.seconds = Number.parseInt(matches[3])
+          tmpStart.minutes = (typeof matches[2] === 'string' && matches[2] !== '') ? Number.parseInt(matches[2]) : 0
+          tmpStart.hours = (typeof matches[1] === 'string' && matches[1] !== '') ? Number.parseInt(matches[1]) : 0
 
-          if (matches[2] !== '' && typeof matches[2] !== 'undefined') {
-            // minutes is always the second value (if present)
-            tmpValue += matches[2] * 60
-            tmpStart.push(matches[2] * 1)
-          } else {
-            tmpStart.push(0)
-          }
-
-          if (matches[1] !== '' && typeof matches[1] !== 'undefined') {
-            // hours is always the first value (if present)
-            tmpValue += matches[1] * 3600
-            tmpStart.push(matches[1] * 1)
-          } else {
-            tmpStart.push(0)
-          }
+          this.initialValue = tmpStart
+          this.initialMilliseconds = this.timeObjToMilliseconds(tmpStart)
         }
-      }
-
-      if (tmpValue === 0) {
+      } else {
         console.error('countdown-timer must have a start value matching the following one of the following patterns: "SS", "MM:SS" or "HH:MM:SS". "' + hoursMinutesSeconds + '" does not match any of these patterns.')
         return false
-      } else {
-        this.initialValue = this.onlyGreaterThanZero(tmpStart)
-        this.resetTimerValues()
-        this.initialSeconds = tmpValue
-        this.currentSeconds = tmpValue
-        this.initialMilliseconds = tmpValue * 1000
-        this.currentMilliseconds = tmpValue * 1000
-        this.fields = tmpStart.length
-        return true
       }
+      console.log('this.initialMilliseconds:', this.initialMilliseconds)
+      console.log('this.initialValue:', this.initialValue)
+      this.resetTimerValues()
+      return true
     } else {
       console.error('countdown-timer must have a start value matching the following one of the following patterns: "SS", "MM:SS" or "HH:MM:SS". Empty string provided.')
       return false
@@ -677,20 +664,99 @@ class CountdownTimer extends HTMLElement {
   }
 
   /**
-   * currentValueToString() converts the current time remaining for
+   * timeObjToString() converts the current time remaining for
    * the countdown into a human readable string
-   * @param {array} currentValue seconds, minutes and hours value
+   * @param {object} timeObj seconds, minutes and hours value
    *                representing the timer remaining for the timer.
-   * @returns {string} has the following structure "SS", "MM:SS" or
-   *                "HH:MM:SS" depending on the value of the `start`
+   * @returns {string} has the following structure "SS", "MM:SS",
+   *                "HH:MM:SS" or "HH:MM:SS:CC" ("CC" = hundredths of
+   *                a second) depending on the value of the `timeObj`
    *                attribute
    */
-  currentValueToString (currentValue) {
-    return currentValue.reduce((accumulate, value) => {
-      const zero = (value < 10) ? '0' : ''
-      const colon = (accumulate === '') ? '' : ':'
-      return zero + Math.round(value) + colon + accumulate
+  timeObjToString (timeObj) {
+    const fields = (typeof timeObj.tenths === 'undefined') ? ['seconds', 'minutes', 'hours'] : ['tenths', 'seconds', 'minutes', 'hours']
+
+    const tmpTimeObj = this.onlyGreaterThanZero(timeObj)
+
+    return fields.reduce((accumulate, field) => {
+      if (typeof tmpTimeObj[field] !== 'undefined') {
+        const zero = (tmpTimeObj[field] < 10 && field !== 'tenths') ? '0' : ''
+        const colon = (accumulate === '') ? '' : ':'
+        return zero + Math.round(tmpTimeObj[field]) + colon + accumulate
+      } else {
+        return accumulate
+      }
     }, '')
+  }
+
+  /**
+   * timeObjToMilliseconds() converts the values of a time object to
+   * milliseconds
+   * @param {object} timeObj
+   * @returns {number} number of milliseconds the time object represents
+   */
+  timeObjToMilliseconds (timeObj) {
+    const fields = ['tenths', 'seconds', 'minutes', 'hours']
+
+    const tmpTimeObj = (typeof timeObj.tenths === 'undefined') ? { ...timeObj, 'tenths': 0 } : { ...timeObj }
+
+    let output = 0
+    for (let a = 0; a < 4; a += 1) {
+      const field = fields[a]
+      output += tmpTimeObj[field] * this.multipliers[field]
+    }
+
+    return output
+  }
+
+  /**
+   * millisecondsToTimeObj() converts the number of milliseconds
+   * provided to a timeObj object
+   * @param {number} milliseconds
+   * @returns {object} time object with the form {hours, minutes, seconds, tenths}
+   */
+  millisecondsToTimeObj (milliseconds) {
+    const fields = ['hours', 'minutes', 'seconds', 'tenths']
+
+    let output = {
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      tenths: 0
+    }
+    let remainder = milliseconds
+
+    // console.log('milliseconds:', milliseconds)
+
+    for (var a = 0; a < 4; a += 1) {
+      const field = fields[a]
+      const tmp = this.getWholePart(remainder, this.multipliers[field])
+      remainder = tmp.part
+      output[field] = tmp.whole
+    }
+
+    return output
+  }
+
+  /**
+   * getWholePart() (PURE) converts the number of milliseconds provided into the whole number of units
+   * @param {number} input the number of millseconds to be converted
+   *                 into approprate time unit
+   *                 (e.g. hours, minutes, seconds, tenths of a second)
+   * @param {number} multiplier the value used to multiply (or divide
+   *                 in this case) the number of milliseconds to get
+   *                 the unit value
+   * @returns {object} two part object containing the "whole" value for
+   *                 the unit and the remaining number of milliseconds
+   *                 to be passed to the next unit
+   */
+  getWholePart (input, multiplier) {
+    const wholeVal = Math.floor(input / multiplier)
+    const partVal = input - (wholeVal * multiplier)
+    return {
+      whole: wholeVal,
+      part: partVal
+    }
   }
 
   /**
@@ -700,9 +766,8 @@ class CountdownTimer extends HTMLElement {
    * @returns {void}
    */
   resetTimerValues () {
-    this.currentValue = this.initialValue.map(value => value)
-    this.currentSeconds = this.initialSeconds
-    this.currentMilliseconds = this.initialSeconds * 1000
+    this.currentValue = { ...this.initialValue }
+    this.remainingMilliseconds = this.initialMilliseconds
     this.resetTickTock()
   }
 
@@ -831,7 +896,7 @@ class CountdownTimer extends HTMLElement {
     }
 
     for (let a = 0; a < tones.length; a += 1) {
-      let tmp = new Promise(function (resolve, reject) {
+      let promise = new Promise(function (resolve, reject) {
         const toneFunc = playTone(tones[a], durationTime, offset)
         window.setTimeout(toneFunc, offset)
       })
