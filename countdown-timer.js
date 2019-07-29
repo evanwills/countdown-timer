@@ -63,6 +63,7 @@ class CountdownTimer extends HTMLElement {
       // this.adjustmentFactor = 1 - (1 / this.initialSeconds)
 
       this.inProgress = false
+      this.voice = window.speechSynthesis;
     }
   }
 
@@ -546,7 +547,10 @@ class CountdownTimer extends HTMLElement {
 
         if (Math.floor(this.currentMilliseconds) < 0) {
           this.resetTickTock()
-          this.endSound()
+          let tmq = new Promise((resolve, reject) => {
+            this.saySomething('The end')
+          })
+          // this.endSound()
 
           this.numbers.classList.add('finished')
           this.playPauseBtn.classList.add('finished')
@@ -716,6 +720,12 @@ class CountdownTimer extends HTMLElement {
   //  END:  utility methods
   // ======================================================
   // START: speak aloud methods
+
+  saySomething (text) {
+    const sayThis = new SpeechSynthesisUtterance(text)
+    // sayThis.voice = 'en-au'
+    this.voice.speak(sayThis)
+  }
 
   /**
    * speakAfterSeconds() uses the Web Speech API's Speech Synthisis
