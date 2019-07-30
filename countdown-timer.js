@@ -57,6 +57,10 @@ class CountdownTimer extends HTMLElement {
   connectedCallback () {
     if (this.hasAttribute('start') && this.validateStart(this.getAttribute('start'))) {
       this.numbers.innerHTML = this.timeObjToString(this.onlyGreaterThanZero(this.initialValue))
+      const endText = this.getAttribute('end-message')
+      if (typeof endText !== 'undefined') {
+        this.endText = endText
+      }
 
       this.playPauseClick = this.getPlayPauseClick()
       this.playPauseBtn.addEventListener('click', this.playPauseClick)
@@ -144,11 +148,11 @@ class CountdownTimer extends HTMLElement {
 
   // get endText () { return this.endText }
 
-  set endText (text) {
-    // if (typeof text === 'string') {
-    //   this.endText = text
-    // }
-  }
+  // set endText (text) {
+  //   // if (typeof text === 'string') {
+  //   //   this.endText = text
+  //   // }
+  // }
 
   //  END:  getters & setters
   // ======================================================
@@ -492,6 +496,10 @@ class CountdownTimer extends HTMLElement {
       .finished {
         background-color: #c00;
         color: #fff;
+      }
+      .tenths {
+        font-size: 3.5rem;
+        font-weight: normal;
       }`
     )
   }
@@ -510,28 +518,6 @@ class CountdownTimer extends HTMLElement {
    * @returns {void}
    */
   setTickTock () {
-    this.currentSeconds -= 1
-
-    if (this.currentSeconds >= 0) {
-      if (this.currentValue[0] > 0) {
-        this.currentValue[0] -= 1
-      } else {
-        if (this.currentSeconds >= 59) {
-          this.currentValue[0] = 59
-          if (this.currentValue[1] > 0) {
-            this.currentValue[1] -= 1
-          } else {
-            if (this.currentSeconds >= 3599) {
-              this.currentValue[1] = 59
-              if (this.currentValue[2] > 0) {
-                this.currentValue[2] -= 1
-              }
-            }
-          }
-        }
-      }
-    }
-
     this.numbers.innerHTML = this.timeObjToString(this.currentValue)
   }
 
@@ -548,9 +534,11 @@ class CountdownTimer extends HTMLElement {
       this.endTime = Date.now() + this.remainingMilliseconds
     }
     const progressTickTock = () => {
-      // this.currentMilliseconds -= (interval + 1)
       this.remainingMilliseconds = this.endTime - Date.now()
-      // console.log('this.currentMilliseconds:', this.remainingMilliseconds)
+
+      if (this.remainingMilliseconds < 0) {
+        this.remainingMilliseconds = 0
+      }
 
       const promise1 = new Promise((resolve, reject) => {
         this.progress.value = (1 - (this.remainingMilliseconds / this.initialMilliseconds))
@@ -567,10 +555,7 @@ class CountdownTimer extends HTMLElement {
           this.playPauseBtn.classList.add('finished')
         }
       })
-      // if (this.currentMilliseconds > ((this.currentSeconds - 1) * 1000)) {
-      // if ((this.currentMilliseconds * this.adjustmentFactor) < (this.currentSeconds * 1000)) {
       const promise3 = new Promise((resolve, reject) => { this.setTickTock() })
-      // }
     }
     this.progressTicker = setInterval(progressTickTock, interval)
   }
@@ -624,9 +609,6 @@ class CountdownTimer extends HTMLElement {
     if (typeof hoursMinutesSeconds === 'string') {
       let tmpStart = { hours: 0, minutes: 0, seconds: 0 }
       const matches = regex.exec(hoursMinutesSeconds)
-      console.log('hoursMinutesSeconds:', hoursMinutesSeconds)
-      console.log('matches:', matches)
-      console.log('regex:', regex)
 
       if (matches !== null) {
         const len = matches.length
@@ -653,8 +635,6 @@ class CountdownTimer extends HTMLElement {
         console.error('countdown-timer must have a start value matching the following one of the following patterns: "SS", "MM:SS" or "HH:MM:SS". "' + hoursMinutesSeconds + '" does not match any of these patterns.')
         return false
       }
-      console.log('this.initialMilliseconds:', this.initialMilliseconds)
-      console.log('this.initialValue:', this.initialValue)
       this.resetTimerValues()
       return true
     } else {
@@ -668,25 +648,35 @@ class CountdownTimer extends HTMLElement {
    * the countdown into a human readable string
    * @param {object} timeObj seconds, minutes and hours value
    *                representing the timer remaining for the timer.
+   * @param {boolean} nonZeroOnly [default: TRUE] whether or not to
+   *                remove most significant fields if they're zero
    * @returns {string} has the following structure "SS", "MM:SS",
    *                "HH:MM:SS" or "HH:MM:SS:CC" ("CC" = hundredths of
    *                a second) depending on the value of the `timeObj`
    *                attribute
    */
-  timeObjToString (timeObj) {
-    const fields = (typeof timeObj.tenths === 'undefined') ? ['seconds', 'minutes', 'hours'] : ['tenths', 'seconds', 'minutes', 'hours']
+  timeObjToString (timeObj, nonZeroOnly) {
+    const tmpTimeObj = (typeof nonZeroOnly !== 'boolean' || nonZeroOnly === true) ? this.onlyGreaterThanZero(timeObj) : { ...timeObj }
+    const fields = Object.keys(tmpTimeObj)
+    const wholeTimeFields = fields.filter(field => field !== 'tenths')
+    const tenthsField = fields.filter(field => field === 'tenths')
 
-    const tmpTimeObj = this.onlyGreaterThanZero(timeObj)
+    let output = ''
+    for (let a = 0; a < wholeTimeFields.length; a += 1) {
+      const field = wholeTimeFields[a]
+      const zero = (tmpTimeObj[field] < 10 && output !== '') ? '0' : ''
+      const colon = (output === '') ? '' : ':'
+      output += colon + zero + Math.round(tmpTimeObj[field])
+    }
 
-    return fields.reduce((accumulate, field) => {
-      if (typeof tmpTimeObj[field] !== 'undefined') {
-        const zero = (tmpTimeObj[field] < 10 && field !== 'tenths') ? '0' : ''
-        const colon = (accumulate === '') ? '' : ':'
-        return zero + Math.round(tmpTimeObj[field]) + colon + accumulate
-      } else {
-        return accumulate
-      }
-    }, '')
+    if (tenthsField.length > 0) {
+      const colon = (output === '') ? '0.' : '.'
+      output += colon + '<span class="tenths">' + Math.round(tmpTimeObj.tenths) + '</span>'
+    } else if (output === '') {
+      output = '0'
+    }
+
+    return output
   }
 
   /**
@@ -791,7 +781,7 @@ class CountdownTimer extends HTMLElement {
     const sayThis = new SpeechSynthesisUtterance(text)
     const voiceName = 'English (Australia)'
 
-    sayThis.volume = 1
+    sayThis.volume = 2
     sayThis.rate = 1
     sayThis.pitch = 1
     sayThis.voice = speechSynthesis.getVoices().filter(function (voice) {
