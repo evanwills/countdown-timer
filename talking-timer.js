@@ -3,7 +3,7 @@
 //   https://developers.google.com/web/fundamentals/web-components/customelements
 //  https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
 
-class CountdownTimer extends HTMLElement {
+class TalkingTimer extends HTMLElement {
   constructor () {
     super()
 
@@ -257,7 +257,7 @@ class CountdownTimer extends HTMLElement {
    */
   getDOM () {
     const wrap = document.createElement('div')
-    wrap.setAttribute('class', 'countdownTimer-wrapper')
+    wrap.setAttribute('class', 'TalkingTimer-wrapper')
 
     const css = this.initStyle()
     const style = document.createElement('style')
@@ -368,7 +368,7 @@ class CountdownTimer extends HTMLElement {
   }
 
   /**
-   * initStyle() returns block of CSS for styling the <countdown-timer>
+   * initStyle() returns block of CSS for styling the <talking-timer>
    * element's shadow DOM
    *
    * @returns {textNode} CSS string
@@ -378,7 +378,7 @@ class CountdownTimer extends HTMLElement {
       :root {
         font-family: inherit;
       }
-      .countdownTimer-wrapper {
+      .TalkingTimer-wrapper {
         border: 0.05rem solid #ccc;
         padding: 0;
         position: relative;
@@ -632,13 +632,13 @@ class CountdownTimer extends HTMLElement {
           this.initialMilliseconds = this.timeObjToMilliseconds(tmpStart)
         }
       } else {
-        console.error('countdown-timer must have a start value matching the following one of the following patterns: "SS", "MM:SS" or "HH:MM:SS". "' + hoursMinutesSeconds + '" does not match any of these patterns.')
+        console.error('talking-timer must have a start value matching the following one of the following patterns: "SS", "MM:SS" or "HH:MM:SS". "' + hoursMinutesSeconds + '" does not match any of these patterns.')
         return false
       }
       this.resetTimerValues()
       return true
     } else {
-      console.error('countdown-timer must have a start value matching the following one of the following patterns: "SS", "MM:SS" or "HH:MM:SS". Empty string provided.')
+      console.error('talking-timer must have a start value matching the following one of the following patterns: "SS", "MM:SS" or "HH:MM:SS". Empty string provided.')
       return false
     }
   }
@@ -793,7 +793,7 @@ class CountdownTimer extends HTMLElement {
 
   /**
    * speakAfterSeconds() uses the Web Speech API's Speech Synthisis
-   * interface to announce time intervals for the countdown-timer
+   * interface to announce time intervals for the talking-timer
    *
    * @param {string} text Information to be spoken
    * @param {number} seconds time before the text is to be spoken.
@@ -898,4 +898,4 @@ class CountdownTimer extends HTMLElement {
   // ======================================================
 }
 
-customElements.define('countdown-timer', CountdownTimer)
+customElements.define('talking-timer', TalkingTimer)

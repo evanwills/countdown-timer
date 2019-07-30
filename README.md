@@ -1,4 +1,4 @@
-# &lt;countdown-timer&gt;
+# &lt;talking-timer&gt;
 
 A custom element for visual and audio countdown timing. (For when my kids need to stop doing a thing they don't want to stop. And for when I'm teaching and running a time sensitive exercise)
 
@@ -6,7 +6,7 @@ A custom element for visual and audio countdown timing. (For when my kids need t
 
 At it's most basic you can configure a reusable timer like so: (this is a three minute timer)
 ``` html
-<countdown-timer start="03:00">My timer</countdown-timer>
+<talking-timer start="03:00">My timer</talking-timer>
 ```
 
 The text within the element wrapper is used a the title for the time.
@@ -49,23 +49,23 @@ By default all options are spoken
 
 ``` HTML
 <!-- -->
-<countdown-timer start="03:00" speak="minutes allLast10">
+<talking-timer start="03:00" speak="minutes allLast10">
   Only speak minute intervals and countdown last 10 seconds
-</countdown-timer>
+</talking-timer>
 
-<countdown-timer start="03:00" nospeak="quarters halfway last20 minutes">
+<talking-timer start="03:00" nospeak="quarters halfway last20 minutes">
   Only speak thirds, 30 second intervals (when they're not thirds) and
   last second announcements
-</countdown-timer>
+</talking-timer>
 
-<countdown-timer start="03:00">
+<talking-timer start="03:00">
   Speak all announcements
-</countdown-timer>
+</talking-timer>
 
-<countdown-timer start="03:00" speak="">
+<talking-timer start="03:00" speak="">
   Nothing in speak (i.e. empty whitelist)
   Don't speak any announcments - Silent
-</countdown-timer>
+</talking-timer>
 ```
 
 > __NOTE:__ When announcements overlap (e.g. 3 minute time with minutes and thirds) Minute announcements are spoken and fractions are skipped
@@ -75,17 +75,17 @@ By default all options are spoken
 If `selfdestruct` is set, then the timer will remove itself thirty seconds after completion or as many seconds as the timer ran for (which ever is shorter).
 
 ``` HTML
-<countdown-timer start="03:00" selfdestruct>
+<talking-timer start="03:00" selfdestruct>
   Self destruct after 30 seconds
-</countdown-timer>
+</talking-timer>
 
-<countdown-timer start="03:00" selfdestruct="true">
+<talking-timer start="03:00" selfdestruct="true">
   Self destruct after 30 seconds
-</countdown-timer>
+</talking-timer>
 
-<countdown-timer start="03:00" selfdestruct="600">
+<talking-timer start="03:00" selfdestruct="600">
   Self destruct after 10 minutes
-</countdown-timer>
+</talking-timer>
 ```
 
 > __NOTE:__ If `selfdestruct` has a numeric value, then that number will set the number of seconds, after which, the node will remove itself.
