@@ -13,13 +13,15 @@ The text within the element wrapper is used a the title for the time.
 
 ## Attributes
 
-### `start`
+### `time`
 
-The `start` attribute is required and can either be the total number of seconds or a time string (`HH:MM:SS` - hours & minutes are optional)
+Duration of the timer.
+
+The `time` attribute is required and can either be the total number of seconds or a time string (`HH:MM:SS` - hours & minutes are optional)
 
 ### `nospeak` / `speak`
 
-> __NOTE:__ Speak aloud functionality is not yet implemented
+> __NOTE:__ Speak aloud functionality is not yet fully implemented
 
 `nospeak` and `speak` attributes control the speak aloud options and contain a space separated list of keywords.
 
@@ -35,17 +37,23 @@ __`speak`__ whitelists the specified options so only those specified are spoken.
 
 #### `speak` / `nospeak` options
 
-By default all options are spoken
+##### Options spoken by default
 
-* `quarters` - (for start times that are evenly divisible by four) speak 3/4 and 1/4 intervals
-* `thirds`  - (for start times that are evenly divisible by 3) speak 2/3 and 1/3 intervals
 * `halfway` - speak the halfway interval
-* `minutes` - speak each minute remaining
 * `30seconds` - speak every 30 seconds remaining (includes minutes)
 * `last20` - speak last 20 seconds warning
 * `last15` - speak last 15 seconds warning
 * `allLast10` - speak last 10 second countdown
 
+##### Options omitted by default
+
+* `minutes` - only speak each minute remaining
+* `quarters` - (for start times that are evenly divisible by four) speak 3/4 and 1/4 intervals
+* `thirds`  - (for start times that are evenly divisible by 3) speak 2/3 and 1/3 intervals
+* `last30` - speak last 30 seconds warning
+* `last10` - speak last 10 seconds warning
+* `last5` - speak last 5 seconds warning
+* `allLast5` - speak last 5 second countdown
 
 ``` HTML
 <!-- -->
@@ -99,3 +107,21 @@ Excludes the `Start again` button from the UI
 ### `noreset`
 
 Excludes the `Reset` button from the UI
+
+### `priority`
+
+To reduce the amount of talking to only time announcements can only be made if they are seven seconds later or earlier than another anouncement. By default fraction anouncements have priority e.g. when the timer is set to 3 minutes, the "Half way" announcement is also the same as the "One minute, thirty seconds to go" anouncement so the "Half way" announcement is spoken but the "One minute, thirty seconds to go." is skipped.
+
+``` HTML
+<talking-timer start="03:00">
+  When the timer is set to 3 minutes, the "Half way" announcement is also the same as the "One minute, thirty seconds to go" anouncement so the "Half way" announcement is spoken but the "One minute, thirty seconds to go." is skipped.
+</talking-timer>
+
+<talking-timer start="03:00" priority="seconds">
+  When the timer is set to 3 minutes, the "Half way" announcement is also the same as the "One minute, thirty seconds to go" anouncement so the "One minute, thirty seconds to go." announcement is spoken but the "Half way" is skipped.
+</talking-timer>
+
+<talking-timer start="03:00" priority="fraction">
+  The "Half way" announcement is also the same as the "One minute, thirty seconds to go" anouncement so the "Half way" announcement is spoken but the "One minute, thirty seconds to go." is skipped.
+</talking-timer>
+```

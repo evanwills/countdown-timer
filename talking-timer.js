@@ -39,6 +39,27 @@ class TalkingTimer extends HTMLElement {
     this.closeBtn = null
     this.numbers = null
     this.progressTicker = null
+    this.speek = [
+      'halfway',
+      '30seconds',
+      'last20',
+      'last15',
+      'allLast10'
+    ]
+    this.allSpeakOptions = [
+      'halfway',
+      'quarters',
+      'thirds',
+      'minutes',
+      '30seconds',
+      'last30',
+      'last20',
+      'last15',
+      'last10',
+      'last5',
+      'allLast10',
+      'allLast5'
+    ]
 
     this.endText = 'Time\'s up'
     this.multipliers = { hours: 3600000, minutes: 60000, seconds: 1000, tenths: 100 }
@@ -55,7 +76,7 @@ class TalkingTimer extends HTMLElement {
   // START: standard custom element callbacks
 
   connectedCallback () {
-    if (this.hasAttribute('start') && this.validateStart(this.getAttribute('start'))) {
+    if (this.hasAttribute('time') && this.validateStart(this.getAttribute('time'))) {
       this.numbers.innerHTML = this.timeObjToString(this.onlyGreaterThanZero(this.initialValue))
       const endText = this.getAttribute('end-message')
       if (typeof endText !== 'undefined') {
