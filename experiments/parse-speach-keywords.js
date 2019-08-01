@@ -1,4 +1,3 @@
-parse-speech-keywords
 /**
  * parseRawIntervals() builds an array of objects which in turn can
  * be used to build promises that trigger speach events.
@@ -59,15 +58,17 @@ function parseRawIntervals (rawIntervals, durationMilli, omit) {
     }
   }
 
-  return (this.priority === 'time') ? timeIntervals.concat(fractionIntervals) : fractionIntervals.concat(timeIntervals)
+  const output = (this.priority === 'time') ? timeIntervals.concat(fractionIntervals) : fractionIntervals.concat(timeIntervals)
+
+  return sortOffsets(filterOffsets(output))
 }
 
-function getIntervalPromises (remainingMilliseconds, intervals) {
-  const endTime = Date.now() + remainingMilliseconds
-  let output = []
+// function getIntervalPromises (remainingMilliseconds, intervals) {
+//   const endTime = Date.now() + remainingMilliseconds
+//   let output = []
 
-  return output
-}
+//   return output
+// }
 
 /**
  * getFractionOffsetAndMessage() returns a list of time offset
@@ -80,8 +81,6 @@ function getIntervalPromises (remainingMilliseconds, intervals) {
  */
 function getFractionOffsetAndMessage (timeObj, milliseconds) {
   let interval = 0
-  let message = ''
-  let special = []
   const half = milliseconds / 2
 
   interval = milliseconds / timeObj.numerator
@@ -164,7 +163,7 @@ function getTimeOffsetAndMessage (timeObj, milliseconds, raw) {
  *
  * @returns {boolean} TRUE if within 5 seconds of previous value
  */
-function tooClose(current, previous) {
+function tooClose (current, previous) {
   return (current > (previous - 5000) && current < (previous + 5000))
 }
 
@@ -178,7 +177,7 @@ function tooClose(current, previous) {
  * @returns {boolean} TRUE if offset was too close to a previously
  *                seen offset value. FALSE otherwise
  */
-function tooCloseAny(offset, previous) {
+function tooCloseAny (offset, previous) {
   for (let a = 0; a < previous.length; a += 1) {
     if (tooClose(offset, previous[a]) === true) {
       return true
@@ -196,7 +195,7 @@ function tooCloseAny(offset, previous) {
  *
  * @return {number} positive value of a - b
  */
-function posMinus(a, b) {
+function posMinus (a, b) {
   if (a > b) {
     return a - b
   } else {
@@ -221,7 +220,7 @@ function makeTimeMessage (offset) {
   console.log('0) working:', working)
   console.log('0) output:', output)
   if (working > 3600000) {
-    const hours = floor(working / 3600000)
+    const hours = Math.floor(working / 3600000)
     working -= hours * 3600000
     output += comma + hours.toString() + ' hour'
     output += (hours > 1) ? 's' : ''
@@ -230,7 +229,7 @@ function makeTimeMessage (offset) {
   console.log('1) working:', working)
   console.log('1) output:', output)
   if (working > 60000) {
-    const minutes = floor(working / 60000)
+    const minutes = Math.floor(working / 60000)
     working -= minutes * 60000
     output = comma + minutes.toString() + ' minute'
     output += (minutes > 1) ? 's' : ''
@@ -250,7 +249,6 @@ function makeTimeMessage (offset) {
   console.groupEnd('makeTimeMessage')
   return output
 }
-
 
 /**
  * makeFractionMessage() returns a string that can be passed to the
@@ -322,9 +320,6 @@ function filterOffsets (offsets) {
   })
 }
 
-
-
-
 // ==============================================
 // START: Redundant functions
 
@@ -385,8 +380,6 @@ function filterOffsets (offsets) {
 
 //  END:  Redundant functions
 // ==============================================
-
-
 
 const keywords = '4first1/6 30s last20 last15 allLast10'
 const timeObj = parseRawIntervals(keywords, 180000)
