@@ -37,23 +37,45 @@ __`speak`__ whitelists the specified options so only those specified are spoken.
 
 #### `speak` / `nospeak` options
 
+`speak`/`nospeak` options are case insensitive, and their parts can be hyphen or underscore separated for better readability.
+
+##### speak option pattern:
+
+1. __Time interval:__
+   * `[all][XX][last|first][XX][s|m|h]` or
+   * (hypen separated) `[all]-[last|first]-[XX]-[s|m|h]` or
+   * (underscore separated) `[all]_[last|first]_[XX]_[s|m|h]`
+2. __Fraction interval:__
+   * `[all][XX][last|first][X]1/[2, 3, 4, 5, 6, 7, 8, 9, 10]` or
+   * (hypen separated) `[all]-[last|first]-[X]-1/[2, 3, 4, 5, 6, 7, 8, 9, 10]` or
+   * (underscore separated) `[all]_[last|first]_[X]_1/[2, 3, 4, 5, 6, 7, 8, 9, 10]`
+
+`/(?:^|\s+(all)?[_-]?([0-9]+)?[_-]?(last|first)?[_-]?(?:([1-9][0-9]*)[_-]?([smh]?)|([1-9])?[_-]?1\/([2-9]|10))(?=\s+|$/ig`
+
+* __`all`__ - is a modifier for `last` & `first`. `all` is assumed if `last`/`last` is not present. All of these intervals are spoken (e.g. **`all`**`Last5m`: speak 5, 4, 3, 2 & 1 minutes to go) or (e.g **`all`**`5m` = `5m`: if timer if 25 minutes speak 20, 15, 10 & 5 minutes to go)
+* __`last`|`first`__ - this interval is spoken when its based on the time remaining (for last) or time ellapsed (for first).
+  (e.g. **`last`**`5m`: speak the interval five minutes from the end of the timer.) or
+  (e.g. **`first`**`1m`: speak "One minute passed." after the time has run for a minute.)
+  __NOTE:__ When `all` & `first`/`last` are combined with a fraction, the fractions are spoken after or before the halfway mark respectively.
+  e.g. `all`**`First`**`1/5`
+
+##### First pattern: Seconds, Minutes & Hours
+
+* __`XX`__: (`XX` represents digits) - the number of seconds/minutes/hours from the end (e.g. `all`**`5`**`m`: speak interval every 5 minutes)
+* __`s`|`m`|`h`__ - **`s`** = seconds, **`m`** = minutes, **`h`** = hours (__NOTE:__ if this is omitted seconds are assumend)
+
+##### Second pattern: Fractions
+
+* __`X`__ 
+
 ##### Options spoken by default
 
-* `halfway` - speak the halfway interval
-* `30seconds` - speak every 30 seconds remaining (includes minutes)
+* `1/2` - speak the halfway interval
+* `30s` - speak every 30 seconds remaining (includes minutes)
 * `last20` - speak last 20 seconds warning
 * `last15` - speak last 15 seconds warning
 * `allLast10` - speak last 10 second countdown
 
-##### Options omitted by default
-
-* `minutes` - only speak each minute remaining
-* `quarters` - (for start times that are evenly divisible by four) speak 3/4 and 1/4 intervals
-* `thirds`  - (for start times that are evenly divisible by 3) speak 2/3 and 1/3 intervals
-* `last30` - speak last 30 seconds warning
-* `last10` - speak last 10 seconds warning
-* `last5` - speak last 5 seconds warning
-* `allLast5` - speak last 5 second countdown
 
 ``` HTML
 <!-- -->
