@@ -70,7 +70,7 @@ class TalkingTimer extends HTMLElement {
 
       let speak = this.getAttribute('speak')
       speak = (typeof speak === 'undefined') ? this.speakDefault : speak
-      this.speakIntervals = this.parseRawIntervals(this.speakDefault, this.initialMilliseconds)
+      this.speakIntervals = this.parseRawIntervals(speak, this.initialMilliseconds)
 
       this.speakStart = (typeof this.getAttribute('speakstart') !== 'undefined')
 
@@ -565,6 +565,9 @@ class TalkingTimer extends HTMLElement {
 
           this.numbers.classList.add('finished')
           this.playPauseBtn.classList.add('finished')
+        } else if ((this.speakIntervals[0].offset + 1250) > this.remainingMilliseconds) {
+          const sayThis = this.speakIntervals.shift()
+          this.saySomething(sayThis.message)
         }
       })
       const promise3 = new Promise((resolve, reject) => { this.setTickTock() })
@@ -789,7 +792,364 @@ class TalkingTimer extends HTMLElement {
   // ======================================================
   // START: raw interval parser
 
-  // parse-speech-keywords
+  /**
+   * this.parseRawIntervals() builds an array of objects which in turn can
+   * be used to build promises that trigger speach events.
+   *
+   * @param {string} rawIntervals
+   * @param {number} durationMilli
+   * @param {boolean} omit
+   *
+   * @returns {array}
+   */
+  parseRawIntervals (rawIntervals, durationMilli, omit) {
+    const regex = new RegExp('(?:^|\\s+)(all)?[_-]?([0-9]+)?[_-]?((?:la|fir)st)?[_-]?(?:([1-9][0-9]*)[_-]?([smh]?)|([1-9])?[_-]?1\\/([2-9]|10))(?=\\s+|$)', 'ig')
+    let matches
+    let timeIntervals = []
+    let fractionIntervals = []
+
+    if (typeof rawIntervals !== 'string' || rawIntervals === '') {
+      return []
+    }
+    const exclude = (typeof omit === 'boolean') ? omit : false
+
+    while ((matches = regex.exec(rawIntervals)) !== null) {
+      let interval = {
+        all: ((typeof matches[1] !== 'undefined' && matches[1].toLocaleLowerCase() === 'all') || typeof matches[3] === 'undefined'),
+        multiplier: (typeof matches[2] !== 'undefined' && typeof (matches[2] * 1) === 'number') ? parseInt(matches[2]) : 1,
+        relative: (typeof matches[3] !== 'undefined') ? matches[3].toLocaleLowerCase() : '', // first|last
+        exclude: exclude,
+        isFraction: false,
+        raw: matches[0]
+      }
+      if (interval.all === true) {
+        interval.multiplier = 0
+      }
+
+      if (typeof matches[7] !== 'undefined') {
+        const denominator = parseInt(matches[7])
+
+        interval.isFraction = true
+        interval.denominator = denominator
+
+        if (interval.multiplier > (denominator - 1)) {
+          interval.multiplier = (denominator - 1)
+        }
+        fractionIntervals = fractionIntervals.concat(this.getFractionOffsetAndMessage(interval, durationMilli, interval.raw))
+      } else {
+        matches[4] = parseInt(matches[4])
+        interval.unit = (typeof matches[4] === 'string') ? matches[4].toLocaleLowerCase() : 's'
+        interval.time = matches[4]
+        timeIntervals = timeIntervals.concat(this.getTimeOffsetAndMessage(interval, durationMilli, interval.raw))
+      }
+    }
+
+    const output = (this.priority === 'time') ? timeIntervals.concat(fractionIntervals) : fractionIntervals.concat(timeIntervals)
+    const endOffset = output.map(item => {
+      return {
+        offset: durationMilli - item.offset,
+        message: item.message
+      }
+    })
+
+    return this.sortOffsets(this.filterOffsets(endOffset, durationMilli))
+  }
+
+  /**
+   * this.getFractionOffsetAndMessage() returns a list of time offset
+   * objects based on fractions of total duration of time.
+   *
+   * Used for announcing progress in timer
+   *
+   * @param {object} timeObj
+   * @param {number} milliseconds
+   */
+  getFractionOffsetAndMessage (timeObj, milliseconds) {
+    let interval = 0
+    const half = milliseconds / 2
+
+    interval = milliseconds / timeObj.denominator
+    if (timeObj.denominator === 2) {
+      return [{ message: 'Half way', offset: half, raw: timeObj.raw }]
+    }
+
+    let offsets = []
+
+    const count = (timeObj.multiplier === 0 || timeObj.multiplier >= timeObj.denominator) ? timeObj.denominator : timeObj.multiplier
+
+    if (timeObj.relative !== '') {
+      const suffix = (timeObj.relative === 'first') ? ' gone.' : ' to go.'
+      const minus = (timeObj.relative === 'first') ? 0 : milliseconds
+
+      for (let a = 1; a <= count; a += 1) {
+        offsets.push({
+          offset: this.posMinus(minus, (interval * a)),
+          message: this.makeFractionMessage(a, timeObj.denominator) + suffix,
+          raw: timeObj.raw
+        })
+      }
+    } else {
+      for (let a = 1; a <= (count / 2); a += 1) {
+        const message = this.makeFractionMessage(a, timeObj.denominator)
+        offsets.push({
+          offset: (interval * a),
+          message: message + ' to go.',
+          raw: timeObj.raw
+        },
+        {
+          offset: (milliseconds - (interval * a)),
+          message: message + ' gone.',
+          raw: timeObj.raw
+        })
+      }
+    }
+
+    const filtered = offsets.map(item => {
+      if (this.tooClose(item.offset, half)) {
+        return {
+          offset: half,
+          message: 'Half way',
+          raw: item.raw
+        }
+      } else {
+        return item
+      }
+    })
+
+    return filtered
+  }
+
+  /**
+   * this.getTimeOffsetAndMessage() returns a list of time offset
+   * objects for the given time interval.
+   *
+   * Used for announcing progress in timer
+   *
+   * @param {object} timeObj
+   * @param {number} milliseconds
+   */
+  getTimeOffsetAndMessage (timeObj, milliseconds, raw) {
+    const suffix = (timeObj.relative === 'first') ? ' gone.' : ' to go.'
+    let offsets = []
+    if (timeObj.all === true || timeObj.multiplier > 1) {
+      if (timeObj.all === true && timeObj.multiplier <= 1) {
+        if (timeObj.relative === '') {
+          const half = milliseconds / 2
+          const interval = timeObj.time * 1000
+          for (let offset = interval; offset <= half; offset += interval) {
+            offsets.push({
+              offset: milliseconds - offset,
+              message: this.makeTimeMessage(offset, ' to go.'),
+              raw: timeObj.raw
+            }, {
+              offset: offset,
+              message: this.makeTimeMessage(offset, ' gone.'),
+              raw: timeObj.raw
+            })
+          }
+        } else {
+          const interval = (timeObj.unit === 's') ? 1000 : (timeObj.unit === 'm') ? 60000 : 3600000
+          const modifier = (timeObj.relative !== 'first') ? milliseconds : 0
+
+          for (let a = 1; a <= timeObj.time; a += 1) {
+            const offset = a * interval
+            offsets.push({
+              offset: this.posMinus(modifier, offset),
+              message: this.makeTimeMessage(offset, suffix),
+              raw: timeObj.raw
+            })
+          }
+        }
+      } else if (timeObj.multiplier > 1) {
+        const unit = (timeObj.unit === 's') ? 10000 : (timeObj.unit === 'm') ? 60000 : 3600000
+        const interval = timeObj.time * unit
+        const modifier = (timeObj.relative === 'last') ? milliseconds : 0
+        for (let offset = interval; offset <= timeObj.time; offset += interval) {
+          offsets.push({
+            offset: this.posMinus(modifier, offset),
+            message: this.makeTimeMessage(offset, suffix),
+            raw: timeObj.raw
+          })
+        }
+      }
+    } else {
+      const interval = timeObj.time * 1000
+      const offset = (timeObj.relative !== 'first') ? milliseconds - interval : interval
+      offsets = [{
+        offset: offset,
+        message: this.makeTimeMessage(interval, suffix),
+        raw: raw
+      }]
+    }
+
+    return offsets
+  }
+
+  /**
+   * this.tooClose() checks whether the current value is within 5 seconds
+   * of the previous value
+   *
+   * @param {number} current value to be tested
+   * @param {number} previous value to be tested against
+   *
+   * @returns {boolean} TRUE if within 5 seconds of previous value
+   */
+  tooClose (current, previous) {
+    return (current > (previous - 5000) && current < (previous + 5000))
+  }
+
+  /**
+   * this.tooCloseAny() checks a given offset value against previously seen
+   * offsets
+   *
+   * @param {number} offset
+   * @param {array} previous list of previously seen numbers
+   *
+   * @returns {boolean} TRUE if offset was too close to a previously
+   *                seen offset value. FALSE otherwise
+   */
+  tooCloseAny (offset, previous) {
+    for (let a = 0; a < previous.length; a += 1) {
+      if (this.tooClose(offset, previous[a]) === true) {
+        return true
+      }
+    }
+    return false
+  }
+
+  /**
+   * this.posMinus() ensures that the value of a subtraction is always
+   * positive (or zero)
+   *
+   * @param {number} a
+   * @param {number} b
+   *
+   * @return {number} positive value of a - b
+   */
+  posMinus (a, b) {
+    if (a > b) {
+      return a - b
+    } else {
+      return b - a
+    }
+  }
+
+  /**
+   * this.makeTimeMessage() returns a string that can be passed to the text
+   * to web speech API
+   *
+   * @param {number} offset milliseconds
+   *
+   * @returns {string} textual representation of offset
+   */
+  makeTimeMessage (offset, suffix) {
+    let output = ''
+    let working = offset
+    let comma = ''
+
+    if (working < 20000) {
+      // Do not append unit if 10 seconds or less
+      const tmpSuffix = (working > 10000) ? ' seconds' : ''
+      return Math.round(working / 1000) + tmpSuffix
+    }
+
+    if (working >= 3600000) {
+      const hours = Math.floor(working / 3600000)
+      working -= hours * 3600000
+      output += comma + hours.toString() + ' hour'
+      output += (hours > 1) ? 's' : ''
+      comma = ', '
+    }
+
+    if (working >= 60000) {
+      const minutes = Math.floor(working / 60000)
+      working -= minutes * 60000
+      output = comma + minutes.toString() + ' minute'
+      output += (minutes > 1) ? 's' : ''
+      comma = ', '
+    }
+
+    working = Math.round(working / 1000)
+    if (working > 0) {
+      output += comma + working.toString() + ' second'
+      output += (working > 1) ? 's' : ''
+      comma = ', '
+    }
+
+    return output + suffix
+  }
+
+  /**
+   * this.makeFractionMessage() returns a string that can be passed to the
+   * text to web speech API
+   *
+   * @param {number} numerator for fraction
+   * @param {number} denominator for fraction
+   *
+   * @returns {string} textual representation of the fraction offset
+   */
+  makeFractionMessage (numerator, denominator) {
+    let fraction = ''
+
+    // reduce the denominator to its
+    const newDenominator = (Number.isInteger(denominator / numerator)) ? (denominator / numerator) : denominator
+    switch (newDenominator) {
+      case 2: return 'Half way'
+      case 3: fraction = 'third'; break
+      case 4: fraction = 'quarter'; break
+      case 5: fraction = 'fifth'; break
+      case 6: fraction = 'sixth'; break
+      case 7: fraction = 'seventh'; break
+      case 8: fraction = 'eighth'; break
+      case 9: fraction = 'ninth'; break
+      case 10: fraction = 'tenth'; break
+    }
+
+    const newNumerator = (numerator / (denominator / newDenominator))
+    const s = (newNumerator > 1) ? 's' : ''
+
+    return newNumerator + ' ' + fraction + s
+  }
+
+  /**
+   * this.sortOffsets() sorts a list of offset objects by their offset value
+   *
+   * @param {array} input list of offset objects to be sorted
+   *
+   * @returns {array} items are sorted by offset
+   */
+  sortOffsets (input) {
+    return input.sort((a, b) => {
+      if (a.offset < b.offset) {
+        return 1
+      } else if (a.offset > b.offset) {
+        return -1
+      } else {
+        return 0
+      }
+    })
+  }
+
+  /**
+   * this.filterOffsets() removes duplicates an items that are too close
+   * to preceeding items
+   *
+   * @param {array} offsets list of offset objects
+   *
+   * @returns {array} list of offset objects excluding duplicates and
+   *                closely occuring items
+   */
+  filterOffsets (offsets, max) {
+    let found = []
+    return offsets.filter(item => {
+      if (found.indexOf(item.offset) === -1 && (item.offset <= 30000 || !this.tooCloseAny(item.offset, found)) && item.offset < max) {
+        found.push(item.offset)
+        return true
+      } else {
+        return false
+      }
+    })
+  }
 
   //  END:  raw interval parser
   // ======================================================
