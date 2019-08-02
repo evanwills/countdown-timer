@@ -565,7 +565,7 @@ class TalkingTimer extends HTMLElement {
 
           this.numbers.classList.add('finished')
           this.playPauseBtn.classList.add('finished')
-        } else if ((this.speakIntervals[0].offset + 1250) > this.remainingMilliseconds) {
+        } else if (this.speakIntervals.length > 0 && (this.speakIntervals[0].offset + 1250) > this.remainingMilliseconds) {
           const sayThis = this.speakIntervals.shift()
           this.saySomething(sayThis.message)
         }
