@@ -24,17 +24,15 @@ class TalkingTimer extends HTMLElement {
     this.initialMilliseconds = 0
     this.remainingMilliseconds = 0
 
-    this.selfDestruct = false
-    // this.noReconfigure = false
-    // this.restartOnReset = true
-
     this.config = {
       autoDestruct: false,
       noEndSpeech: false,
       noEndChime: false,
       noPause: false,
+      noReconfigure: false,
       noReset: false,
       noRestart: false,
+      selfDestruct: false,
       startSpeech: false,
       priority: 'fraction'
     }
@@ -167,6 +165,34 @@ class TalkingTimer extends HTMLElement {
     this.playPauseTxt.innerHTML = 'Play '
     this.playPauseIcon.innerHTML = '&bigtriangledown;'
     this.play = false
+  }
+
+  endPlaying () {
+    this.resetTickTock()
+
+    if (this.noEndSpeech === false) {
+      const promise2 = new Promise((resolve, reject) => {
+        this.saySomething(this.endText)
+      })
+    }
+    if (this.config.noEndChime === false) {
+      this.endSound()
+    }
+
+    this.numbers.classList.add('finished')
+    this.playPauseBtn.classList.add('finished')
+
+    if (this.config.noPause === true) {
+      this.noReset.classList.remove('hide')
+    }
+
+    if (this.config.noReset === true) {
+      this.noReset.classList.remove('hide')
+    }
+
+    if (this.config.noRestart === true) {
+      this.noRestart.classList.remove('hide')
+    }
   }
 
   getPlayPauseClick () {
@@ -536,31 +562,7 @@ class TalkingTimer extends HTMLElement {
         this.currentValue = this.millisecondsToTimeObj(this.remainingMilliseconds)
 
         if (Math.floor(this.remainingMilliseconds) <= 0) {
-          this.resetTickTock()
-
-          if (this.noEndSpeech === false) {
-            const promise2 = new Promise((resolve, reject) => {
-              this.saySomething(this.endText)
-            })
-          }
-          if (this.config.noEndChime === false) {
-            this.endSound()
-          }
-
-          this.numbers.classList.add('finished')
-          this.playPauseBtn.classList.add('finished')
-
-          if (this.config.noPause === true) {
-            this.noReset.classList.remove('hide')
-          }
-
-          if (this.config.noReset === true) {
-            this.noReset.classList.remove('hide')
-          }
-
-          if (this.config.noRestart === true) {
-            this.noRestart.classList.remove('hide')
-          }
+          this.endPlaying()
         } else if (this.speakIntervals.length > 0 && (this.speakIntervals[0].offset + 1250) > this.remainingMilliseconds) {
           const sayThis = this.speakIntervals.shift()
           this.saySomething(sayThis.message)
