@@ -424,7 +424,7 @@ function filterOffsets (offsets, max) {
 //  END:  Redundant functions
 // ==============================================
 
-const keywords = 'last1/4 30s last20 last15 allLast10'
+const keywords = '1/2 30s last20 last15 allLast10'
 const timeObj = parseRawIntervals(keywords, 240000)
 
 console.log('keywords:', keywords)

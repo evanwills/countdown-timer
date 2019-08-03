@@ -24,15 +24,21 @@ class TalkingTimer extends HTMLElement {
     this.initialMilliseconds = 0
     this.remainingMilliseconds = 0
 
-    this.adjustmentFactor = 1
-
     this.selfDestruct = false
     // this.noReconfigure = false
     // this.restartOnReset = true
-    this.priority = 'fraction'
-    this.autoDestruct = 0
-    this.noReset = false
-    this.noRestart = false
+
+    this.config = {
+      autoDestruct: false,
+      noEndSpeech: false,
+      noEndChime: false,
+      noPause: false,
+      noReset: false,
+      noRestart: false,
+      startSpeech: false,
+      priority: 'fraction'
+    }
+
     this.play = false
     this.playPauseBtn = null
     this.resetBtn = null
@@ -43,6 +49,8 @@ class TalkingTimer extends HTMLElement {
     this.speakDefault = '1/2 30s last20 last15 allLast10'
 
     this.endText = 'Time\'s up'
+    this.startText = 'Ready. Set. Go.'
+
     this.multipliers = { hours: 3600000, minutes: 60000, seconds: 1000, tenths: 100 }
 
     let shadowRoot = this.attachShadow({ mode: 'open' })
@@ -57,29 +65,22 @@ class TalkingTimer extends HTMLElement {
   // START: standard custom element callbacks
 
   connectedCallback () {
-    if (this.hasAttribute('time') && this.validateStart(this.getAttribute('time'))) {
-      this.numbers.innerHTML = this.timeObjToString(this.onlyGreaterThanZero(this.initialValue))
-      const endText = this.getAttribute('end-message')
-      if (typeof endText !== 'undefined') {
-        this.endText = endText
-      }
-      const priority = this.getAttribute('priority')
-      this.priority = (typeof priority !== 'undefined' || priority !== 'time') ? 'fraction' : 'time'
+    this.parseAttributes()
 
-      // const noSpeak = this.parseRawIntervals(this.getAttribute('nospeak'), true)
-
-      let speak = this.getAttribute('speak')
-      speak = (typeof speak === 'undefined') ? this.speakDefault : speak
-      this.speakIntervals = this.parseRawIntervals(speak, this.initialMilliseconds)
-
-      this.speakStart = (typeof this.getAttribute('speakstart') !== 'undefined')
-
+    if (this.initialMilliseconds > 10000) {
       this.playPauseClick = this.getPlayPauseClick()
       this.playPauseBtn.addEventListener('click', this.playPauseClick)
 
+      if (this.config.noReset === false) {
+        this.resetBtn.classList.add('hide')
+      }
+
+      if (this.config.noRestart === true) {
+        this.restartBtn.classList.add('hide')
+      }
+
       this.resetClick = this.getResetClick()
       this.resetBtn.addEventListener('click', this.resetClick)
-
       this.restartClick = this.getRestartClick()
       this.restartBtn.addEventListener('click', this.restartClick)
 
@@ -88,8 +89,6 @@ class TalkingTimer extends HTMLElement {
 
       this.setTickTock()
       this.resetTimerValues()
-
-      // this.adjustmentFactor = 1 - (1 / this.initialSeconds)
 
       this.inProgress = false
       this.voice = window.speechSynthesis
@@ -108,7 +107,7 @@ class TalkingTimer extends HTMLElement {
   get start () { return this.timeObjToString(this.initialValue) }
 
   set start (hoursMinutesSeconds) {
-    this.validateStart(hoursMinutesSeconds)
+    this.validateTimeDuration(hoursMinutesSeconds)
   }
 
   get playing () { return this.playing }
@@ -129,43 +128,6 @@ class TalkingTimer extends HTMLElement {
     }
   }
 
-  get autodestruct () { return false }
-
-  set autodestruct (val) {
-
-  }
-
-  get nospeak () { return false }
-
-  set nospeak (val) {
-  }
-
-  get speak () { return true }
-
-  set speak (val) {
-
-  }
-
-  // get norestart () { return this.noRestart }
-
-  set norestart (val) {
-
-  }
-
-  // get noreset () { return this.noReset }
-
-  set noreset (val) {
-
-  }
-
-  // get endText () { return this.endText }
-
-  // set endText (text) {
-  //   // if (typeof text === 'string') {
-  //   //   this.endText = text
-  //   // }
-  // }
-
   //  END:  getters & setters
   // ======================================================
   // START: click handlers
@@ -174,6 +136,23 @@ class TalkingTimer extends HTMLElement {
     // noDelay = (typeof noDelay !== 'boolean' || noDelay === true)
 
     this.endTime = Date.now() + this.remainingMilliseconds
+
+    if (this.config.startSpeech === false) {
+      this.saySomething(this.startText)
+      setTimeout(() => {}, 2000)
+    }
+
+    if (this.config.noPause === true) {
+      this.noReset.classList.add('hide')
+    }
+
+    if (this.config.noReset === true) {
+      this.noReset.classList.add('hide')
+    }
+
+    if (this.config.noRestart === true) {
+      this.noRestart.classList.add('hide')
+    }
 
     this.setProgressTicker(20)
     this.playPauseBtn.classList.add('playing')
@@ -558,13 +537,30 @@ class TalkingTimer extends HTMLElement {
 
         if (Math.floor(this.remainingMilliseconds) <= 0) {
           this.resetTickTock()
-          const promise2 = new Promise((resolve, reject) => {
-            this.saySomething(this.endText)
-          })
-          this.endSound()
+
+          if (this.noEndSpeech === false) {
+            const promise2 = new Promise((resolve, reject) => {
+              this.saySomething(this.endText)
+            })
+          }
+          if (this.config.noEndChime === false) {
+            this.endSound()
+          }
 
           this.numbers.classList.add('finished')
           this.playPauseBtn.classList.add('finished')
+
+          if (this.config.noPause === true) {
+            this.noReset.classList.remove('hide')
+          }
+
+          if (this.config.noReset === true) {
+            this.noReset.classList.remove('hide')
+          }
+
+          if (this.config.noRestart === true) {
+            this.noRestart.classList.remove('hide')
+          }
         } else if (this.speakIntervals.length > 0 && (this.speakIntervals[0].offset + 1250) > this.remainingMilliseconds) {
           const sayThis = this.speakIntervals.shift()
           this.saySomething(sayThis.message)
@@ -606,7 +602,7 @@ class TalkingTimer extends HTMLElement {
   }
 
   /**
-   * validateStart() validates the value of the element's `start`
+   * validateTimeDuration() validates the value of the element's `start`
    * attribute
    *
    * __NOTE:__ the parsed value of `start` must be less than 24 hours
@@ -618,7 +614,7 @@ class TalkingTimer extends HTMLElement {
    *                 element's `start` attribute
    * @returns {void}
    */
-  validateStart (hoursMinutesSeconds) {
+  validateTimeDuration (hoursMinutesSeconds) {
     const regex = new RegExp('^(?:(?:(?:([0-1]?[0-9]|2[0-4]):)?([0-5]?[0-9]):)?([0-5]?[0-9])|([6-9][0-9]|[1-9][0-9]{2,5}))$')
 
     if (typeof hoursMinutesSeconds === 'string') {
@@ -788,6 +784,44 @@ class TalkingTimer extends HTMLElement {
     this.progressTicker = null
   }
 
+  parseAttributes () {
+    if (this.hasAttribute('time') && this.validateTimeDuration(this.getAttribute('time'))) {
+      this.numbers.innerHTML = this.timeObjToString(this.onlyGreaterThanZero(this.initialValue))
+    } else {
+      // No timer... nothing to do.
+      console.error('talking-timer custom element requires a time attribute which representing the total number of seconds or time string (HH:MM:SS)')
+      return false
+    }
+
+    const configKeys = Object.keys(this.config)
+    for (let a = 0; a < configKeys.length; a += 1) {
+      const key = configKeys[a]
+      const attr = key.toLocaleLowerCase()
+      this.config[key] = (this.getAttribute(attr) !== 'undefined')
+    }
+
+    const endText = this.getAttribute('end-message')
+    if (typeof endText !== 'undefined') {
+      this.config.noEndspeech = false
+      this.endText = endText
+    }
+
+    const startText = this.getAttribute('start-message')
+    if (typeof startText !== 'undefined' && startText !== '') {
+      this.config.noStartSpeech = false
+      this.startText = startText
+    }
+
+    const priority = this.getAttribute('priority')
+    this.config.priority = (typeof priority !== 'undefined' || priority !== 'time') ? 'fraction' : 'time'
+
+    // const noSpeak = this.parseRawIntervals(this.getAttribute('nospeak'), true)
+
+    let speak = this.getAttribute('speak')
+    speak = (typeof speak === 'undefined' || speak === '') ? this.speakDefault : speak
+    this.speakIntervals = this.parseRawIntervals(speak, this.initialMilliseconds)
+  }
+
   //  END:  utility methods
   // ======================================================
   // START: raw interval parser
@@ -844,7 +878,7 @@ class TalkingTimer extends HTMLElement {
       }
     }
 
-    const output = (this.priority === 'time') ? timeIntervals.concat(fractionIntervals) : fractionIntervals.concat(timeIntervals)
+    const output = (this.config.priority === 'time') ? timeIntervals.concat(fractionIntervals) : fractionIntervals.concat(timeIntervals)
     const endOffset = output.map(item => {
       return {
         offset: durationMilli - item.offset,
