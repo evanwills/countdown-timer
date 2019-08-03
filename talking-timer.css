@@ -35,4 +35,5 @@ body {
 }
 talking-timer {
   display: block;
+  margin: 2rem 0.5rem
 }
