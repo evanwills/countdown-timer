@@ -26,15 +26,8 @@ The `time` attribute is required and can either be the total number of seconds o
 
 ### `speak`
 
-
-* `1/2` - announce the halfway interval
-* `30s` - speak every 30 seconds remaining (includes minutes)
-* `last20` - speak last 20 seconds warning
-* `last15` - speak last 15 seconds warning
-* `allLast10` - speak last 10 second countdown
-`speak` defines which timer intervals are announced.
-
 By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
+
 * `1/2` - announce the *"Half way."* interval
 * `30s` - announce every 30 second and 1 minute interval
   (e.g. for a three minute timer that would be "*30 seconds gone.*", "*1 minute gone.*", "*1 minute to go.*", "*30 seconds to go.*".
