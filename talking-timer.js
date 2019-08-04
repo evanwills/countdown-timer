@@ -140,7 +140,7 @@ class TalkingTimer extends HTMLElement {
 
     if (this.config.sayStart === true) {
       this.saySomething(this.startText)
-      window.setTimeout(this.startPlayingInner, 3800, this)
+      window.setTimeout(this.startPlayingInner, 2800, this)
     } else {
       this.startPlayingInner(this)
     }
