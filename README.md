@@ -45,26 +45,32 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
 ##### speak option pattern:
 
 1. __Time interval:__
-   * `[all|X][last|first][YY][s|m|h]` or
+   * `[all|every|X][last|first][YY][s|m|h]` or
    * (hypen separated) `[all|X]][last|first]-[YY]-[s|m|h]` or
    * (underscore separated) `[all]_[last|first]_[YY]_[s|m|h]`
 2. __Fraction interval:__
-   * `[all|X][last|first]1/[2, 3, 4, 5, 6, 7, 8, 9, 10]` or
+   * `[all|every|X][last|first]1/[2, 3, 4, 5, 6, 7, 8, 9, 10]` or
    * (hypen separated) `[all|X]-[last|first]-1/[2, 3, 4, 5, 6, 7, 8, 9, 10]` or
    * (underscore separated) `[all|X]_[last|first]_1/[2, 3, 4, 5, 6, 7, 8, 9, 10]`
 
 
 
 * __`all`__ - is a modifier for `last` & `first`. `all` is assumed if `last`/`last` is not present. All of these intervals are spoken (e.g. **`all`**`Last5m`: speak 5, 4, 3, 2 & 1 minutes to go) or (e.g **`all`**`5m` = `5m`: if timer if 25 minutes speak 20, 15, 10 & 5 minutes to go)
+
 * __`X`__ (represents a number) is a modifier for `last` & `first`. When present, it multiplies the number of times a give interval is announced
   (e.g. `3last15` - same as `last15` & `last30` & `last45` - would result in "45 seconds to go.", "30 seconds to go." & "15 Seconds") or
   (e.g. 2last1/5 - would result in both "Two fifths to go." & "One fifth to go" being announced)
+
+* __`every`__ - works in the same way as `X` but every interval is spoken for the duration of the timer relative to `last` / `first`.
+  (e.g. everyLast30 - for a three minute timer: "2 minutes and 30 seconds to go.", "2 minutes and 30 seconds to go.", "2 minutes to go.", "1 minute and 30 seconds to go.", "1 minute to go.", "30 seconds to go.") or
+  (e.g. everyLast1/4 - # a three minute timer: "3 quarters to go.", "Half way.", "1 quarter to go.")
 
 * __`last`|`first`__ - this interval is spoken when its based on the time remaining (for last) or time ellapsed (for first).
   (e.g. **`last`**`5m`: speak the interval five minutes from the end of the timer.) or
   (e.g. **`first`**`1m`: speak "One minute passed." after the time has run for a minute.)
   __NOTE:__ When `all` & `first`/`last` are combined with a fraction, the fractions are spoken after or before the halfway mark respectively.
-  e.g. `all`**`First`**`1/5` "One Fifth." & "Two fifths." will be spoken
+  (e.g. `all`**`First`**`1/5` "One Fifth gone." & "Two fifths gone." will be spoken)
+  (e.g. `every`**`First`**`1/5` "One Fifth gone.", "two Fifth gone.", "three Fifth gone." & "four fifths gone." will be spoken)
 
 ##### Time interval: Seconds, Minutes & Hours
 

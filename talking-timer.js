@@ -839,7 +839,7 @@ class TalkingTimer extends HTMLElement {
    * @returns {array}
    */
   parseRawIntervals (rawIntervals, durationMilli, omit) {
-    const regex = new RegExp('(?:^|\\s+)(all)?[_-]?([0-9]+)?[_-]?((?:la|fir)st)?[_-]?(?:([1-9][0-9]*)[_-]?([smh]?)|([1-9])?[_-]?1\\/([2-9]|10))(?=\\s+|$)', 'ig')
+    const regex = new RegExp('(?:^|\\s+)(all|every)?[_-]?([0-9]+)?[_-]?((?:la|fir)st)?[_-]?(?:([1-9][0-9]*)[_-]?([smh]?)|([1-9])?[_-]?1\\/([2-9]|10))(?=\\s+|$)', 'ig')
     let matches
     let timeIntervals = []
     let fractionIntervals = []
@@ -849,16 +849,25 @@ class TalkingTimer extends HTMLElement {
     }
     const exclude = (typeof omit === 'boolean') ? omit : false
 
+    const allEvery = (typeof matches[1] !== 'undefined' ) ? matches[1].toLocaleLowerCase() : ''
+
+    const firstLast = (typeof matches[3] !== 'undefined' ) ? matches[3].toLocaleLowerCase() : ''
+
     while ((matches = regex.exec(rawIntervals)) !== null) {
       let interval = {
-        all: ((typeof matches[1] !== 'undefined' && matches[1].toLocaleLowerCase() === 'all') || typeof matches[3] === 'undefined'),
+        all: (allEvery === 'all' || firstLast === ''),
+        every: (allEvery === 'every' && firstLast !== ''),
         multiplier: (typeof matches[2] !== 'undefined' && typeof (matches[2] * 1) === 'number') ? parseInt(matches[2]) : 1,
-        relative: (typeof matches[3] !== 'undefined') ? matches[3].toLocaleLowerCase() : '', // first|last
+        relative: firstLast
         exclude: exclude,
         isFraction: false,
         raw: matches[0]
       }
-      if (interval.all === true) {
+
+      if (interval.every === true) {
+        interval.all = false
+        interval.multiplier = 0
+      } else if (interval.all === true) {
         interval.multiplier = 0
       }
 
