@@ -138,30 +138,34 @@ class TalkingTimer extends HTMLElement {
   startPlaying (noDelay) {
     // noDelay = (typeof noDelay !== 'boolean' || noDelay === true)
 
-    this.endTime = Date.now() + this.remainingMilliseconds
-
-    if (this.config.sayStart === false) {
+    if (this.config.sayStart === true) {
       this.saySomething(this.startText)
-      setTimeout(() => {}, 2000)
+      window.setTimeout(this.startPlayingInner, 3800, this)
+    } else {
+      this.startPlayingInner(this)
+    }
+  }
+
+  startPlayingInner (obj) {
+    this.endTime = Date.now() + obj.remainingMilliseconds
+
+    if (obj.config.noPause === true) {
+      obj.playPauseBtn.classList.add('hide')
     }
 
-    if (this.config.noPause === true) {
-      this.playPauseBtn.classList.add('hide')
+    if (obj.config.noReset === true) {
+      obj.resetBtn.classList.add('hide')
     }
 
-    if (this.config.noReset === true) {
-      this.resetBtn.classList.add('hide')
+    if (obj.config.noRestart === true) {
+      obj.restartBtn.classList.add('hide')
     }
 
-    if (this.config.noRestart === true) {
-      this.restartBtn.classList.add('hide')
-    }
-
-    this.setProgressTicker(this.intervalTime)
-    this.playPauseBtn.classList.add('playing')
-    this.playPauseTxt.innerHTML = 'Pause '
-    this.playPauseIcon.innerHTML = '&Verbar;'
-    this.play = true
+    obj.setProgressTicker(obj.intervalTime)
+    obj.playPauseBtn.classList.add('playing')
+    obj.playPauseTxt.innerHTML = 'Pause '
+    obj.playPauseIcon.innerHTML = '&Verbar;'
+    obj.play = true
   }
 
   pausePlaying () {
@@ -224,7 +228,6 @@ class TalkingTimer extends HTMLElement {
 
   getResetClick () {
     const resetClick = () => {
-      console.log('reset clicked')
       this.pausePlaying()
       this.resetTimerValues()
       this.numbers.innerHTML = this.timeObjToString(this.currentValue)
@@ -240,7 +243,6 @@ class TalkingTimer extends HTMLElement {
 
   getRestartClick () {
     const restartClick = () => {
-      console.log('restart clicked')
       this.resetClick()
       this.startPlaying(false)
     }
@@ -563,15 +565,16 @@ class TalkingTimer extends HTMLElement {
     if (this.endTime === 0) {
       this.endTime = Date.now() + this.remainingMilliseconds
     }
+
+    // Clone speakIntervals so you have something to use next time
+    this.workingIntervals = this.speakIntervals.map(interval => { return { ...interval } })
+
     const progressTickTock = () => {
       this.remainingMilliseconds = this.endTime - Date.now()
 
       if (this.remainingMilliseconds < 0) {
         this.remainingMilliseconds = 0
       }
-
-      // Clone speakIntervals so you have something to use next time
-      this.workingIntervals = this.speakIntervals.map(interval => { return { ...interval } })
 
       const promise1 = new Promise((resolve, reject) => {
         this.progress.value = (1 - (this.remainingMilliseconds / this.initialMilliseconds))
@@ -643,7 +646,7 @@ class TalkingTimer extends HTMLElement {
         const len = matches.length
 
         if (len === 5 && typeof matches[4] !== 'undefined') {
-          let seconds = Number.parseInt(matches[4])
+          let seconds = Number.parseInt(matches[4], 10)
 
           if (seconds > 86400) {
             // limit the maximum duration of the timer to 24 hours
@@ -653,9 +656,9 @@ class TalkingTimer extends HTMLElement {
           this.initialMilliseconds = seconds * 1000
           this.initialValue = this.millisecondsToTimeObj(this.milliseconds)
         } else if (len > 0) {
-          tmpStart.seconds = Number.parseInt(matches[3])
-          tmpStart.minutes = (typeof matches[2] === 'string' && matches[2] !== '') ? Number.parseInt(matches[2]) : 0
-          tmpStart.hours = (typeof matches[1] === 'string' && matches[1] !== '') ? Number.parseInt(matches[1]) : 0
+          tmpStart.seconds = Number.parseInt(matches[3], 10)
+          tmpStart.minutes = (typeof matches[2] === 'string' && matches[2] !== '') ? Number.parseInt(matches[2], 10) : 0
+          tmpStart.hours = (typeof matches[1] === 'string' && matches[1] !== '') ? Number.parseInt(matches[1], 10) : 0
 
           this.initialValue = tmpStart
           this.initialMilliseconds = this.timeObjToMilliseconds(tmpStart)
@@ -825,7 +828,7 @@ class TalkingTimer extends HTMLElement {
     }
 
     const startText = this.getAttribute('start-message')
-    if (typeof startText !== 'undefined' && startText !== '') {
+    if (typeof startText === 'string' && startText !== '') {
       this.config.nosayStart = false
       this.startText = startText
     }
@@ -836,12 +839,12 @@ class TalkingTimer extends HTMLElement {
     // const noSpeak = this.parseRawIntervals(this.getAttribute('nospeak'), true)
 
     let speak = this.getAttribute('speak')
-    speak = (typeof speak === 'undefined' || speak === '') ? this.speakDefault : speak
+    speak = (typeof speak !== 'string') ? this.speakDefault : speak
     this.speakIntervals = this.parseRawIntervals(speak, this.initialMilliseconds)
 
     if (this.config.autoDestruct === true) {
       const autoDestruct = this.getAttribute('selfdestruct')
-      this.config.autoDestruct = (Number.isInteger(autoDestruct * 1)) ? Math.parseInt(autoDestruct) * 1000 : 10000
+      this.config.autoDestruct = (Number.isInteger(autoDestruct * 1)) ? Number.parseInt(autoDestruct, 10) * 1000 : 10000
     } else {
       this.config.autoDestruct = -1
     }
@@ -880,7 +883,7 @@ class TalkingTimer extends HTMLElement {
       let interval = {
         all: (allEvery === 'all' || firstLast === ''),
         every: (allEvery === 'every' && firstLast !== ''),
-        multiplier: (typeof matches[2] !== 'undefined' && typeof (matches[2] * 1) === 'number') ? parseInt(matches[2]) : 1,
+        multiplier: (typeof matches[2] !== 'undefined' && typeof (matches[2] * 1) === 'number') ? Number.parseInt(matches[2], 10) : 1,
         relative: firstLast,
         exclude: exclude,
         isFraction: false,
@@ -895,7 +898,7 @@ class TalkingTimer extends HTMLElement {
       }
 
       if (typeof matches[7] !== 'undefined') {
-        const denominator = parseInt(matches[7])
+        const denominator = Number.parseInt(matches[7], 10)
 
         interval.isFraction = true
         interval.denominator = denominator
@@ -912,7 +915,7 @@ class TalkingTimer extends HTMLElement {
           fractionIntervals = fractionIntervals.concat(tmpIntervals)
         }
       } else {
-        matches[4] = parseInt(matches[4])
+        matches[4] = Number.parseInt(matches[4], 10)
         interval.unit = (typeof matches[4] === 'string') ? matches[4].toLocaleLowerCase() : 's'
         interval.time = matches[4]
 
