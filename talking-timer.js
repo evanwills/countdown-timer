@@ -1,3 +1,4 @@
+/* globals HTMLElement, SpeechSynthesisUtterance, speechSynthesis, AudioContext, customElements */
 
 // references:
 //   https://developers.google.com/web/fundamentals/web-components/customelements
@@ -25,17 +26,19 @@ class TalkingTimer extends HTMLElement {
     this.remainingMilliseconds = 0
 
     this.config = {
-      autoDestruct: false,
-      noEndSpeech: false,
+      autoDestruct: -1,
       noEndChime: false,
       noPause: false,
       noReconfigure: false,
       noReset: false,
       noRestart: false,
+      noSayEnd: false,
       selfDestruct: false,
-      startSpeech: false,
+      sayStart: false,
       priority: 'fraction'
     }
+
+    this.intervalTime = 20 // milliseconds
 
     this.play = false
     this.playPauseBtn = null
@@ -45,6 +48,8 @@ class TalkingTimer extends HTMLElement {
     this.numbers = null
     this.progressTicker = null
     this.speakDefault = '1/2 30s last20 last15 allLast10'
+    this.speakIntervals = []
+    this.workingIntervals = []
 
     this.endText = 'Time\'s up'
     this.startText = 'Ready. Set. Go.'
@@ -135,24 +140,24 @@ class TalkingTimer extends HTMLElement {
 
     this.endTime = Date.now() + this.remainingMilliseconds
 
-    if (this.config.startSpeech === false) {
+    if (this.config.sayStart === false) {
       this.saySomething(this.startText)
       setTimeout(() => {}, 2000)
     }
 
     if (this.config.noPause === true) {
-      this.noReset.classList.add('hide')
+      this.playPauseBtn.classList.add('hide')
     }
 
     if (this.config.noReset === true) {
-      this.noReset.classList.add('hide')
+      this.resetBtn.classList.add('hide')
     }
 
     if (this.config.noRestart === true) {
-      this.noRestart.classList.add('hide')
+      this.restartBtn.classList.add('hide')
     }
 
-    this.setProgressTicker(20)
+    this.setProgressTicker(this.intervalTime)
     this.playPauseBtn.classList.add('playing')
     this.playPauseTxt.innerHTML = 'Pause '
     this.playPauseIcon.innerHTML = '&Verbar;'
@@ -168,9 +173,7 @@ class TalkingTimer extends HTMLElement {
   }
 
   endPlaying () {
-    this.resetTickTock()
-
-    if (this.noEndSpeech === false) {
+    if (this.noSayEnd === false) {
       const promise2 = new Promise((resolve, reject) => {
         this.saySomething(this.endText)
       })
@@ -182,12 +185,22 @@ class TalkingTimer extends HTMLElement {
     this.numbers.classList.add('finished')
     this.playPauseBtn.classList.add('finished')
 
+    if (this.config.autoDestruct !== -1) {
+      window.setTimeout(() => { this.remove() }, this.config.autoDestruct)
+
+      // This timer is going to self destruct.
+      // Don't bother doing anything more
+      return
+    }
+
+    this.resetTickTock()
+
     if (this.config.noPause === true) {
-      this.noReset.classList.remove('hide')
+      this.resetBtn.classList.remove('hide')
     }
 
     if (this.config.noReset === true) {
-      this.noReset.classList.remove('hide')
+      this.restartBtn.classList.remove('hide')
     }
 
     if (this.config.noRestart === true) {
@@ -557,14 +570,17 @@ class TalkingTimer extends HTMLElement {
         this.remainingMilliseconds = 0
       }
 
+      // Clone speakIntervals so you have something to use next time
+      this.workingIntervals = this.speakIntervals.map(interval => { return { ...interval } })
+
       const promise1 = new Promise((resolve, reject) => {
         this.progress.value = (1 - (this.remainingMilliseconds / this.initialMilliseconds))
         this.currentValue = this.millisecondsToTimeObj(this.remainingMilliseconds)
 
         if (Math.floor(this.remainingMilliseconds) <= 0) {
           this.endPlaying()
-        } else if (this.speakIntervals.length > 0 && (this.speakIntervals[0].offset + 1250) > this.remainingMilliseconds) {
-          const sayThis = this.speakIntervals.shift()
+        } else if (this.workingIntervals.length > 0 && (this.workingIntervals[0].offset + 1250) > this.remainingMilliseconds) {
+          const sayThis = this.workingIntervals.shift()
           this.saySomething(sayThis.message)
         }
       })
@@ -804,13 +820,13 @@ class TalkingTimer extends HTMLElement {
 
     const endText = this.getAttribute('end-message')
     if (typeof endText !== 'undefined') {
-      this.config.noEndspeech = false
+      this.config.noSayEnd = false
       this.endText = endText
     }
 
     const startText = this.getAttribute('start-message')
     if (typeof startText !== 'undefined' && startText !== '') {
-      this.config.noStartSpeech = false
+      this.config.nosayStart = false
       this.startText = startText
     }
 
@@ -822,6 +838,13 @@ class TalkingTimer extends HTMLElement {
     let speak = this.getAttribute('speak')
     speak = (typeof speak === 'undefined' || speak === '') ? this.speakDefault : speak
     this.speakIntervals = this.parseRawIntervals(speak, this.initialMilliseconds)
+
+    if (this.config.autoDestruct === true) {
+      const autoDestruct = this.getAttribute('selfdestruct')
+      this.config.autoDestruct = (Number.isInteger(autoDestruct * 1)) ? Math.parseInt(autoDestruct) * 1000 : 10000
+    } else {
+      this.config.autoDestruct = -1
+    }
   }
 
   //  END:  utility methods
@@ -843,22 +866,22 @@ class TalkingTimer extends HTMLElement {
     let matches
     let timeIntervals = []
     let fractionIntervals = []
+    let orderIntervals = []
 
     if (typeof rawIntervals !== 'string' || rawIntervals === '') {
       return []
     }
     const exclude = (typeof omit === 'boolean') ? omit : false
 
-    const allEvery = (typeof matches[1] !== 'undefined' ) ? matches[1].toLocaleLowerCase() : ''
-
-    const firstLast = (typeof matches[3] !== 'undefined' ) ? matches[3].toLocaleLowerCase() : ''
-
     while ((matches = regex.exec(rawIntervals)) !== null) {
+      const allEvery = (typeof matches[1] !== 'undefined') ? matches[1].toLocaleLowerCase() : ''
+      const firstLast = (typeof matches[3] !== 'undefined') ? matches[3].toLocaleLowerCase() : ''
+
       let interval = {
         all: (allEvery === 'all' || firstLast === ''),
         every: (allEvery === 'every' && firstLast !== ''),
         multiplier: (typeof matches[2] !== 'undefined' && typeof (matches[2] * 1) === 'number') ? parseInt(matches[2]) : 1,
-        relative: firstLast
+        relative: firstLast,
         exclude: exclude,
         isFraction: false,
         raw: matches[0]
@@ -880,24 +903,31 @@ class TalkingTimer extends HTMLElement {
         if (interval.multiplier > (denominator - 1)) {
           interval.multiplier = (denominator - 1)
         }
-        fractionIntervals = fractionIntervals.concat(this.getFractionOffsetAndMessage(interval, durationMilli, interval.raw))
+
+        const tmpIntervals = this.getFractionOffsetAndMessage(interval, durationMilli, interval.raw)
+
+        if (this.config.priority === 'order') {
+          orderIntervals = orderIntervals.concat(tmpIntervals)
+        } else {
+          fractionIntervals = fractionIntervals.concat(tmpIntervals)
+        }
       } else {
         matches[4] = parseInt(matches[4])
         interval.unit = (typeof matches[4] === 'string') ? matches[4].toLocaleLowerCase() : 's'
         interval.time = matches[4]
-        timeIntervals = timeIntervals.concat(this.getTimeOffsetAndMessage(interval, durationMilli, interval.raw))
+
+        const tmpIntervals = this.getTimeOffsetAndMessage(interval, durationMilli, interval.raw)
+        if (this.config.priority === 'order') {
+          orderIntervals = orderIntervals.concat(tmpIntervals)
+        } else {
+          timeIntervals = timeIntervals.concat(tmpIntervals)
+        }
       }
     }
 
-    const output = (this.config.priority === 'time') ? timeIntervals.concat(fractionIntervals) : fractionIntervals.concat(timeIntervals)
-    const endOffset = output.map(item => {
-      return {
-        offset: durationMilli - item.offset,
-        message: item.message
-      }
-    })
+    const output = (this.config.priority === 'order') ? orderIntervals : (this.config.priority === 'time') ? timeIntervals.concat(fractionIntervals) : fractionIntervals.concat(timeIntervals)
 
-    return this.sortOffsets(this.filterOffsets(endOffset, durationMilli))
+    return this.sortOffsets(this.filterOffsets(output, durationMilli))
   }
 
   /**
@@ -924,7 +954,7 @@ class TalkingTimer extends HTMLElement {
 
     if (timeObj.relative !== '') {
       const suffix = (timeObj.relative === 'first') ? ' gone.' : ' to go.'
-      const minus = (timeObj.relative === 'first') ? 0 : milliseconds
+      const minus = (timeObj.relative === 'first') ? milliseconds : 0
 
       for (let a = 1; a <= count; a += 1) {
         offsets.push({
@@ -937,12 +967,12 @@ class TalkingTimer extends HTMLElement {
       for (let a = 1; a <= (count / 2); a += 1) {
         const message = this.makeFractionMessage(a, timeObj.denominator)
         offsets.push({
-          offset: (interval * a),
+          offset: (milliseconds - (interval * a)),
           message: message + ' to go.',
           raw: timeObj.raw
         },
         {
-          offset: (milliseconds - (interval * a)),
+          offset: (interval * a),
           message: message + ' gone.',
           raw: timeObj.raw
         })
@@ -976,25 +1006,42 @@ class TalkingTimer extends HTMLElement {
   getTimeOffsetAndMessage (timeObj, milliseconds, raw) {
     const suffix = (timeObj.relative === 'first') ? ' gone.' : ' to go.'
     let offsets = []
-    if (timeObj.all === true || timeObj.multiplier > 1) {
-      if (timeObj.all === true && timeObj.multiplier <= 1) {
+    if ((timeObj.all === true || timeObj.every === true) || timeObj.multiplier > 1) {
+      if ((timeObj.all === true || timeObj.every === true) && timeObj.multiplier <= 1) {
         if (timeObj.relative === '') {
           const half = milliseconds / 2
           const interval = timeObj.time * 1000
           for (let offset = interval; offset <= half; offset += interval) {
             offsets.push({
-              offset: milliseconds - offset,
+              offset: offset,
               message: this.makeTimeMessage(offset, ' to go.'),
               raw: timeObj.raw
             }, {
-              offset: offset,
+              offset: milliseconds - offset,
               message: this.makeTimeMessage(offset, ' gone.'),
               raw: timeObj.raw
             })
           }
         } else {
-          const interval = (timeObj.unit === 's') ? 1000 : (timeObj.unit === 'm') ? 60000 : 3600000
-          const modifier = (timeObj.relative !== 'first') ? milliseconds : 0
+          let interval = 0
+          if (timeObj.every === true) {
+            interval = timeObj.time * 1000
+          } else {
+            switch (timeObj.unit) {
+              case 's':
+                interval = 1000
+                break
+              case 'm':
+                interval = 60000
+                break
+              case 'h':
+                interval = 3600000
+                break
+              default:
+                interval = 1000
+            }
+          }
+          const modifier = (timeObj.relative !== 'first') ? 0 : milliseconds
 
           for (let a = 1; a <= timeObj.time; a += 1) {
             const offset = a * interval
@@ -1008,7 +1055,8 @@ class TalkingTimer extends HTMLElement {
       } else if (timeObj.multiplier > 1) {
         const unit = (timeObj.unit === 's') ? 10000 : (timeObj.unit === 'm') ? 60000 : 3600000
         const interval = timeObj.time * unit
-        const modifier = (timeObj.relative === 'last') ? milliseconds : 0
+        const modifier = (timeObj.relative === 'last') ? 0 : milliseconds
+
         for (let offset = interval; offset <= timeObj.time; offset += interval) {
           offsets.push({
             offset: this.posMinus(modifier, offset),
@@ -1019,7 +1067,7 @@ class TalkingTimer extends HTMLElement {
       }
     } else {
       const interval = timeObj.time * 1000
-      const offset = (timeObj.relative !== 'first') ? milliseconds - interval : interval
+      const offset = (timeObj.relative !== 'first') ? interval : milliseconds - interval
       offsets = [{
         offset: offset,
         message: this.makeTimeMessage(interval, suffix),
