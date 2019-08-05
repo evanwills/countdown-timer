@@ -177,13 +177,13 @@ class TalkingTimer extends HTMLElement {
   }
 
   endPlaying () {
-    if (this.noSayEnd === false) {
-      const promise2 = new Promise((resolve, reject) => {
-        this.saySomething(this.endText)
-      })
+    let delay = 0
+    if (this.config.noSayEnd === false) {
+      this.saySomething(this.endText)
+      delay = 3800
     }
     if (this.config.noEndChime === false) {
-      this.endSound()
+      window.setTimeout(this.endSound, delay)
     }
 
     this.numbers.classList.add('finished')
@@ -200,15 +200,15 @@ class TalkingTimer extends HTMLElement {
     this.resetTickTock()
 
     if (this.config.noPause === true) {
-      this.resetBtn.classList.remove('hide')
+      this.playPauseBtn.classList.remove('hide')
     }
 
     if (this.config.noReset === true) {
-      this.restartBtn.classList.remove('hide')
+      this.resetBtn.classList.remove('hide')
     }
 
     if (this.config.noRestart === true) {
-      this.noRestart.classList.remove('hide')
+      this.restartBtn.classList.remove('hide')
     }
   }
 
@@ -818,7 +818,8 @@ class TalkingTimer extends HTMLElement {
     for (let a = 0; a < configKeys.length; a += 1) {
       const key = configKeys[a]
       const attr = key.toLocaleLowerCase()
-      this.config[key] = (this.getAttribute(attr) !== 'undefined')
+      const val = this.getAttribute(attr)
+      this.config[key] = (typeof val !== 'undefined' && val !== null)
     }
 
     const endText = this.getAttribute('end-message')
@@ -844,7 +845,13 @@ class TalkingTimer extends HTMLElement {
 
     if (this.config.autoDestruct === true) {
       const autoDestruct = this.getAttribute('selfdestruct')
-      this.config.autoDestruct = (Number.isInteger(autoDestruct * 1)) ? Number.parseInt(autoDestruct, 10) * 1000 : 10000
+      if (autoDestruct === null) {
+        this.config.autoDestruct = -1
+      } else if (Number.isInteger(autoDestruct * 1)) {
+        this.config.autoDestruct = Number.parseInt(autoDestruct, 10) * 1000
+      } else {
+        this.config.autoDestruct = 10000
+      }
     } else {
       this.config.autoDestruct = -1
     }
