@@ -647,7 +647,13 @@ class TalkingTimer extends HTMLElement {
           this.endPlaying()
         } else if (this.workingIntervals.length > 0 && (this.workingIntervals[0].offset + 1250) > this.remainingMilliseconds) {
           const sayThis = this.workingIntervals.shift()
-          this.saySomething(sayThis.message)
+          if (this.posMinus(sayThis.offset, this.remainingMilliseconds) < 2000) {
+            // This ensures that if for some reason, there is a
+            // back-log of intervals to be spoken, only intervals
+            // that should have been spoken within the last
+            // 2 seconds get spoken
+            this.saySomething(sayThis.message)
+          }
         }
       })
       const promise3 = new Promise((resolve, reject) => { this.setTimeText() })
