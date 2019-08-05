@@ -152,7 +152,10 @@ class TalkingTimer extends HTMLElement {
    * startPlayingInner() does all the heavy lifting required
    * by startPlaying()
    *
-   * @param {this} obj the "this" context for the class (needed because startPlayingInner() may be called inside a setTimeout in which case, it will loose the appropriate "this" context)
+   * @param {this} obj the "this" context for the class
+   *               (needed because startPlayingInner() may be called
+   *               inside a setTimeout in which case, it will loose
+   *               the appropriate "this" context)
    *
    * @returns {void}
    */

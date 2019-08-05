@@ -1,8 +1,12 @@
-# &lt;talking-timer&gt;
+# `<talking-timer>`
 
 A custom element for visual and audio countdown timing. (For when my kids need to stop doing a thing they don't want to stop. And for when I'm teaching and running a time sensitive exercise)
 
-- [&lt;talking-timer&gt;](#lttalking-timergt)
+`<talking-timer>` uses the [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API), the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) and custom elements to build a [Web component](https://developer.mozilla.org/en-US/docs/Web/Web_Components) that provides audio and visual representation of the progress of a timer.
+
+You can see it in action on [CodePen](https://codepen.io/evanwills/pen/jgYVMR)
+
+- [`<talking-timer>`](#talking-timer)
   - [How it works](#how-it-works)
   - [Attributes](#attributes)
     - [`time` (required)](#time-required)
