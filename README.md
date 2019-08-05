@@ -64,7 +64,7 @@ The `time` attribute is required and can either be the total number of seconds o
 
 `end-message` allows you to control what is spoken when a timer completes.
 
-__NOTE:__ If you use the `nosayend` attribute and `end-message`, `nosayend` will be ignored on the assumption that if you're going to the trouble to specify a custom end message, then you want it to be spoken, thus `nosayend` is a mistake.'
+__NOTE:__ If you use the [`nosayend`](#nosayend) attribute and `end-message`, [`nosayend`](#nosayend) will be ignored on the assumption that if you're going to the trouble to specify a custom end message, then you want it to be spoken, thus [`nosayend`](#nosayend) is a mistake.'
 
 ``` HTML
 <talking-timer time="03:00" end-message="What??? Still not loaded???">
@@ -80,9 +80,9 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
 * `30s` - announce every 30 second and 1 minute interval
   (e.g. for a three minute timer that would be "*30 seconds gone.*", "*1 minute gone.*", "*1 minute to go.*", "*30 seconds to go.*".
   __NOTE:__ "1 minute, 30 seconds" is the same as "Half way.". Because `1/2` was defined first, it has higher priority so "1 minute, 30 seconds" is omitted.)
-* `last20` (same as `last20s`) = "20 seconds to go."
-* `last15` (same as `last15s`) = "15 seconds" (as intervals get closer together, there's less time to say everything so we drop the "to go." part)
-* `allLast10` count down from 10 ("Ten!", "Nine!", "Eights!", "Seven!", "Six!", "Five!", "Four!", "Three!", "Two!", "One!")
+* `last20` (same as `last20s`) = "*20 second*s to go."
+* `last15` (same as `last15s`) = "*15 seconds*" (as intervals get closer together, there's less time to say everything so we drop the "to go." part)
+* `allLast10` count down from 10 ("*Ten!*", "*Nine!*", "*Eights!*", "*Seven!*", "*Six!*", "*Five!*", "*Four!*", "*Three!*", "*Two!*", "*One!*")
 
 > __NOTE:__ Text to speech is not fully supported by all browsers
 
@@ -136,16 +136,7 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
   <!--
     "1 minute gone."
     "1 minute to go."
-    "10"
-    "9"
-    "8"
-    "7"
-    "6"
-    "5"
-    "4"
-    "3"
-    "2"
-    "1"
+    "10", "9", "8", "7", "6", "5", "4", "3", "2", "1"
     "Time's up."
   -->
 </talking-timer>
@@ -188,16 +179,7 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
     "30 seconds to go."
     "20 seconds to go."
     "15 seconds."
-    "10"
-    "9"
-    "8"
-    "7"
-    "6"
-    "5"
-    "4"
-    "3"
-    "2"
-    "1"
+    "10", "9", "8", "7", "6", "5", "4", "3", "2", "1"
     "Time's up."
   -->
 </talking-timer>
@@ -226,9 +208,9 @@ Hides the `Reset` button from the UI
 
 ### `nosayend`
 
-By default "*Time's up!*" is spoken when a timer ends. By the including `nosayend` you can block this behaviour.
+By default "*Time's up!*" is spoken when a timer ends. By including `nosayend` you can block this behaviour.
 
-__Note:__ You can configure what is spoken at the end of a timer by using the `end-message` attributes.
+__Note:__ You can configure what is spoken at the end of a timer by using the [`end-message`](#end-message) attributes.
 
 ### `noendchime`
 
@@ -238,7 +220,7 @@ By default, a short 5 second chime is played upon timer completion. If you're us
 
 By default nothing is spoken when a timer starts by the including `saystart` attribute "*Ready! Set! Go!*" is spoken.
 
-__NOTE:__ Start text can be configured using the `start-message` attribute (see below)
+__NOTE:__ Start text can be configured using the [`start-message`](#start-message) attribute (see below)
 
 ### `priority`
 
