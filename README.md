@@ -66,6 +66,12 @@ The `time` attribute is required and can either be the total number of seconds o
 
 __NOTE:__ If you use the `nosayend` attribute and `end-message`, `nosayend` will be ignored on the assumption that if you're going to the trouble to specify a custom end message, then you want it to be spoken, thus `nosayend` is a mistake.'
 
+``` HTML
+<talking-timer start="03:00" end-message="What??? Still not loaded???">
+  Sitecore page load
+</talking-timer>
+```
+
 ### `speak`
 
 By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
@@ -173,7 +179,7 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
 </talking-timer>
 
 <talking-timer start="03:00">
-  Speak all announcements
+  Speak default announcements
   <!--
     "30 seconds gone."
     "1 minute gone."
@@ -196,9 +202,9 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
   -->
 </talking-timer>
 
-<talking-timer start="03:00" speak="">
+<talking-timer start="03:00" speak="" nosayend>
   Nothing in speak (i.e. empty whitelist)
-  Don't speak any announcments - Silent
+  Don't speak any announcments - Silent (but play tone at the end)
 </talking-timer>
 ```
 

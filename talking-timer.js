@@ -147,7 +147,7 @@ class TalkingTimer extends HTMLElement {
   }
 
   startPlayingInner (obj) {
-    this.endTime = Date.now() + obj.remainingMilliseconds
+    obj.endTime = Date.now() + obj.remainingMilliseconds
 
     if (obj.config.noPause === true) {
       obj.playPauseBtn.classList.add('hide')
@@ -416,49 +416,49 @@ class TalkingTimer extends HTMLElement {
         position: relative;
       }
       h1 {
+        /* border-bottom: 0.05rem solid #ccc; */
+        font-size: 1.5rem;
         margin: 0;
         padding: 0.5rem;
         text-align: center;
-        font-size: 1.5rem;
-        /* border-bottom: 0.05rem solid #ccc; */
       }
       .wrapper {
+        align-items: stretch;
         display: flex;
         /* flex-direction: row; */
         /* flex-wrap: nowrap; */
         justify-content: space-between;
-        align-items: stretch;
       }
       button {
+        background-color: #fff;
+        border: 0.05rem solid #c0e;
         flex-grow: 1;
         font-size: 1.25rem;
-        border: 0.05rem solid #c0e;
-        padding: 1rem 0;
-        background-color: #fff;
         font-variant: small-caps;
+        padding: 1rem 0;
       }
       button:last-child {
         border-right-width: 0.075rem;
       }
       button:hover {
-        cursor: pointer;
         background-color: #eee;
+        cursor: pointer;
       }
       button .icon {
         display: inline-block;
-        margin-left: 0.3em;
         font-weight: bold;
         font-size: 1.25em;
-        margin-top: -1em;
         margin-bottom: -1em;
+        margin-left: 0.3em;
+        margin-top: -1em;
         transform: translateY(0.15em);
       }
       .playPauseBtn {
-        flex-grow: 3;
+        border-color: #040;
         background-color: #050;
         color: #fff;
+        flex-grow: 3;
         font-weight: bold;
-        border-color: #040;
       }
       .playPauseBtn:hover {
         background-color: #030;
@@ -483,47 +483,49 @@ class TalkingTimer extends HTMLElement {
       .sr-only {
         display: inline-block;
         height: 1px;
-        width: 1px;
         margin: -1px 0 0 -1px;
         opacity: 0;
+        width: 1px;
       }
       .closeBtn {
+        background-transparent;
         border: none;
-        padding: 0.75rem;
+        font-size: 2rem;
+        line-height: 1rem;
         margin: 0;
         position: absolute;
-        top: 0.1rem;
+        padding: 0.75rem;
         right: 0.1rem;
-        font-size: 2rem;
-        background-transparent;
-        line-height: 1rem;
+        top: 0.1rem;
       }
       .closeBtn:hover, .closeBtn:focus {
-        font-weight: bold;
-        color: #c00;
         background-color: transparent;
+        color: #c00;
+        font-weight: bold;
       }
       .closeBtn span {
         position: relative;
-        top: -0.15rem;
         right: -0.3rem;
+        top: -0.15rem;
       }
       .timer-text {
-        padding: 0.1em 1em 0.2em;
-        font-size: 6rem;
-        display: block;
-        font-weight: bold;
-        font-family: verdana, arial, helvetica, sans-serif;
         color: #222;
+        display: block;
+        font-family: verdana, arial, helvetica, sans-serif;
+        font-size: 6rem;
+        font-weight: bold;
+        padding: 0.1em 1em 0.2em;
         text-align: center;
       }
       progress {
-        display: block;
-        width: 100%;
-        height: 2rem;
-        border: 0.05rem solid #ccc;
         background-color: #fff;
+        border: 0.05rem solid #ccc;
         color: #F00;
+        display: block;
+        height: 2rem;
+        left: -0.05rem;
+        position: relative;
+        width: 100%;
       }
       .finished {
         background-color: #c00;
