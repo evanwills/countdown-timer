@@ -90,7 +90,7 @@ class TalkingTimer extends HTMLElement {
       this.closeClick = this.getCloseClick()
       this.closeBtn.addEventListener('click', this.closeClick)
 
-      this.setTickTock()
+      this.setTimeText()
       this.resetTimerValues()
 
       this.inProgress = false
@@ -157,6 +157,8 @@ class TalkingTimer extends HTMLElement {
    * @returns {void}
    */
   startPlayingInner (obj) {
+    obj.remainingMilliseconds = obj.initialMilliseconds
+
     if (obj.config.noPause === true) {
       obj.playPauseBtn.classList.add('hide')
     }
@@ -183,7 +185,7 @@ class TalkingTimer extends HTMLElement {
    * @returns {void}
    */
   pausePlaying () {
-    this.resetTickTock()
+    this.clearTimerInterval()
     this.playPauseBtn.classList.remove('playing')
     this.playPauseTxt.innerHTML = 'Play '
     this.playPauseIcon.innerHTML = '&bigtriangledown;'
@@ -212,7 +214,7 @@ class TalkingTimer extends HTMLElement {
     this.numbers.classList.add('finished')
     this.playPauseBtn.classList.add('finished')
 
-    this.resetTickTock()
+    this.clearTimerInterval()
 
     if (this.config.autoDestruct !== -1) {
       window.setTimeout((obj) => { obj.remove() }, this.config.autoDestruct, this)
@@ -268,7 +270,8 @@ class TalkingTimer extends HTMLElement {
     const resetClick = () => {
       this.pausePlaying()
       this.resetTimerValues()
-      this.numbers.innerHTML = this.timeObjToString(this.currentValue)
+
+      this.numbers.innerHTML = this.timeObjToString(this.initialValue)
       this.progress.value = (0)
       this.playPauseTxt.innerHTML = 'Start '
 
@@ -604,7 +607,7 @@ class TalkingTimer extends HTMLElement {
   // START: timer callbacks
 
   /**
-   * setTickTock() returns a callback function to be passed to
+   * setTimeText() returns a callback function to be passed to
    * `window.setInterval()` or `window.clearInterval()`
    *
    * The callback handles updating the textual representation of the
@@ -612,7 +615,7 @@ class TalkingTimer extends HTMLElement {
    *
    * @returns {void}
    */
-  setTickTock () {
+  setTimeText () {
     this.numbers.innerHTML = this.timeObjToString(this.currentValue)
   }
 
@@ -628,9 +631,6 @@ class TalkingTimer extends HTMLElement {
     if (this.endTime === 0) {
       this.endTime = Date.now() + this.remainingMilliseconds
     }
-
-    // Clone speakIntervals so you have something to use next time
-    this.workingIntervals = this.speakIntervals.map(interval => { return { ...interval } })
 
     const progressTickTock = () => {
       this.remainingMilliseconds = this.endTime - Date.now()
@@ -650,7 +650,7 @@ class TalkingTimer extends HTMLElement {
           this.saySomething(sayThis.message)
         }
       })
-      const promise3 = new Promise((resolve, reject) => { this.setTickTock() })
+      const promise3 = new Promise((resolve, reject) => { this.setTimeText() })
     }
     this.progressTicker = setInterval(progressTickTock, interval)
   }
@@ -860,16 +860,20 @@ class TalkingTimer extends HTMLElement {
   resetTimerValues () {
     this.currentValue = { ...this.initialValue }
     this.remainingMilliseconds = this.initialMilliseconds
-    this.resetTickTock()
+    this.endTime = 0
+    this.clearTimerInterval()
+
+    // Clone speakIntervals so you have something to use next time
+    this.workingIntervals = this.speakIntervals.map(interval => { return { ...interval } })
   }
 
   /**
-   * resetTickTock() clears interval timers and resets the
+   * clearTimerInterval() clears interval timers and resets the
    * timer IDs to null
    *
    * @returns {void}
    */
-  resetTickTock () {
+  clearTimerInterval () {
     window.clearInterval(this.progressTicker)
 
     this.progressTicker = null
