@@ -107,11 +107,11 @@ class TalkingTimer extends HTMLElement {
   // ======================================================
   // START: getters & setters
 
-  get start () { return this.timeObjToString(this.initialValue) }
+  // get time () { return this.timeObjToString(this.initialValue) }
 
-  set start (hoursMinutesSeconds) {
-    this.validateTimeDuration(hoursMinutesSeconds)
-  }
+  // set time (hoursMinutesSeconds) {
+  //   this.validateTimeDuration(hoursMinutesSeconds)
+  // }
 
   get playing () { return this.playing }
 
@@ -135,10 +135,12 @@ class TalkingTimer extends HTMLElement {
   // ======================================================
   // START: click handlers
 
-  startPlaying (noDelay) {
-    // noDelay = (typeof noDelay !== 'boolean' || noDelay === true)
-
-    if (this.config.sayStart === true) {
+  /**
+   * startPlaying() does all the stuff required to start a timer
+   * running
+   */
+  startPlaying () {
+    if (this.endTime === 0 && this.config.sayStart === true) {
       this.saySomething(this.startText)
       window.setTimeout(this.startPlayingInner, 2800, this)
     } else {
@@ -146,9 +148,15 @@ class TalkingTimer extends HTMLElement {
     }
   }
 
+  /**
+   * startPlayingInner() does all the heavy lifting required
+   * by startPlaying()
+   *
+   * @param {this} obj the "this" context for the class (needed because startPlayingInner() may be called inside a setTimeout in which case, it will loose the appropriate "this" context)
+   *
+   * @returns {void}
+   */
   startPlayingInner (obj) {
-    obj.endTime = Date.now() + obj.remainingMilliseconds
-
     if (obj.config.noPause === true) {
       obj.playPauseBtn.classList.add('hide')
     }
@@ -168,6 +176,12 @@ class TalkingTimer extends HTMLElement {
     obj.play = true
   }
 
+  /**
+   * pausePlaying() suspends the timer and updates the HTML to show
+   * timer is stopped
+   *
+   * @returns {void}
+   */
   pausePlaying () {
     this.resetTickTock()
     this.playPauseBtn.classList.remove('playing')
@@ -176,6 +190,15 @@ class TalkingTimer extends HTMLElement {
     this.play = false
   }
 
+  /**
+   * endPlaying() does all the stuff needed to show the
+   * timer has ended
+   *
+   * removes the interval used by the timer, updates the
+   * HTML and makes sounds
+   *
+   * @returns {void}
+   */
   endPlaying () {
     let delay = 0
     if (this.config.noSayEnd === false) {
@@ -189,15 +212,15 @@ class TalkingTimer extends HTMLElement {
     this.numbers.classList.add('finished')
     this.playPauseBtn.classList.add('finished')
 
+    this.resetTickTock()
+
     if (this.config.autoDestruct !== -1) {
-      window.setTimeout(() => { this.remove() }, this.config.autoDestruct)
+      window.setTimeout((obj) => { obj.remove() }, this.config.autoDestruct, this)
 
       // This timer is going to self destruct.
       // Don't bother doing anything more
       return
     }
-
-    this.resetTickTock()
 
     if (this.config.noPause === true) {
       this.playPauseBtn.classList.remove('hide')
@@ -212,6 +235,15 @@ class TalkingTimer extends HTMLElement {
     }
   }
 
+  /**
+   * getPlayPauseClick() returns a function for handling click events
+   * on the Play/Pause buttton
+   *
+   * When timer is running, it pause it. When timer is paused or has
+   * not yet started it starts the timer running.
+   *
+   * @returns {function}
+   */
   getPlayPauseClick () {
     const playPauseClick = (event) => {
       if (this.play) {
@@ -226,6 +258,12 @@ class TalkingTimer extends HTMLElement {
     return playPauseClick
   }
 
+  /**
+   * getResetClick() handles getting the timer ready
+   * to start from begining
+   *
+   * @returns {function}
+   */
   getResetClick () {
     const resetClick = () => {
       this.pausePlaying()
@@ -241,15 +279,34 @@ class TalkingTimer extends HTMLElement {
     return resetClick
   }
 
+  /**
+   * getRestartClick() returns a function to be used as a click handler
+   * for the custom element's restart button.
+   *
+   * Click handler resets timer and starts playing.
+   *
+   * @returns {function}
+   */
   getRestartClick () {
     const restartClick = () => {
       this.resetClick()
-      this.startPlaying(false)
+      this.startPlaying()
     }
 
     return restartClick
   }
 
+  /**
+   * getCloseClick() returns a function to be used as a click handler
+   * for the custom element's close button.
+   *
+   * Click handler clears all window.intervals set when a timer
+   * starts.
+   * Removes all event listeners then removes the custom element
+   * from the DOM
+   *
+   * @returns {function}
+   */
   getCloseClick () {
     const closeClick = (event) => {
       if (this.progressTicker !== null) {
@@ -320,6 +377,12 @@ class TalkingTimer extends HTMLElement {
     return wrap
   }
 
+  /**
+   * initCloseBtn() builds a close button to be inserted into the
+   * HTML of the custom element
+   *
+   * @returns {HTMLElement} simple close button
+   */
   initCloseBtn () {
     const close = document.createElement('button')
     const closeSR = document.createElement('span')
@@ -349,7 +412,7 @@ class TalkingTimer extends HTMLElement {
    *   * restart - used to trigger a reset, play action
    *   * reset - used to trigger a stop, reset action
    *
-   * @returns {DOMnode}
+   * @returns {HTMLElement}
    */
   initMainBtns () {
     const btnWrap = document.createElement('div')
@@ -425,8 +488,6 @@ class TalkingTimer extends HTMLElement {
       .wrapper {
         align-items: stretch;
         display: flex;
-        /* flex-direction: row; */
-        /* flex-wrap: nowrap; */
         justify-content: space-between;
       }
       button {
@@ -604,6 +665,7 @@ class TalkingTimer extends HTMLElement {
    *
    * @param {object} currentValue containing seconds, minutes & hours
    *                representing the timer's duration
+   *
    * @returns {object} object containing only the least significant
    *                fields greater than zero
    */
@@ -635,6 +697,7 @@ class TalkingTimer extends HTMLElement {
    *
    * @param {string} hoursMinutesSeconds the string value of the
    *                 element's `start` attribute
+   *
    * @returns {void}
    */
   validateTimeDuration (hoursMinutesSeconds) {
@@ -680,10 +743,12 @@ class TalkingTimer extends HTMLElement {
   /**
    * timeObjToString() converts the current time remaining for
    * the countdown into a human readable string
+   *
    * @param {object} timeObj seconds, minutes and hours value
    *                representing the timer remaining for the timer.
    * @param {boolean} nonZeroOnly [default: TRUE] whether or not to
    *                remove most significant fields if they're zero
+   *
    * @returns {string} has the following structure "SS", "MM:SS",
    *                "HH:MM:SS" or "HH:MM:SS:CC" ("CC" = hundredths of
    *                a second) depending on the value of the `timeObj`
@@ -716,7 +781,9 @@ class TalkingTimer extends HTMLElement {
   /**
    * timeObjToMilliseconds() converts the values of a time object to
    * milliseconds
+   *
    * @param {object} timeObj
+   *
    * @returns {number} number of milliseconds the time object represents
    */
   timeObjToMilliseconds (timeObj) {
@@ -764,6 +831,7 @@ class TalkingTimer extends HTMLElement {
 
   /**
    * getWholePart() (PURE) converts the number of milliseconds provided into the whole number of units
+   *
    * @param {number} input the number of millseconds to be converted
    *                 into approprate time unit
    *                 (e.g. hours, minutes, seconds, tenths of a second)
@@ -807,6 +875,12 @@ class TalkingTimer extends HTMLElement {
     this.progressTicker = null
   }
 
+  /**
+   * parseAttributes() parses the know HTML attributes available to
+   * <talking-timer>
+   *
+   * @returns {void}
+   */
   parseAttributes () {
     if (this.hasAttribute('time') && this.validateTimeDuration(this.getAttribute('time'))) {
       this.numbers.innerHTML = this.timeObjToString(this.onlyGreaterThanZero(this.initialValue))
@@ -838,8 +912,6 @@ class TalkingTimer extends HTMLElement {
 
     const priority = this.getAttribute('priority')
     this.config.priority = (typeof priority !== 'undefined' || priority !== 'time') ? 'fraction' : 'time'
-
-    // const noSpeak = this.parseRawIntervals(this.getAttribute('nospeak'), true)
 
     let speak = this.getAttribute('speak')
     speak = (typeof speak !== 'string') ? this.speakDefault : speak
@@ -948,45 +1020,50 @@ class TalkingTimer extends HTMLElement {
    *
    * Used for announcing progress in timer
    *
-   * @param {object} timeObj
-   * @param {number} milliseconds
+   * @param {object} intervalObj interval object parsed from speak
+   *                 attribute
+   * @param {number} milliseconds number of milliseconds remaining
+   *                 for timer
+   *
+   * @returns {array} list of interval objects containing offset &
+   *                 message properties used for announcing intervals
    */
-  getFractionOffsetAndMessage (timeObj, milliseconds) {
+  getFractionOffsetAndMessage (intervalObj, milliseconds) {
     let interval = 0
     const half = milliseconds / 2
 
-    interval = milliseconds / timeObj.denominator
-    if (timeObj.denominator === 2) {
-      return [{ message: 'Half way', offset: half, raw: timeObj.raw }]
+    interval = milliseconds / intervalObj.denominator
+    if (intervalObj.denominator === 2) {
+      return [{ message: 'Half way', offset: half, raw: intervalObj.raw }]
     }
 
     let offsets = []
 
-    const count = (timeObj.multiplier === 0 || timeObj.multiplier >= timeObj.denominator) ? timeObj.denominator : timeObj.multiplier
+    const count = (intervalObj.multiplier === 0 || intervalObj.multiplier >= intervalObj.denominator) ? intervalObj.denominator : intervalObj.multiplier
 
-    if (timeObj.relative !== '') {
-      const suffix = (timeObj.relative === 'first') ? ' gone.' : ' to go.'
-      const minus = (timeObj.relative === 'first') ? milliseconds : 0
+    if (intervalObj.relative !== '') {
+      const suffix = (intervalObj.relative === 'first') ? ' gone.' : ' to go.'
+      const minus = (intervalObj.relative === 'first') ? milliseconds : 0
 
       for (let a = 1; a <= count; a += 1) {
         offsets.push({
           offset: this.posMinus(minus, (interval * a)),
-          message: this.makeFractionMessage(a, timeObj.denominator) + suffix,
-          raw: timeObj.raw
+          message: this.makeFractionMessage(a, intervalObj.denominator) + suffix,
+          raw: intervalObj.raw
         })
       }
     } else {
       for (let a = 1; a <= (count / 2); a += 1) {
-        const message = this.makeFractionMessage(a, timeObj.denominator)
+        const message = this.makeFractionMessage(a, intervalObj.denominator)
         offsets.push({
           offset: (milliseconds - (interval * a)),
-          message: message + ' to go.',
-          raw: timeObj.raw
+          message: message + ' to go.'
+          // raw: intervalObj.raw
         },
         {
           offset: (interval * a),
-          message: message + ' gone.',
-          raw: timeObj.raw
+          message: message + ' gone.'
+          // raw: intervalObj.raw
         })
       }
     }
@@ -995,8 +1072,8 @@ class TalkingTimer extends HTMLElement {
       if (this.tooClose(item.offset, half)) {
         return {
           offset: half,
-          message: 'Half way',
-          raw: item.raw
+          message: 'Half way'
+          // raw: item.raw
         }
       } else {
         return item
@@ -1012,34 +1089,39 @@ class TalkingTimer extends HTMLElement {
    *
    * Used for announcing progress in timer
    *
-   * @param {object} timeObj
-   * @param {number} milliseconds
+   * @param {object} intervalObj interval object parsed from speak
+   *                 attribute
+   * @param {number} milliseconds number of milliseconds remaining
+   *                 for timer
+   *
+   * @returns {array} list of interval objects containing offset &
+   *                 message properties used for announcing intervals
    */
-  getTimeOffsetAndMessage (timeObj, milliseconds, raw) {
-    const suffix = (timeObj.relative === 'first') ? ' gone.' : ' to go.'
+  getTimeOffsetAndMessage (intervalObj, milliseconds, raw) {
+    const suffix = (intervalObj.relative === 'first') ? ' gone.' : ' to go.'
     let offsets = []
-    if ((timeObj.all === true || timeObj.every === true) || timeObj.multiplier > 1) {
-      if ((timeObj.all === true || timeObj.every === true) && timeObj.multiplier <= 1) {
-        if (timeObj.relative === '') {
+    if ((intervalObj.all === true || intervalObj.every === true) || intervalObj.multiplier > 1) {
+      if ((intervalObj.all === true || intervalObj.every === true) && intervalObj.multiplier <= 1) {
+        if (intervalObj.relative === '') {
           const half = milliseconds / 2
-          const interval = timeObj.time * 1000
+          const interval = intervalObj.time * 1000
           for (let offset = interval; offset <= half; offset += interval) {
             offsets.push({
               offset: offset,
               message: this.makeTimeMessage(offset, ' to go.'),
-              raw: timeObj.raw
+              raw: intervalObj.raw
             }, {
               offset: milliseconds - offset,
               message: this.makeTimeMessage(offset, ' gone.'),
-              raw: timeObj.raw
+              raw: intervalObj.raw
             })
           }
         } else {
           let interval = 0
-          if (timeObj.every === true) {
-            interval = timeObj.time * 1000
+          if (intervalObj.every === true) {
+            interval = intervalObj.time * 1000
           } else {
-            switch (timeObj.unit) {
+            switch (intervalObj.unit) {
               case 's':
                 interval = 1000
                 break
@@ -1053,33 +1135,33 @@ class TalkingTimer extends HTMLElement {
                 interval = 1000
             }
           }
-          const modifier = (timeObj.relative !== 'first') ? 0 : milliseconds
+          const modifier = (intervalObj.relative !== 'first') ? 0 : milliseconds
 
-          for (let a = 1; a <= timeObj.time; a += 1) {
+          for (let a = 1; a <= intervalObj.time; a += 1) {
             const offset = a * interval
             offsets.push({
               offset: this.posMinus(modifier, offset),
               message: this.makeTimeMessage(offset, suffix),
-              raw: timeObj.raw
+              raw: intervalObj.raw
             })
           }
         }
-      } else if (timeObj.multiplier > 1) {
-        const unit = (timeObj.unit === 's') ? 10000 : (timeObj.unit === 'm') ? 60000 : 3600000
-        const interval = timeObj.time * unit
-        const modifier = (timeObj.relative === 'last') ? 0 : milliseconds
+      } else if (intervalObj.multiplier > 1) {
+        const unit = (intervalObj.unit === 's') ? 10000 : (intervalObj.unit === 'm') ? 60000 : 3600000
+        const interval = intervalObj.time * unit
+        const modifier = (intervalObj.relative === 'last') ? 0 : milliseconds
 
-        for (let offset = interval; offset <= timeObj.time; offset += interval) {
+        for (let offset = interval; offset <= intervalObj.time; offset += interval) {
           offsets.push({
             offset: this.posMinus(modifier, offset),
             message: this.makeTimeMessage(offset, suffix),
-            raw: timeObj.raw
+            raw: intervalObj.raw
           })
         }
       }
     } else {
-      const interval = timeObj.time * 1000
-      const offset = (timeObj.relative !== 'first') ? interval : milliseconds - interval
+      const interval = intervalObj.time * 1000
+      const offset = (intervalObj.relative !== 'first') ? interval : milliseconds - interval
       offsets = [{
         offset: offset,
         message: this.makeTimeMessage(interval, suffix),
