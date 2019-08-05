@@ -33,7 +33,7 @@ A custom element for visual and audio countdown timing. (For when my kids need t
 
 At it's most basic you can configure a reusable timer like so: (this is a three minute timer)
 ``` html
-<talking-timer start="03:00">Egg timer</talking-timer>
+<talking-timer time="03:00">Egg timer</talking-timer>
 ```
 
 The text within the element wrapper is used a the title for the time.
@@ -47,15 +47,15 @@ Duration of the timer.
 The `time` attribute is required and can either be the total number of seconds or a time string (`HH:MM:SS` - hours & minutes are optional)
 
 ``` HTML
-<talking-timer start="03:00">
+<talking-timer time="03:00">
   Three minute timer
 </talking-timer>
 
-<talking-timer start="180">
+<talking-timer time="180">
   Three minute timer (defined as seconds)
 </talking-timer>
 
-<talking-timer start="2:15:00">
+<talking-timer time="2:15:00">
   Two hours and fifteen minute timer
 </talking-timer>
 ```
@@ -67,7 +67,7 @@ The `time` attribute is required and can either be the total number of seconds o
 __NOTE:__ If you use the `nosayend` attribute and `end-message`, `nosayend` will be ignored on the assumption that if you're going to the trouble to specify a custom end message, then you want it to be spoken, thus `nosayend` is a mistake.'
 
 ``` HTML
-<talking-timer start="03:00" end-message="What??? Still not loaded???">
+<talking-timer time="03:00" end-message="What??? Still not loaded???">
   Sitecore page load
 </talking-timer>
 ```
@@ -131,7 +131,7 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
 
 ``` HTML
 <!-- -->
-<talking-timer start="03:00" speak="1m allLast10">
+<talking-timer time="03:00" speak="1m allLast10">
   Only speak minute intervals and countdown last 10 seconds
   <!--
     "1 minute gone."
@@ -150,7 +150,7 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
   -->
 </talking-timer>
 
-<talking-timer start="03:00" nospeak="1/3 last20 1m">
+<talking-timer time="03:00" nospeak="1/3 last20 1m">
   Only speak thirds, minute intervals and
   last second announcements
   <!--
@@ -164,7 +164,7 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
   -->
 </talking-timer>
 
-<talking-timer start="03:00" nospeak="1/3 last20 1m" priority="time">
+<talking-timer time="03:00" nospeak="1/3 last20 1m" priority="time">
   Only speak thirds, minute intervals and
   last second announcements
   <!--
@@ -178,7 +178,7 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
   -->
 </talking-timer>
 
-<talking-timer start="03:00">
+<talking-timer time="03:00">
   Speak default announcements
   <!--
     "30 seconds gone."
@@ -202,7 +202,7 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
   -->
 </talking-timer>
 
-<talking-timer start="03:00" speak="" nosayend>
+<talking-timer time="03:00" speak="" nosayend>
   Nothing in speak (i.e. empty whitelist)
   Don't speak any announcments - Silent (but play tone at the end)
 </talking-timer>
@@ -253,19 +253,19 @@ It's possible (even probable) that, when using fraction intervals (like `1/2`) a
 * `order` order they're defined in `speak` - the one defined first over-rides one spoken at a similar time but defined later.
 
 ``` HTML
-<talking-timer start="03:00">
+<talking-timer time="03:00">
   When the timer is set to 3 minutes, the "Half way." announcement is also the same as the "One minute, thirty seconds to go." anouncement so the "Half way." announcement is spoken but the "One minute, thirty seconds to go." is skipped.
 </talking-timer>
 
-<talking-timer start="03:00" priority="time">
+<talking-timer time="03:00" priority="time">
   When the timer is set to 3 minutes, the "Half way." announcement is also the same as the "One minute, thirty seconds to go." anouncement so the "One minute, thirty seconds to go." announcement is spoken but the "Half way" is skipped.
 </talking-timer>
 
-<talking-timer start="03:00" priority="fraction">
+<talking-timer time="03:00" priority="fraction">
   The "Half way." announcement is also the same as the "One minute, thirty seconds to go." anouncement so the "Half way" announcement is spoken but the "One minute, thirty seconds to go." is skipped.
 </talking-timer>
 
-<talking-timer start="03:00" priority="order" speak="1/3 30s 1/4 last20 last15 allLast10">
+<talking-timer time="03:00" priority="order" speak="1/3 30s 1/4 last20 last15 allLast10">
   The "Half way." (2/4) announcement is also the same as the "One minute, thirty seconds to go." anouncement but since `30s` is defined before `1/4`, "One minute, thirty seconds to go." is spoken and "Half way." is skipped.
 </talking-timer>
 ```
@@ -283,15 +283,15 @@ __NOTE:__ by default nothing is spoken when a timer starts `start-message` has t
 If `selfdestruct` is set, then the timer will remove itself thirty seconds after completion or as many seconds as the timer ran for (which ever is shorter).
 
 ``` HTML
-<talking-timer start="03:00" selfdestruct>
+<talking-timer time="03:00" selfdestruct>
   Self destruct after 30 seconds
 </talking-timer>
 
-<talking-timer start="03:00" selfdestruct="true">
+<talking-timer time="03:00" selfdestruct="true">
   Self destruct after 30 seconds
 </talking-timer>
 
-<talking-timer start="03:00" selfdestruct="600">
+<talking-timer time="03:00" selfdestruct="600">
   Self destruct after 10 minutes
 </talking-timer>
 ```
