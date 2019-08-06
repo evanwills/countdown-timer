@@ -74,7 +74,10 @@ class TalkingTimer extends HTMLElement {
       this.playPauseClick = this.getPlayPauseClick()
       this.playPauseBtn.addEventListener('click', this.playPauseClick)
 
-      if (this.config.noReset === false) {
+      console.log('config:', this.config)
+      console.log('config.noReset:', this.config.noReset)
+      console.log('config.noReset === false:', this.config.noReset === false)
+      if (this.config.noReset === true) {
         this.resetBtn.classList.add('hide')
       }
 
@@ -84,8 +87,15 @@ class TalkingTimer extends HTMLElement {
 
       this.resetClick = this.getResetClick()
       this.resetBtn.addEventListener('click', this.resetClick)
+      if (this.config.noReset === true) {
+        this.resetBtn.classList.add('hide')
+      }
+
       this.restartClick = this.getRestartClick()
       this.restartBtn.addEventListener('click', this.restartClick)
+      if (this.config.noRestart === true) {
+        this.restartBtn.classList.add('hide')
+      }
 
       this.closeClick = this.getCloseClick()
       this.closeBtn.addEventListener('click', this.closeClick)
@@ -162,15 +172,16 @@ class TalkingTimer extends HTMLElement {
   startPlayingInner (obj) {
     obj.remainingMilliseconds = obj.initialMilliseconds
 
+    console.log('this.config:', obj.config)
     if (obj.config.noPause === true) {
       obj.playPauseBtn.classList.add('hide')
     }
 
-    if (obj.config.noReset === true) {
+    if (obj.config.noReset === true || obj.config.noPause === true) {
       obj.resetBtn.classList.add('hide')
     }
 
-    if (obj.config.noRestart === true) {
+    if (obj.config.noRestart === true || obj.config.noPause === true) {
       obj.restartBtn.classList.add('hide')
     }
 
@@ -231,11 +242,11 @@ class TalkingTimer extends HTMLElement {
       this.playPauseBtn.classList.remove('hide')
     }
 
-    if (this.config.noReset === true) {
+    if (this.config.noReset === true || this.config.noPause === true) {
       this.resetBtn.classList.remove('hide')
     }
 
-    if (this.config.noRestart === true) {
+    if (this.config.noRestart === true || this.config.noPause === true) {
       this.restartBtn.classList.remove('hide')
     }
   }
@@ -601,6 +612,9 @@ class TalkingTimer extends HTMLElement {
       .tenths {
         font-size: 3.5rem;
         font-weight: normal;
+      }
+      .hide {
+        display: none;
       }`
     )
   }
