@@ -10,11 +10,13 @@
 	<body>
 		<h1><code style="font-size:1.35em; padding-right: 0.5rem;">&lt;talking-timer&gt;</code> Custom element</h1>
 
-		<talking-timer time="03:00" id="short" end-message="Your egg is cooked" saystart>Egg timer</talking-timer>
+		<div class="timer-wrap">
+			<talking-timer time="03:00" id="short" end-message="Your egg is cooked" saystart>Egg timer</talking-timer>
 
-		<talking-timer time="04:00" id="longer" nopause>Longer timer with Pause functionality hidden</talking-timer>
+			<talking-timer time="04:00" id="longer" nopause>Longer timer with Pause functionality hidden</talking-timer>
 
-		<talking-timer time="05:00" id="evenLonger" end-message="Your egg is hard boiled" saystart>Even longer timer</talking-timer>
+			<talking-timer time="05:00" id="evenLonger" saystart selfdestruct>Five minute timer that selfdestructs after completion</talking-timer>
+		</div>
 
 		<script type="text/ecmascript" src="talking-timer.js"></script>
 	</body>

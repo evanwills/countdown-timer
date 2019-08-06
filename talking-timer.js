@@ -81,10 +81,6 @@ class TalkingTimer extends HTMLElement {
         this.resetBtn.classList.add('hide')
       }
 
-      if (this.config.noRestart === true) {
-        this.restartBtn.classList.add('hide')
-      }
-
       this.resetClick = this.getResetClick()
       this.resetBtn.addEventListener('click', this.resetClick)
       if (this.config.noReset === true) {
@@ -93,9 +89,6 @@ class TalkingTimer extends HTMLElement {
 
       this.restartClick = this.getRestartClick()
       this.restartBtn.addEventListener('click', this.restartClick)
-      if (this.config.noRestart === true) {
-        this.restartBtn.classList.add('hide')
-      }
 
       this.closeClick = this.getCloseClick()
       this.closeBtn.addEventListener('click', this.closeClick)
@@ -181,8 +174,8 @@ class TalkingTimer extends HTMLElement {
       obj.resetBtn.classList.add('hide')
     }
 
-    if (obj.config.noRestart === true || obj.config.noPause === true) {
-      obj.restartBtn.classList.add('hide')
+    if (obj.config.noRestart === false || obj.config.noPause === false) {
+      obj.restartBtn.classList.remove('hide')
     }
 
     obj.setProgressTicker(obj.intervalTime)
@@ -246,8 +239,8 @@ class TalkingTimer extends HTMLElement {
       this.resetBtn.classList.remove('hide')
     }
 
-    if (this.config.noRestart === true || this.config.noPause === true) {
-      this.restartBtn.classList.remove('hide')
+    if (this.config.noRestart === false && this.config.noPause === false) {
+      this.restartBtn.classList.add('hide')
     }
   }
 
@@ -456,6 +449,7 @@ class TalkingTimer extends HTMLElement {
     restart.setAttribute('class', 'restartBtn')
     restart.appendChild(document.createTextNode('Start again '))
     restart.appendChild(restartIcon)
+    restart.classList.add('hide')
 
     const resetIcon = document.createElement('span')
     resetIcon.setAttribute('class', 'non-sr icon')
@@ -487,135 +481,31 @@ class TalkingTimer extends HTMLElement {
    */
   initStyle () {
     return document.createTextNode(`
-      :root {
-        font-family: inherit;
-      }
-      .TalkingTimer-wrapper {
-        border: 0.05rem solid #ccc;
-        padding: 0;
-        position: relative;
-      }
-      h1 {
-        /* border-bottom: 0.05rem solid #ccc; */
-        font-size: 1.5rem;
-        margin: 0;
-        padding: 0.5rem;
-        text-align: center;
-      }
-      .wrapper {
-        align-items: stretch;
-        display: flex;
-        justify-content: space-between;
-      }
-      button {
-        background-color: #fff;
-        border: 0.05rem solid #c0e;
-        flex-grow: 1;
-        font-size: 1.25rem;
-        font-variant: small-caps;
-        padding: 1rem 0;
-      }
-      button:last-child {
-        border-right-width: 0.075rem;
-      }
-      button:hover {
-        background-color: #eee;
-        cursor: pointer;
-      }
-      button .icon {
-        display: inline-block;
-        font-weight: bold;
-        font-size: 1.25em;
-        margin-bottom: -1em;
-        margin-left: 0.3em;
-        margin-top: -1em;
-        transform: translateY(0.15em);
-      }
-      .playPauseBtn {
-        border-color: #040;
-        background-color: #050;
-        color: #fff;
-        flex-grow: 3;
-        font-weight: bold;
-      }
-      .playPauseBtn:hover {
-        background-color: #030;
-        border-color: #020;
-      }
-      .playPauseBtn .icon {
-        transform: translateY(0.15em) rotate(30deg);
-      }
-      .playPauseBtn.playing .icon {
-        transform: translateY(-0.05em);
-      }
-      .playPauseBtn.finished {
-        opacity: 0;
-      }
-      .restartBtn .icon {
-        font-size: 1.5em;
-        transform: translateY(0.15em) rotate(45deg);
-      }
-      .resetBtn .icon {
-        font-weight: normal;
-      }
-      .sr-only {
-        display: inline-block;
-        height: 1px;
-        margin: -1px 0 0 -1px;
-        opacity: 0;
-        width: 1px;
-      }
-      .closeBtn {
-        background-transparent;
-        border: none;
-        font-size: 2rem;
-        line-height: 1rem;
-        margin: 0;
-        position: absolute;
-        padding: 0.75rem;
-        right: 0.1rem;
-        top: 0.1rem;
-      }
-      .closeBtn:hover, .closeBtn:focus {
-        background-color: transparent;
-        color: #c00;
-        font-weight: bold;
-      }
-      .closeBtn span {
-        position: relative;
-        right: -0.3rem;
-        top: -0.15rem;
-      }
-      .timer-text {
-        color: #222;
-        display: block;
-        font-family: verdana, arial, helvetica, sans-serif;
-        font-size: 6rem;
-        font-weight: bold;
-        padding: 0.1em 1em 0.2em;
-        text-align: center;
-      }
-      progress {
-        background-color: #fff;
-        border: 0.05rem solid #ccc;
-        color: #F00;
-        display: block;
-        height: 2rem;
-        left: -0.05rem;
-        position: relative;
-        width: 100%;
-      }
-      .finished {
-        background-color: #c00;
-        color: #fff;
-      }
-      .tenths {
-        font-size: 3.5rem;
-        font-weight: normal;
-      }
-      .hide {
-        display: none;
-      }`
+      :root { font-family: inherit; }
+      .TalkingTimer-wrapper { border: 0.05rem solid #ccc; padding: 0; position: relative; }
+      h1 { font-size: 1.5rem; margin: 0; padding: 0.5rem; text-align: center; }
+      .wrapper { align-items: stretch; display: flex; justify-content: space-between; }
+      button { background-color: #fff; border: 0.05rem solid #c0e; flex-grow: 1; font-size: 1.25rem; font-variant: small-caps; padding: 1rem 0; }
+      button:last-child { border-right-width: 0.075rem; }
+      button:hover { background-color: #eee; cursor: pointer; }
+      button .icon { display: inline-block; font-weight: bold; font-size: 1.25em; margin-bottom: -1em; margin-left: 0.3em; margin-top: -1em; transform: translateY(0.15em); }
+      .playPauseBtn { border-color: #040; background-color: #050; color: #fff; flex-grow: 3; font-weight: bold; }
+      .playPauseBtn:hover { background-color: #030; border-color: #020; }
+      .playPauseBtn .icon { transform: translateY(0.15em) rotate(30deg); }
+      .playPauseBtn.playing .icon { transform: translateY(-0.05em); }
+      .playPauseBtn.finished { opacity: 0; }
+      .restartBtn .icon { font-size: 1.5rem; transform: translateY(0.15em) rotate(45deg); }
+      .resetBtn .icon { font-weight: normal; }
+      .sr-only { display: inline-block; height: 1px; margin: -1px 0 0 -1px; opacity: 0; width: 1px; }
+      .closeBtn { background-transparent; border: none; font-size: 2rem; line-height: 1rem; margin: 0; position: absolute; padding: 0.75rem; right: 0.1rem; top: 0.1rem; }
+      .closeBtn:hover, .closeBtn:focus { background-color: transparent; color: #c00; font-weight: bold; }
+      .closeBtn span { position: relative; right: -0.3rem; top: -0.15rem; }
+      .timer-text { color: #222; display: block; font-family: verdana, arial, helvetica, sans-serif; font-size: 6rem; font-weight: bold; padding: 0.1em 1em 0.2em; text-align: center; }
+      progress { background-color: #fff; border: 0.05rem solid #ccc; color: #F00; display: block; height: 2rem;
+        left: -0.05rem; position: relative; width: 100%; }
+      .finished { background-color: #c00; color: #fff; }
+      .tenths { font-size: 3.5rem; font-weight: normal; }
+      .hide { display: none; }`
     )
   }
 
