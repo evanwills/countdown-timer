@@ -74,9 +74,6 @@ class TalkingTimer extends HTMLElement {
       this.playPauseClick = this.getPlayPauseClick()
       this.playPauseBtn.addEventListener('click', this.playPauseClick)
 
-      console.log('config:', this.config)
-      console.log('config.noReset:', this.config.noReset)
-      console.log('config.noReset === false:', this.config.noReset === false)
       if (this.config.noReset === true) {
         this.resetBtn.classList.add('hide')
       }
@@ -165,16 +162,15 @@ class TalkingTimer extends HTMLElement {
   startPlayingInner (obj) {
     obj.remainingMilliseconds = obj.initialMilliseconds
 
-    console.log('this.config:', obj.config)
     if (obj.config.noPause === true) {
       obj.playPauseBtn.classList.add('hide')
     }
 
-    if (obj.config.noReset === true || obj.config.noPause === true) {
-      obj.resetBtn.classList.add('hide')
+    if (obj.config.noReset === false && obj.config.noPause === false) {
+      obj.resetBtn.classList.remove('hide')
     }
 
-    if (obj.config.noRestart === false || obj.config.noPause === false) {
+    if (obj.config.noRestart === false && obj.config.noPause === false) {
       obj.restartBtn.classList.remove('hide')
     }
 
@@ -235,13 +231,9 @@ class TalkingTimer extends HTMLElement {
       this.playPauseBtn.classList.remove('hide')
     }
 
-    if (this.config.noReset === true || this.config.noPause === true) {
-      this.resetBtn.classList.remove('hide')
-    }
-
-    if (this.config.noRestart === false && this.config.noPause === false) {
-      this.restartBtn.classList.add('hide')
-    }
+    // if (this.config.noRestart === false && this.config.noPause === false) {
+    //   this.restartBtn.classList.add('hide')
+    // }
   }
 
   /**
@@ -284,6 +276,9 @@ class TalkingTimer extends HTMLElement {
 
       this.numbers.classList.remove('finished')
       this.playPauseBtn.classList.remove('finished')
+
+      this.restartBtn.classList.add('hide')
+      this.resetBtn.classList.add('hide')
     }
 
     return resetClick
@@ -459,6 +454,7 @@ class TalkingTimer extends HTMLElement {
     reset.setAttribute('class', 'resetBtn')
     reset.appendChild(document.createTextNode('Reset '))
     reset.appendChild(resetIcon)
+    reset.classList.add('hide')
 
     btnWrap.appendChild(playPause)
     btnWrap.appendChild(restart)
@@ -730,8 +726,6 @@ class TalkingTimer extends HTMLElement {
     }
     let remainder = milliseconds
 
-    // console.log('milliseconds:', milliseconds)
-
     for (var a = 0; a < 4; a += 1) {
       const field = fields[a]
       const tmp = this.getWholePart(remainder, this.multipliers[field])
@@ -834,11 +828,10 @@ class TalkingTimer extends HTMLElement {
     speak = (typeof speak !== 'string') ? this.speakDefault : speak
     this.speakIntervals = this.parseRawIntervals(speak, this.initialMilliseconds)
 
-    if (this.config.autoDestruct === true) {
-      const autoDestruct = this.getAttribute('selfdestruct')
-      if (autoDestruct === null) {
-        this.config.autoDestruct = -1
-      } else if (Number.isInteger(autoDestruct * 1)) {
+    const autoDestruct = this.getAttribute('selfdestruct')
+    if (typeof autoDestruct === 'string') {
+      const isNum = new RegExp('^[1-9][0-9]*$')
+      if (isNum.test(autoDestruct)) {
         this.config.autoDestruct = Number.parseInt(autoDestruct, 10) * 1000
       } else {
         this.config.autoDestruct = 10000
