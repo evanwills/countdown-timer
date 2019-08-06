@@ -11,11 +11,17 @@
 		<h1><code style="font-size:1.35em; padding-right: 0.5rem;">&lt;talking-timer&gt;</code> Custom element</h1>
 
 		<div class="timer-wrap">
-			<talking-timer time="03:00" id="short" end-message="Your egg is cooked" saystart>Egg timer</talking-timer>
+			<talking-timer time="03:00" id="short" end-message="Your egg is cooked" saystart>Simple Egg timer</talking-timer>
 
-			<talking-timer time="04:00" id="longer" nopause>Longer timer with Pause functionality hidden</talking-timer>
+			<talking-timer time="02:00" id="nopause" nopause>Timer with <em>pause</em> functionality hidden<br /><span class="sub">(i.e. can't reset, restart or close timer while in progress)</span></talking-timer>
 
-			<talking-timer time="05:00" id="evenLonger" saystart selfdestruct="5">Five minute timer that selfdestructs after completion</talking-timer>
+			<talking-timer time="02:00" id="autoreset" autoreset>Timer that auto-resets itself after completion</talking-timer>
+
+			<talking-timer time="02:00" id="selfdestruct" selfdestruct="5">Timer that selfdestructs five seconds after completion</talking-timer>
+
+			<talking-timer time="02:00" id="saystart" saystart>Timer warns before starting<span class="sub">(i.e. says "<em>Ready. Set. Go!</em>" before starting)</span></talking-timer>
+
+			<talking-timer time="02:00" id="silent" speak="" nosayend noendchime>Silent timer (Visual timer only)<span class="sub">(i.e. does not make any announcements &mdash; You're better off just using <a href="https://www.google.com/search?q=2+minute+timer">Google</a>)</span></talking-timer>
 		</div>
 
 		<script type="text/ecmascript" src="talking-timer.js"></script>

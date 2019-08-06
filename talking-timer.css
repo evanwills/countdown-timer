@@ -28,16 +28,50 @@ body {
   text-align: right;
   padding: 0 0.2rem;
 }
+ul {
+  column-width: 20rem;
+  padding: 0;
+  margin: 0.5rem 0;
+  column-gap: 5%;
+}
+li {
+  list-style-type: none;
+  padding: 0;
+  -webkit-column-break-inside: avoid-column
+}
+label.checkbox {
+  display: block;
+  padding: 0.5rem 0.5rem 0.3rem 2.15rem;
+  text-indent: -1.65rem;
+}
+label + span {
+  display: block;
+  padding: 0 0.5rem 0.5rem 2.15rem;
+}
+input[type=text] {
+  font-family: 'Courier New', Courier, monospace;
+  padding: 0.3rem 0.5rem;
+  display: inline-block;
+  width: 30rem;
+}
 .colon {
   align-items: baseline;
   font-size: 4rem;
   padding: 1.1rem 0.1rem 0;
 }
+
+.sub {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: normal;
+}
+
 talking-timer {
   display: block;
   margin: 2rem auto;
   max-width: 30rem;
   width: 100%;
+  font-size: 90%;
 }
 
 .timer-wrap {
@@ -48,6 +82,11 @@ talking-timer {
   justify-content: space-between;
   margin: auto;
   width: 100%;
+}
+
+talking-timer /deep/ .playPauseBtn {
+  color: rebeccapurple;
+  background-color: yellow;
 }
 
 @media screen and (min-width: 60rem) {

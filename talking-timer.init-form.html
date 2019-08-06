@@ -40,7 +40,7 @@
 				<label for="newTimer" >
 					Create new timer
 				</label>
-				<details>
+				<details open>
 					<summary>Advanced settings</summary>
 					<p>
 						<label>
@@ -48,79 +48,89 @@
 							Show hours input
 						</label>
 					</p>
-					<p>
-						<label for="displayMode">Visual timer display mode:</label>
-						<select id="displayMode" name="displayMode">
-							<option value="pie">Pie chart</option>
-							<option value="bar" selected="selected">Progress bar</option>
-						</select>
-					</p>
-					<p>
-						<label for="sound">Sound:</label>
-						<select id="sound" name="sound">
-							<option value="bell">Bell</option>
-							<option value="chime">Chime</option>
-						</select>
-					</p>
+					<!--
+						<p>
+							<label for="displayMode">Visual timer display mode:</label>
+							<select id="displayMode" name="displayMode">
+								<option value="pie">Pie chart</option>
+								<option value="bar" selected="selected">Progress bar</option>
+							</select>
+						</p>
+						<p>
+							<label for="sound">Sound:</label>
+							<select id="sound" name="sound">
+								<option value="bell">Bell</option>
+								<option value="chime">Chime</option>
+							</select>
+						</p>
+					-->
 					<fieldset>
-						<legend>Speek</legend>
+						<legend>Speak</legend>
 						<ul>
 							<li>
-								<label>
-									<input type="checkbox" value="1" id="quarters" aria-describedby="quarters-desc" />
-									Quarters
+								<label class="checkbox">
+									<input type="checkbox" value="1/4" id="quarters" aria-describedby="quarters-desc" />
+									Quarters <code>1/4</code>
 								</label>
 								<span id="quarters-desc">
-									Speek three quarter and one quarter to go intervals
+									Speak three quarter, half way and one quarter to go intervals
 								</span>
 							</li>
 							<li>
-								<label>
+								<label class="checkbox">
 									<input type="checkbox" value="1" id="thirds" aria-describedby="thirds-desc" />
-									Thirds
+									Thirds <code>1/3</code>
 								</label>
 								<span id="thirds-desc">
-									Speek two and one third intervals
+									Speak two and one third intervals
 								</span>
 							</li>
 							<li>
-								<label>
+								<label class="checkbox">
 									<input type="checkbox" value="1" id="half" checked="checked" aria-describedby="half-desc" />
-									Half
+									Half <code>1/2</code>
 								</label>
 								<span id="thirds-desc">
-									Speek half way interval
+									Speak half way interval
 								</span>
 							</li>
 							<li>
-								<label>
+								<label class="checkbox">
 									<input type="checkbox" value="1" id="minutes" checked="checked" aria-describedby="minutes-desc" />
-									Minutes
+									Minutes <code>1m</code>
 								</label>
 								<span id="minutes-desc">
-									Speek minutes to go interval
+									Speak minutes to go interval
 								</span>
 							</li>
 							<li>
-								<label>
+								<label class="checkbox">
 									<input type="checkbox" value="1" id="minutes" checked="checked" aria-describedby="thirtSec-desc" />
-									Speak 30 second intervals
+									Every 30 seconds <code>30s</code>
 								</label>
 								<span id="thirtSec-desc">
-									Speek 30 second intervals (if minutes are spoken it over-rides 60 second intervals)
+									Speak 30 second intervals (Relative to begining or end)<br />
+									e.g. for three minute timer: "<em>Thirty seconds gone</em>", "<em>One minute gone</em>", "<em>One minute, thirty seconds gone</em>", "<em>One minute to go</em>", "<em>Thirty seconds to go</em>"
 								</span>
 							</li>
 							<li>
-								<label>
+								<label class="checkbox">
 									<input type="checkbox" value="1" id="minutes" checked="checked" />
-									Speak last 20 &amp; 15 second intervals
+									Speak last 20 &amp; 15 second intervals <code>last20 last15</code>
 								</label>
+								<span id="thirtSec-desc">
+									Speak final 20 & 15 second intervals<br />
+									"<em>Twenty seconds to go</em>", "<em>15 seconds</em>"
+								</span>
 							</li>
 							<li>
-								<label>
-									<input type="checkbox" value="1" id="minutes" checked="checked" aria-describedby="minutes-desc" />
-									Speek last 10 second count-down
+								<label class="checkbox">
+									<input type="checkbox" value="1" id="minutes" checked="checked" aria-describedby="minutes-desc" /> Count down last 10 seconds <code>allLast10</code>
 								</label>
+								<span id="thirtSec-desc">
+									Speak last 10 second count-down<br />
+									"<em>Ten</em>", "<em>Nine</em>", "<em>Eight</em>", "<em>Seven</em>", "<em>Six</em>", "<em>Five</em>", "<em>Four</em>", "<em>Three</em>", "<em>Two</em>", "<em>One</em>"
+								</span>
 							</li>
 						</ul>
 					</fieldset>

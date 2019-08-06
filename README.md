@@ -6,6 +6,8 @@ A custom element for visual and audio countdown timing. (For when my kids need t
 
 You can see it in action on [CodePen](https://codepen.io/evanwills/pen/jgYVMR)
 
+-----
+
 - [`<talking-timer>`](#talking-timer)
   - [How it works](#how-it-works)
   - [Attributes](#attributes)
@@ -21,12 +23,15 @@ You can see it in action on [CodePen](https://codepen.io/evanwills/pen/jgYVMR)
     - [`noreset`](#noreset)
     - [`nosayend`](#nosayend)
     - [`noendchime`](#noendchime)
+    - [`noclosebtn`](#noclosebtn)
+    - [`autoreset`](#autoreset)
     - [`saystart`](#saystart)
     - [`priority`](#priority)
       - [`priority` options:](#priority-options)
     - [`start-message`](#start-message)
     - [`selfdestruct`](#selfdestruct)
 
+-----
 
 ## How it works
 
@@ -200,7 +205,7 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
 
 Hide the "Pause" from the user interface (UI) button while the timer is counting.
 
-__NOTE:__ `nopause` also hides the "Start again" & "Reset" buttons during time activity
+> __NOTE:__ `nopause` also hides the "Start again", "Reset" & "Close X" buttons during time activity
 
 ### `norestart`
 
@@ -214,17 +219,31 @@ Hides the `Reset` button from the UI
 
 By default "*Time's up!*" is spoken when a timer ends. By including `nosayend` you can block this behaviour.
 
-__Note:__ You can configure what is spoken at the end of a timer by using the [`end-message`](#end-message) attributes.
+> __NOTE:__ You can configure what is spoken at the end of a timer by using the [`end-message`](#end-message) attributes.
+
+> __Note also:__ if [`end-message`](#end-message) is present, nosayend is ignored on the basis that if you go to the trouble of specifying [`end-message`](#end-message), then nosayend is probably a mistake
 
 ### `noendchime`
 
 By default, a short 5 second chime is played upon timer completion. If you're using the timer on Firefox mobile the chime sounds __*TERRIBLE*__ you can use no `noendchime` to disable it.
 
+### `noclosebtn`
+
+If you don't want the timer to be able to be dismissed, use `noclosebtn`
+
+> __NOTE:__ `noclosebtn` & [`selfdestruct`](#selfdestruct) are mutually exclusive. if [`selfdestruct`](#selfdestruct) is simply boolean then `noclosebtn` will override it and prevent the node from being automatically removed after completion of timer.<br />Conversly, if [`selfdestruct`](#selfdestruct) is set with a numeric value (e.g. `selfdestruct="5"`) then it assumes that `noclosebutton` is a mistake, so `noclosebutton` is ignored
+
+### `autoreset`
+
+`autoreset` causes the timer to automatically reset itself when it completes.
+
+>
+
 ### `saystart`
 
 By default nothing is spoken when a timer starts by the including `saystart` attribute "*Ready! Set! Go!*" is spoken.
 
-__NOTE:__ Start text can be configured using the [`start-message`](#start-message) attribute (see below)
+> __NOTE:__ Start text can be configured using the [`start-message`](#start-message) attribute (see below)
 
 ### `priority`
 
@@ -260,9 +279,7 @@ It's possible (even probable) that, when using fraction intervals (like `1/2`) a
 
 `start-message` allows you to control what is spoken when a timer starts.
 
-__NOTE:__ by default nothing is spoken when a timer starts `start-message` has the same result as `saystart` with the added advantage that you can control what is spoken
-
-
+> __NOTE:__ by default nothing is spoken when a timer starts `start-message` has the same result as `saystart` with the added advantage that you can control what is spoken
 
 ### `selfdestruct`
 
@@ -282,6 +299,8 @@ If `selfdestruct` is set, then the timer will remove itself thirty seconds after
 </talking-timer>
 ```
 
-> __NOTE:__ If `selfdestruct` has a numeric value, then that number will set the number of seconds, after which, the node will remove itself.
+> __NOTE:__ If `selfdestruct` has a numeric value, then that number will set the number of seconds, after timer finishes, when the node will remove itself.
 
 > __NOTE ALSO:__ If the value of `selfdestruct` is greater than 43200 (12 hours) 43200 will be used.
+
+> __FINAL NOTE:__ `noclosebtn` & [`selfdestruct`](#selfdestruct) are mutually exclusive. if [`selfdestruct`](#selfdestruct) is has a numeric value it will override `noclosebtn` will override it and will force the node to be automatically removed after completion of timer.

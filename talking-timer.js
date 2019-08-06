@@ -27,6 +27,8 @@ class TalkingTimer extends HTMLElement {
 
     this.config = {
       autoDestruct: -1,
+      autoReset: false,
+      noCloseBtn: false,
       noEndChime: false,
       noPause: false,
       noReconfigure: false,
@@ -47,6 +49,7 @@ class TalkingTimer extends HTMLElement {
     this.closeBtn = null
     this.numbers = null
     this.progressTicker = null
+    this.h1 = null
     this.speakDefault = '1/2 30s last20 last15 allLast10'
     this.speakIntervals = []
     this.workingIntervals = []
@@ -87,8 +90,13 @@ class TalkingTimer extends HTMLElement {
       this.restartClick = this.getRestartClick()
       this.restartBtn.addEventListener('click', this.restartClick)
 
-      this.closeClick = this.getCloseClick()
-      this.closeBtn.addEventListener('click', this.closeClick)
+      if (this.config.noCloseBtn === false) {
+        this.closeClick = this.getCloseClick()
+        this.closeBtn.addEventListener('click', this.closeClick)
+      } else {
+        this.h1.classList.add('noclosebtn')
+        this.closeBtn.remove()
+      }
 
       this.setTimeText()
       this.resetTimerValues()
@@ -164,6 +172,10 @@ class TalkingTimer extends HTMLElement {
 
     if (obj.config.noPause === true) {
       obj.playPauseBtn.classList.add('hide')
+      if (obj.config.noCloseBtn === false) {
+        obj.closeBtn.classList.add('hide')
+        obj.h1.classList.add('noclosebtn')
+      }
     }
 
     if (obj.config.noReset === false && obj.config.noPause === false) {
@@ -212,6 +224,7 @@ class TalkingTimer extends HTMLElement {
     }
     if (this.config.noEndChime === false) {
       window.setTimeout(this.endSound, delay)
+      delay = 5000
     }
 
     this.numbers.classList.add('finished')
@@ -220,20 +233,23 @@ class TalkingTimer extends HTMLElement {
     this.clearTimerInterval()
 
     if (this.config.autoDestruct !== -1) {
-      window.setTimeout((obj) => { obj.remove() }, this.config.autoDestruct, this)
+      const timeout = (this.config.autoDestruct < delay) ? delay : this.config.autoDestruct
+      window.setTimeout((obj) => { obj.remove() }, timeout, this)
 
       // This timer is going to self destruct.
       // Don't bother doing anything more
       return
+    } else if (this.config.autoReset === true) {
+      this.resetClick()
     }
 
     if (this.config.noPause === true) {
       this.playPauseBtn.classList.remove('hide')
+      if (this.config.noCloseBtn === false) {
+        this.closeBtn.classList.remove('hide')
+        this.h1.classList.remove('noclosebtn')
+      }
     }
-
-    // if (this.config.noRestart === false && this.config.noPause === false) {
-    //   this.restartBtn.classList.add('hide')
-    // }
   }
 
   /**
@@ -361,6 +377,7 @@ class TalkingTimer extends HTMLElement {
     const slot = document.createElement('slot')
     h1.appendChild(slot)
     wrap.appendChild(h1)
+    this.h1 = h1
 
     const progress = document.createElement('progress')
     progress.setAttribute('max', 1)
@@ -477,31 +494,248 @@ class TalkingTimer extends HTMLElement {
    */
   initStyle () {
     return document.createTextNode(`
-      :root { font-family: inherit; }
-      .TalkingTimer-wrapper { border: 0.05rem solid #ccc; padding: 0; position: relative; }
-      h1 { font-size: 1.5rem; margin: 0; padding: 0.5rem; text-align: center; }
-      .wrapper { align-items: stretch; display: flex; justify-content: space-between; }
-      button { background-color: #fff; border: 0.05rem solid #c0e; flex-grow: 1; font-size: 1.25rem; font-variant: small-caps; padding: 1rem 0; }
-      button:last-child { border-right-width: 0.075rem; }
-      button:hover { background-color: #eee; cursor: pointer; }
-      button .icon { display: inline-block; font-weight: bold; font-size: 1.25em; margin-bottom: -1em; margin-left: 0.3em; margin-top: -1em; transform: translateY(0.15em); }
-      .playPauseBtn { border-color: #040; background-color: #050; color: #fff; flex-grow: 3; font-weight: bold; }
-      .playPauseBtn:hover { background-color: #030; border-color: #020; }
-      .playPauseBtn .icon { transform: translateY(0.15em) rotate(30deg); }
-      .playPauseBtn.playing .icon { transform: translateY(-0.05em); }
-      .playPauseBtn.finished { opacity: 0; }
-      .restartBtn .icon { font-size: 1.5rem; transform: translateY(0.15em) rotate(45deg); }
-      .resetBtn .icon { font-weight: normal; }
-      .sr-only { display: inline-block; height: 1px; margin: -1px 0 0 -1px; opacity: 0; width: 1px; }
-      .closeBtn { background-transparent; border: none; font-size: 2rem; line-height: 1rem; margin: 0; position: absolute; padding: 0.75rem; right: 0.1rem; top: 0.1rem; }
-      .closeBtn:hover, .closeBtn:focus { background-color: transparent; color: #c00; font-weight: bold; }
-      .closeBtn span { position: relative; right: -0.3rem; top: -0.15rem; }
-      .timer-text { color: #222; display: block; font-family: verdana, arial, helvetica, sans-serif; font-size: 6rem; font-weight: bold; padding: 0.1em 1em 0.2em; text-align: center; }
-      progress { background-color: #fff; border: 0.05rem solid #ccc; color: #F00; display: block; height: 2rem;
-        left: -0.05rem; position: relative; width: 100%; }
-      .finished { background-color: #c00; color: #fff; }
-      .tenths { font-size: 3.5rem; font-weight: normal; }
-      .hide { display: none; }`
+      :host {
+        --btn-color: inherit;
+        --btn-background: #fff;
+        --btn-size: 1.25em;
+        --btn-padding: 0.5em 0;
+        --btn-border-color: #c0e;
+        --btn-border-width: 0.05em;
+        --btn-hover-color: #fff;
+        --btn-hover-background: #eee;
+        --btn-hover-border-color: #eee;
+        --btn-hover-border-width: 0.05em;
+
+        --playpause-color: #fff;
+        --playpause-size: 1.25em;
+        --playpause-weight: bold;
+        --playpause-background: #050;
+        --playpause-border-width: 0.05em;
+        --playpause-border-color: #040;
+        --playpause-hover-weight: bold;
+        --playpause-hover-color: #fff;
+        --playpause-hover-background: #030;
+        --playpause-hover-border-width: #fff;
+        --playpause-hover-border-color: #020;
+
+        --closebtn-color: inherit;
+        --closebtn-background: transparent;
+        --closebtn-border-width: 0;
+        --closebtn-border-style: none;
+        --closebtn-border-color: transparent;
+        --closebtn-size: 2em;
+        --closebtn-left: auto;
+        --closebtn-right: 0;
+        --closebtn-top: 0;
+        --closebtn-position: absolute;
+        --closebtn-padding: 0.2em 0.25em;
+        --closebtn-weight: normal;
+        --closebtn-hover-color: #c00;
+        --closebtn-hover-weight: bold;
+        --closebtn-hover-background: transparent;
+        --closebtn-hover-border-width: 0;
+        --closebtn-hover-border-style: none;
+        --closebtn-hover-border-color: transparent;
+
+        --timertext-color: #222;
+        --timertext-family: verdana, arial, helvetica, sans-serif;
+        --timertext-size: 6em;
+        --timertext-weight: bold;
+        --timertext-padding: 0.1em 1em 0.2em;
+        --timertext-align: center;
+
+        --progress-background: #fff;
+        --progress-border-color: #ccc;
+        --progress-border-width: 0.05em;
+        --progress-color: #F00;
+        --progress-height: 2em;
+        --progress-left: -0.05em;
+        --progress-right: auto;
+
+        --h1-size: 1.5em;
+        --h1-padding: 0.5em 2.5em 0.5em 0.5em;
+        --h1-noclosebtn-padding: 0.5em;
+        --h1-align: center;
+
+        --wrapper-border-width: 0.05em;
+        --wrapper-border-color: #ccc;
+      }
+
+      :root {
+        font-family: inherit;
+        color: inherit;
+      }
+
+      .TalkingTimer-wrapper {
+        border-width: var(--wrapper-border-width);
+        border-style: solid;
+        border-color: var(--wrapper-border-color);
+        padding: 0;
+        position: relative;
+      }
+
+      h1 {
+        font-size: var(--h1-size);
+        margin: 0;
+        padding: var(--h1-padding);
+        text-align: var(--h1-align);
+      }
+
+      h1.noclosebtn {
+        padding: var(--h1-noclosebtn-padding);
+      }
+
+      .wrapper {
+        align-items: stretch;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      button {
+        background-color: var(--btn-background);
+        border-width: var(--btn-border-width);
+        border-style:  solid;
+        border-color: var(--btn-border-color);
+        flex-grow: 1;
+        font-size: var(--btn-size);
+        font-variant: small-caps;
+        padding: var(--btn-padding);
+      }
+
+      button:last-child {
+        border-right-width: 0.075em;
+      }
+
+      button:hover {
+        background-color: var(--btn-hover-background);
+        border-width: var(--btn-hover-border-width);
+        border-color: var(--btn-hover-border-color);
+        cursor: pointer;
+      }
+
+      button .icon {
+        display: inline-block;
+        font-weight: bold;
+        font-size: 1.25em;
+        margin-bottom: -1em;
+        margin-left: 0.3em;
+        margin-top: -1em;
+        transform: translateY(0.15em);
+      }
+
+      .playPauseBtn {
+        border-color: var(--playpause-border-color);
+        border-width: var(--playpause-border-width);
+        background-color: var(--playpause-background);
+        color: var(--playpause-color);
+        flex-grow: 3;
+        font-weight: var(--playpause-weight);
+      }
+
+      .playPauseBtn:hover {
+        background-color: var(--playpause-hover-background);
+        border-color: var(--playpause-hover-border-color);
+        font-weight: var(--playpause-hover-weight);
+      }
+
+      .playPauseBtn .icon {
+        transform: translateY(0.15em) rotate(30deg);
+      }
+
+      .playPauseBtn.playing .icon {
+        transform: translateY(-0.05em);
+      }
+
+      .playPauseBtn.finished {
+        opacity: 0;
+      }
+
+      .restartBtn .icon {
+        font-size: 1.5em;
+        transform: translateY(0.15em) rotate(45deg);
+      }
+
+      .resetBtn .icon {
+        font-weight: normal;
+      }
+
+      .sr-only {
+        display: inline-block;
+        height: 1px;
+        margin: -1px 0 0 -1px;
+        opacity: 0;
+        width: 1px;
+      }
+
+      .closeBtn {
+        background: var(--closebtn-background);
+        border-width: var(--closebtn-border-width);
+        border-style: var(--closebtn-border-style);
+        border-color: var(--closebtn-border-color);
+        color: var(--closebtn-color);
+        font-size: var(--closebtn-size);
+        left: var(--closebtn-left);
+        line-height: 1em;
+        margin: 0;
+        position: var(--closebtn-position);
+        padding: var(--closebtn-padding);
+        right: var(--closebtn-right);
+        top: var(--closebtn-top);
+        font-weight: var(--closebtn-weight);
+      }
+
+      .closeBtn:hover,
+      .closeBtn:focus {
+        background-color: var(--closebtn-hover-background);
+        border-width: var(--closebtn-hover-border-width);
+        border-style: var(--closebtn-hover-border-style);
+        border-color: var(--closebtn-hover-border-color);
+        color: var(--closebtn-hover-color);
+        font-weight: var(--closebtn-hover-weight);
+      }
+
+      .closeBtn span {
+        position: relative;
+        top: -0.15em;
+      }
+
+      .timer-text {
+        color: var(--timertext-color);
+        display: block;
+        font-family: var(--timertext-family);
+        font-size: var(--timertext-size);
+        font-weight: var(--timertext-weight);
+        padding: var(--timertext-padding);
+        text-align: var(--timertext-align);
+      }
+
+      progress {
+        background-color: #fff;
+        border-width: var(--progress-border-width);
+        border-style: solid;
+        border-color: var(--progress-border-color);
+        color: var(--progress-color);
+        display: block;
+        height: var(--progress-height);
+        left: var(--progress-left);
+        right: var(--progress-right);
+        position: relative;
+        width: 100%;
+      }
+
+      .finished {
+        background-color: #c00;
+        color: #fff;
+      }
+
+      .tenths {
+        font-size: 0.5em;
+        font-weight: normal;
+      }
+
+      .hide {
+        display: none;
+      }`
     )
   }
 
@@ -828,16 +1062,33 @@ class TalkingTimer extends HTMLElement {
     speak = (typeof speak !== 'string') ? this.speakDefault : speak
     this.speakIntervals = this.parseRawIntervals(speak, this.initialMilliseconds)
 
+    let selfDestructOverride = false
+
     const autoDestruct = this.getAttribute('selfdestruct')
     if (typeof autoDestruct === 'string') {
       const isNum = new RegExp('^[1-9][0-9]*$')
       if (isNum.test(autoDestruct)) {
-        this.config.autoDestruct = Number.parseInt(autoDestruct, 10) * 1000
+        const intAutoDestruct = Number.parseInt(autoDestruct, 10)
+        this.config.autoDestruct = (intAutoDestruct > 43200) ? 43200 : intAutoDestruct
+        this.config.autoDestruct *= 1000
+        selfDestructOverride = true
       } else {
         this.config.autoDestruct = 10000
       }
     } else {
       this.config.autoDestruct = -1
+    }
+
+    if (this.config.noCloseBtn === true) {
+      if (selfDestructOverride === true) {
+        // If a number value for `selfdestruct` is set then it overrides
+        // `noclose`
+        this.config.noCloseBtn = false
+      } else {
+        // If `selfdestruct` is just boolean, then `noclose` overrides
+        // `selfdestruct`
+        this.config.autoDestruct = -1
+      }
     }
   }
 
