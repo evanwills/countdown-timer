@@ -30,6 +30,18 @@ You can see it in action on [CodePen](https://codepen.io/evanwills/pen/jgYVMR)
       - [`priority` options:](#priority-options)
     - [`start-message`](#start-message)
     - [`selfdestruct`](#selfdestruct)
+  - [Styling](#styling)
+    - [Heading (`<h1>`)](#heading-h1)
+      - [Heading (no close button) (`h1.noclosebtn`)](#heading-no-close-button-h1noclosebtn)
+    - [Timer text (`.timer-text`)](#timer-text-timer-text)
+      - [Timer text (completed) (`.timer-text.finished`)](#timer-text-completed-timer-textfinished)
+    - [Progress bar (`<progress>`)](#progress-bar-progress)
+    - [Default buttons (`<button>`)](#default-buttons-button)
+      - [Default buttons (hover) (`<button>:hover`)](#default-buttons-hover-buttonhover)
+    - [Play/Pause button (`.playPauseBtn`)](#playpause-button-playpausebtn)
+      - [Play/Pause button (hover) (`.playPauseBtn:hover`)](#playpause-button-hover-playpausebtnhover)
+    - [Close button (`.closeBtn`)](#close-button-closebtn)
+      - [Close button (hover) (`.closeBtn:hover`)](#close-button-hover-closebtnhover)
 
 -----
 
@@ -304,3 +316,152 @@ If `selfdestruct` is set, then the timer will remove itself thirty seconds after
 > __NOTE ALSO:__ If the value of `selfdestruct` is greater than 43200 (12 hours) 43200 will be used.
 
 > __FINAL NOTE:__ `noclosebtn` & [`selfdestruct`](#selfdestruct) are mutually exclusive. if [`selfdestruct`](#selfdestruct) is has a numeric value it will override `noclosebtn` will override it and will force the node to be automatically removed after completion of timer.
+
+
+## Styling
+
+Styling is very personal. I've done what I think is a good design. But
+what I think is good and what you think is good may not necessarily be
+the same. So, in light of that, most of the visual style of the
+talking-timer web component can be styled via CSS variables.
+
+Below are tables for the variables controlling the style of each element in the [shadow dom](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM) along with the CSS attribute they represent and the defaults value I've set.
+
+-----
+
+### Heading (`<h1>`)
+
+| Variable name          | CSS attribute | default value           |
+|------------------------|---------------|-------------------------|
+| --h1-size              | font-size     | 1.5em                   |
+| --h1-padding           | padding       | 0.5em 2.5em 0.5em 0.5em |
+| --h1-align             | text-align    | center                  |
+
+#### Heading (no close button) (`h1.noclosebtn`)
+
+If the close button is hidden, you need to adjust the padding to ensure
+the heading is centred (if you keep it centred as is default)
+
+| Variable name          | CSS attribute      | default value |
+|------------------------|--------------------|---------------|
+|--h1-noclosebtn-padding | noclosebtn-padding | 0.5em         |
+
+-----
+
+### Timer text (`.timer-text`)
+
+Timer text is the text that changes (counts down) as the timer progresses
+
+| Variable name       | CSS attribute       | default value                         |
+|---------------------|---------------------|---------------------------------------|
+| --timertext-color   | color (font colour) | #222                                  |
+| --timertext-family  | family              | verdana, arial, helvetica, sans-serif |
+| --timertext-size    | font-size           | 6em                                   |
+| --timertext-weight  | font-weight         | bold                                  |
+| --timertext-padding | padding             | 0.1em 1em 0.2em                       |
+| --timertext-align   | text-align          | center                                |
+
+#### Timer text (completed) (`.timer-text.finished`)
+
+| Variable name          | CSS attribute       | default value |
+|------------------------|---------------------|---------------|
+| --finished-background  | background-color    | #c00          |
+| --finished-color       | color (font colour) | #fff          |
+
+-----
+
+### Progress bar (`<progress>`)
+
+(Still working on this styling. there are big differences between
+ Chrome and Firefox)
+
+| Variable name           | CSS attribute       | default value |
+|-------------------------|---------------------|---------------|
+| --progress-background   | background          | #fff          |
+| --progress-border-color | border-color        | #ccc          |
+| --progress-border-width | border-width        | 0.05em        |
+| --progress-color        | color (font colour) | #F00          |
+| --progress-height       | line-height         | 2em           |
+| --progress-left         | left                | -0.05em       |
+| --progress-right        | right               | auto          |
+
+-----
+
+### Default buttons (`<button>`)
+
+| Variable name    | CSS attribute    | default value    |
+|------------------|------------------|------------------|
+|--btn-color       | color            | inherit          |
+|--btn-background  | background-color | #fff             |
+|--btn-size        | font-size        | 1.25em           |
+|--btn-padding     | padding          | 0.5em 0          |
+|--btn-border-color| border-color     | #c0e             |
+|--btn-border-width| border-width     | 0.05em           |
+
+#### Default buttons (hover) (`<button>:hover`)
+
+| Variable name          | CSS attribute    | default value |
+|------------------------|------------------|---------------|
+|--btn-hover-color       | color            | #fff          |
+|--btn-hover-background  | background-color | #eee          |
+|--btn-hover-border-color| border-color     | #eee          |
+|--btn-hover-border-width| border-width     | 0.05em        |
+
+-----
+
+### Play/Pause button (`.playPauseBtn`)
+
+Button that triggers Play/Pause (Green with white text by default)
+
+| Variable name            | CSS attribute       | default value |
+|--------------------------|---------------------|---------------|
+| --playpause-color        | color (font colour) | #fff          |
+| --playpause-size         | font-size           | 1.25em        |
+| --playpause-weight       | font-weight         | bold          |
+| --playpause-background   | background          | #050          |
+| --playpause-border-width | border-width        | 0.05em        |
+| --playpause-border-color | border-color        | #040          |
+
+#### Play/Pause button (hover) (`.playPauseBtn:hover`)
+
+| Variable name                  | CSS attribute       | default value |
+|--------------------------------|---------------------|---------------|
+| --playpause-hover-weight       | font-weight         | bold          |
+| --playpause-hover-color        | color (font colour) | #fff          |
+| --playpause-hover-background   | background-color    | #030          |
+| --playpause-hover-border-width | border-width        | #fff          |
+| --playpause-hover-border-color | border-color        | #020          |
+
+-----
+
+### Close button (`.closeBtn`)
+
+By defaul the close button sits on the top right of the `<talking-timer>` box
+
+| Variable name           | CSS attribute       | default value |
+|-------------------------|---------------------|---------------|
+| --closebtn-color        | color (font colour) | inherit       |
+| --closebtn-background   | background-color    | transparent   |
+| --closebtn-border-width | border-width        | 0             |
+| --closebtn-border-style | border-style        | none          |
+| --closebtn-border-color | border-color        | transparent   |
+| --closebtn-size         | font-size           | 2em           |
+| --closebtn-left         | left (position)     | auto          |
+| --closebtn-right        | right (position)    | 0             |
+| --closebtn-top          | top (position)      | 0             |
+| --closebtn-position     | position            | absolute      |
+| --closebtn-padding      | padding             | 0.2em 0.25em  |
+| --closebtn-weight       | font-weight         | normal        |
+
+#### Close button (hover) (`.closeBtn:hover`)
+
+| Variable name                 | CSS attribute       | default value |
+|-------------------------------|---------------------|---------------|
+| --closebtn-hover-color        | color (font colour) | #c00          |
+| --closebtn-hover-weight       | font-weight         | bold          |
+| --closebtn-hover-background   | hover-background    | transparent   |
+| --closebtn-hover-border-width | border-width        | 0             |
+| --closebtn-hover-border-style | border-style        | none          |
+| --closebtn-hover-border-color | border-color        | transparent   |
+
+-----

@@ -566,14 +566,6 @@ class TalkingTimer extends HTMLElement {
         color: inherit;
       }
 
-      .TalkingTimer-wrapper {
-        border-width: var(--wrapper-border-width);
-        border-style: solid;
-        border-color: var(--wrapper-border-color);
-        padding: 0;
-        position: relative;
-      }
-
       h1 {
         font-size: var(--h1-size);
         margin: 0;
@@ -736,6 +728,14 @@ class TalkingTimer extends HTMLElement {
       .hide {
         display: none;
       }`
+
+      // .TalkingTimer-wrapper {
+      //   border-width: var(--wrapper-border-width);
+      //   border-style: solid;
+      //   border-color: var(--wrapper-border-color);
+      //   padding: 0;
+      //   position: relative;
+      // }
     )
   }
 
@@ -1117,7 +1117,6 @@ class TalkingTimer extends HTMLElement {
       return []
     }
     const exclude = (typeof omit === 'boolean') ? omit : false
-
 
     while ((matches = regex.exec(rawIntervals)) !== null) {
       const allEvery = (typeof matches[1] !== 'undefined') ? matches[1].toLocaleLowerCase() : ''

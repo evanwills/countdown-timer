@@ -72,6 +72,9 @@ talking-timer {
   max-width: 30rem;
   width: 100%;
   font-size: 90%;
+  border: 0.05em solid #ccc;
+  padding: 0;
+  position: relative;
 }
 
 .timer-wrap {
