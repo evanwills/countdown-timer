@@ -21,9 +21,15 @@
 
 			<talking-timer time="02:00" id="saystart" saystart>Timer warns before starting<span class="sub">(i.e. says "<em>Ready. Set. Go!</em>" before starting)</span></talking-timer>
 
-			<talking-timer time="02:00" id="silent" speak="" nosayend noendchime>Silent timer (Visual timer only)<span class="sub">(i.e. does not make any announcements &mdash; You're better off just using <a href="https://www.google.com/search?q=2+minute+timer">Google</a>)</span></talking-timer>
+			<talking-timer time="02:00" id="silent" speak="" nosayend noendchime>Silent timer (Visual timer only)
+				<span class="sub">(i.e. does not make any announcements &mdash; You're better off just using <a href="https://www.google.com/search?q=2+minute+timer">Google</a>)</span>
+			</talking-timer>
 
-			<talking-timer time="05:00" id="eveylastminute" speak="everyLast1m last30 last15 allLast10">Testing every Last Minute</talking-timer>
+			<talking-timer time="05:00" id="eveylastminute" speak="everyLast1m last30 last15 allLast10">Every minute from the end
+				<span class="sub">(i.e. does not make any announcements &mdash; You're better off just using <a href="https://www.google.com/search?q=2+minute+timer">Google</a>)</span>
+			</talking-timer>
+
+			<talking-timer time="0:30" id="short30"l saystart speak="everyLast10s allLast10">Short (30 seconds) every 10 from end</talking-timer>
 		</div>
 
 		<script type="text/ecmascript" src="talking-timer.js"></script>
