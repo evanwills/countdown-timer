@@ -1118,6 +1118,7 @@ class TalkingTimer extends HTMLElement {
     }
     const exclude = (typeof omit === 'boolean') ? omit : false
 
+
     while ((matches = regex.exec(rawIntervals)) !== null) {
       const allEvery = (typeof matches[1] !== 'undefined') ? matches[1].toLocaleLowerCase() : ''
       const firstLast = (typeof matches[3] !== 'undefined') ? matches[3].toLocaleLowerCase() : ''
@@ -1140,6 +1141,7 @@ class TalkingTimer extends HTMLElement {
       }
 
       if (typeof matches[7] !== 'undefined') {
+        // item is a fraction
         const denominator = Number.parseInt(matches[7], 10)
 
         interval.isFraction = true
@@ -1157,8 +1159,9 @@ class TalkingTimer extends HTMLElement {
           fractionIntervals = fractionIntervals.concat(tmpIntervals)
         }
       } else {
+        // item is a number
         matches[4] = Number.parseInt(matches[4], 10)
-        interval.unit = (typeof matches[4] === 'string') ? matches[4].toLocaleLowerCase() : 's'
+        interval.unit = (typeof matches[5] === 'string') ? matches[5].toLocaleLowerCase() : 's'
         interval.time = matches[4]
 
         const tmpIntervals = this.getTimeOffsetAndMessage(interval, durationMilli, interval.raw)
@@ -1261,9 +1264,12 @@ class TalkingTimer extends HTMLElement {
   getTimeOffsetAndMessage (intervalObj, milliseconds, raw) {
     const suffix = (intervalObj.relative === 'first') ? ' gone.' : ' to go.'
     let offsets = []
+
     if ((intervalObj.all === true || intervalObj.every === true) || intervalObj.multiplier > 1) {
       if ((intervalObj.all === true || intervalObj.every === true) && intervalObj.multiplier <= 1) {
         if (intervalObj.relative === '') {
+          // not relative so announce time relative to nearest edge
+          // of time (e.g. 1 minute to go & 1 minute gone)
           const half = milliseconds / 2
           const interval = intervalObj.time * 1000
           for (let offset = interval; offset <= half; offset += interval) {
@@ -1278,27 +1284,28 @@ class TalkingTimer extends HTMLElement {
             })
           }
         } else {
+          // interval relative === false
           let interval = 0
+          let count = 0
+          switch (intervalObj.unit) {
+            case 'm':
+              interval = 60000
+              break
+            case 'h':
+              interval = 3600000
+              break
+            case 's':
+            default:
+              interval = 1000
+          }
           if (intervalObj.every === true) {
-            interval = intervalObj.time * 1000
+            count = milliseconds / interval
           } else {
-            switch (intervalObj.unit) {
-              case 's':
-                interval = 1000
-                break
-              case 'm':
-                interval = 60000
-                break
-              case 'h':
-                interval = 3600000
-                break
-              default:
-                interval = 1000
-            }
+            count = intervalObj.time
           }
           const modifier = (intervalObj.relative !== 'first') ? 0 : milliseconds
 
-          for (let a = 1; a <= intervalObj.time; a += 1) {
+          for (let a = count - 1; a > 0; a -= 1) {
             const offset = a * interval
             offsets.push({
               offset: this.posMinus(modifier, offset),
@@ -1329,7 +1336,6 @@ class TalkingTimer extends HTMLElement {
         raw: raw
       }]
     }
-
     return offsets
   }
 
