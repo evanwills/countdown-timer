@@ -50,7 +50,7 @@ class TalkingTimer extends HTMLElement {
     this.numbers = null
     this.progressTicker = null
     this.h1 = null
-    this.speakDefault = '1/2 30s last20 last15 allLast10'
+    this.sayDefault = '1/2 30s last20 last15 allLast10'
     this.speakIntervals = []
     this.workingIntervals = []
 
@@ -1044,13 +1044,13 @@ class TalkingTimer extends HTMLElement {
     }
 
     const endText = this.getAttribute('end-message')
-    if (typeof endText !== 'undefined') {
+    if (typeof endText !== 'undefined' && endText !== null && endText !== '') {
       this.config.noSayEnd = false
       this.endText = endText
     }
 
     const startText = this.getAttribute('start-message')
-    if (typeof startText === 'string' && startText !== '') {
+    if (typeof startText === 'string' && startText !== null && startText !== '') {
       this.config.nosayStart = false
       this.startText = startText
     }
@@ -1058,9 +1058,9 @@ class TalkingTimer extends HTMLElement {
     const priority = this.getAttribute('priority')
     this.config.priority = (typeof priority !== 'undefined' || priority !== 'time') ? 'fraction' : 'time'
 
-    let speak = this.getAttribute('speak')
-    speak = (typeof speak !== 'string') ? this.speakDefault : speak
-    this.speakIntervals = this.parseRawIntervals(speak, this.initialMilliseconds)
+    let say = this.getAttribute('say')
+    say = (typeof say !== 'string') ? this.sayDefault : say
+    this.sayIntervals = this.parseRawIntervals(say, this.initialMilliseconds)
 
     let selfDestructOverride = false
 

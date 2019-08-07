@@ -87,11 +87,6 @@ talking-timer {
   width: 100%;
 }
 
-talking-timer /deep/ .playPauseBtn {
-  color: rebeccapurple;
-  background-color: yellow;
-}
-
 @media screen and (min-width: 60rem) {
   .timer-wrap {
     flex-direction: row;

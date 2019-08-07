@@ -1,5 +1,43 @@
 # `<talking-timer>`
 
+
+- [`<talking-timer>`](#talking-timer)
+  - [How it works](#how-it-works)
+  - [Attributes](#attributes)
+    - [`time` (required)](#time-required)
+    - [`end-message`](#end-message)
+    - [`speak`](#speak)
+      - [`speak` options](#speak-options)
+        - [speak option pattern:](#speak-option-pattern)
+        - [Time interval: Seconds, Minutes & Hours](#time-interval-seconds-minutes--hours)
+        - [Second pattern: Fractions](#second-pattern-fractions)
+    - [`nopause`](#nopause)
+    - [`norestart`](#norestart)
+    - [`noreset`](#noreset)
+    - [`nosayend`](#nosayend)
+    - [`noendchime`](#noendchime)
+    - [`noclosebtn`](#noclosebtn)
+    - [`autoreset`](#autoreset)
+    - [`saystart`](#saystart)
+    - [`priority`](#priority)
+      - [`priority` options:](#priority-options)
+    - [`start-message`](#start-message)
+    - [`selfdestruct`](#selfdestruct)
+  - [Styling](#styling)
+    - [Heading (`<h1>`)](#heading-h1)
+      - [Heading (no close button) (`h1.noclosebtn`)](#heading-no-close-button-h1noclosebtn)
+    - [Timer text (`.timer-text`)](#timer-text-timer-text)
+      - [Timer text (completed) (`.timer-text.finished`)](#timer-text-completed-timer-textfinished)
+    - [Progress bar (`<progress>`)](#progress-bar-progress)
+    - [Default buttons (`<button>`)](#default-buttons-button)
+      - [Default buttons (hover) (`<button>:hover`)](#default-buttons-hover-buttonhover)
+    - [Play/Pause button (`.playPauseBtn`)](#playpause-button-playpausebtn)
+      - [Play/Pause button (hover) (`.playPauseBtn:hover`)](#playpause-button-hover-playpausebtnhover)
+    - [Close button (`.closeBtn`)](#close-button-closebtn)
+      - [Close button (hover) (`.closeBtn:hover`)](#close-button-hover-closebtnhover)
+
+-----
+
 A custom element for visual and audio countdown timing. (For when my kids need to stop doing a thing they don't want to stop. And for when I'm teaching and running a time sensitive exercise)
 
 `<talking-timer>` uses the [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API), the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) and custom elements to build a [Web component](https://developer.mozilla.org/en-US/docs/Web/Web_Components) that provides audio and visual representation of the progress of a timer.
