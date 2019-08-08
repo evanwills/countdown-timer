@@ -40,15 +40,44 @@ class TalkingTimer extends HTMLElement {
       priority: 'fraction'
     }
 
+    /**
+     * @var {array} pre defines the time before a spoken interval
+     *                  when the `<talking-timer>` component should
+     *                  start speaking
+     *
+     * This is used to account for the length of time it takes to
+     * speak the interval. The intention is to have the speaking
+     * finish as close to the interval time as possible.
+     *
+     * `remaining` - represents the time left until the current timer
+     *               completes
+     * `delay`     - the amount of time the text-to-speech is
+     *               estimated to take
+     */
     this.pre = [
-							{remaining: 10000, delay: 100},
-							{remaining: 15000, delay: 500},
-							{remaining: 20000, delay: 1000},
+      { remaining: 10000, delay: 200 },
+      { remaining: 15000, delay: 600 },
+      { remaining: 20000, delay: 1200 }
     ]
+
+    /**
+     * @var {integer} preSpeakStart the number of millisecond it is
+     *                estimated to complete the text-to-speach intro
+     *                before starting the timer.
+     */
     this.preSpeakStart = 2300
+
+    /**
+     * @var {integer} preSpeakEnd the number of millisecond it is
+     *                estimated to complete the end text-to-speach
+     *                when the timer finishes.
+     *
+     * Used to delay the endChime so it doesn't start while end
+     * text-to-speach is in progress.
+     */
     this.preSpeakEnd = 3300
     this.chimeDelay = 5000
-     
+
 
     this.intervalTime = 20 // milliseconds
 
@@ -781,13 +810,13 @@ class TalkingTimer extends HTMLElement {
 
     const progressTickTock = () => {
       this.remainingMilliseconds = this.endTime - Date.now()
-      const preOffset = this.getSpeakPreOffset(this.remainingMilliseconds)
 
       if (this.remainingMilliseconds < 0) {
         this.remainingMilliseconds = 0
       }
 
       const promise1 = new Promise((resolve, reject) => {
+        const preOffset = this.getSpeakPreOffset(this.remainingMilliseconds)
         this.progress.value = (1 - (this.remainingMilliseconds / this.initialMilliseconds))
         this.currentValue = this.millisecondsToTimeObj(this.remainingMilliseconds)
 
@@ -819,13 +848,13 @@ class TalkingTimer extends HTMLElement {
    */
   getSpeakPreOffset (timeRemaining) {
     const c = this.pre.length
-    for (let a = 0; a < c; a+= 1) {
+    for (let a = 0; a < c; a += 1) {
       if (timeRemaining <= this.pre[a].remaining) {
-        return this.pre[a].pre
+        return this.pre[a].delay
       }
     }
     const b = c - 1
-    return this.pre[b].pre
+    return this.pre[b].delay
   }
 
   //  END:  timer callbacks
@@ -1074,7 +1103,7 @@ class TalkingTimer extends HTMLElement {
     }
 
     const endText = this.getAttribute('end-message')
-    if (typeof endText !== 'undefined') {
+    if (typeof endText !== 'undefined' && endText !== null) {
       this.config.noSayEnd = false
       this.endText = endText
     }
