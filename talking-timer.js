@@ -1,9 +1,53 @@
-/* globals HTMLElement, SpeechSynthesisUtterance, speechSynthesis, AudioContext, customElements */
+/* globals HTMLElement, SpeechSynthesisUtterance, speechSynthesis, AudioContext, customElements, talkingTimerExternalDefaults */
 
-// references:
-//   https://developers.google.com/web/fundamentals/web-components/customelements
-//  https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
+/**
+ * @var {object} talkingTimerExternalDefaults (global variable)
+ *
+ * This is intended to provide a way of customising some of the
+ * defaults for `talking-timer` without having to modify the code below
+ *
+ * It can be omitted or have any or all of the following properties
+ * & sub-properties:
+ *
+ * {
+ *   priority: string (default: "fraction"),
+ *   pre: {
+ *     10000: integer (default: 200),
+ *     15000: integer (default: 600),
+ *     20000: integer (default: 1200)
+ *   },
+ *   preSpeakStart: integer (default: 2300),
+ *   preSpeakEnd: integer (default: 3300),
+ *   chimeDelay: integer (default: 5000),
+ *   suffixes: {
+ *     first: string (default: " gone." - note the preceeding " "),
+ *     last: string (default: " to go." - note the preceeding " "),
+ *     half: string (default: "Half way."),
+ *   },
+ *   intervalTime: integer (default: 20),
+ *   sayDefault: string (default: "1/2 30s last20 last15 allLast10"),
+ *   endText: string (default: "Time's up!"),
+ *   startText: string (default: "Ready. Set. Go!"),
+ * }
+ *
+ * __NOTE:__ integers represent milliseconds and are used as delays
+ *       between one action and another
+ *
+ * PS: This may or may not be the best solution to customising default
+ *     configuration. I'll keep researching to see if I can find a
+ *     better solution. For now this is simple and reliable.
+ */
 
+/**
+ * TalkingTimer is a web component for visual and audio countdown
+ * timing. (For when my kids need to stop doing a thing they don't
+ * want to stop. And for when I'm teaching and running a time
+ * sensitive exercise)
+ *
+ * references:
+ *   https://developers.google.com/web/fundamentals/web-components/customelements
+ *   https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
+ */
 class TalkingTimer extends HTMLElement {
   constructor () {
     super()
@@ -37,7 +81,7 @@ class TalkingTimer extends HTMLElement {
       noSayEnd: false,
       selfDestruct: false,
       sayStart: false,
-      priority: 'fraction'
+      priority: this.getGlobal('fraction', 'priority')
     }
 
     /**
@@ -55,9 +99,9 @@ class TalkingTimer extends HTMLElement {
      *               estimated to take
      */
     this.pre = [
-      { remaining: 10000, delay: 200 },
-      { remaining: 15000, delay: 600 },
-      { remaining: 20000, delay: 1200 }
+      { remaining: 10000, delay: this.getGlobal(200, 'pre', 10000) },
+      { remaining: 15000, delay: this.getGlobal(600, 'pre', 15000) },
+      { remaining: 20000, delay: this.getGlobal(1200, 'pre', 20000) }
     ]
 
     /**
@@ -65,7 +109,7 @@ class TalkingTimer extends HTMLElement {
      *                estimated to complete the text-to-speach intro
      *                before starting the timer.
      */
-    this.preSpeakStart = 2300
+    this.preSpeakStart = this.getGlobal(2300, 'preSpeakStart')
 
     /**
      * @var {integer} preSpeakEnd the number of millisecond it is
@@ -75,16 +119,16 @@ class TalkingTimer extends HTMLElement {
      * Used to delay the endChime so it doesn't start while end
      * text-to-speach is in progress.
      */
-    this.preSpeakEnd = 3300
-    this.chimeDelay = 5000
+    this.preSpeakEnd = this.getGlobal(3300, 'preSpeakEnd')
+    this.chimeDelay = this.getGlobal(5000, 'chimeDelay')
 
     this.suffixes = {
-      first: ' gone.',
-      last: ' to go.',
-      half: 'Half way.'
+      first: this.getGlobal(' gone.', 'suffixes', 'first'),
+      last: this.getGlobal(' to go.', 'suffixes', 'last'),
+      half: this.getGlobal('Half way.', 'suffixes', 'half')
     }
 
-    this.intervalTime = 20 // milliseconds
+    this.intervalTime = this.getGlobal(20, 'intervalTime') // milliseconds
 
     this.play = false
     this.playPauseBtn = null
@@ -94,12 +138,12 @@ class TalkingTimer extends HTMLElement {
     this.numbers = null
     this.progressTicker = null
     this.h1 = null
-    this.sayDefault = '1/2 30s last20 last15 allLast10'
+    this.sayDefault = this.getGlobal('1/2 30s last20 last15 allLast10', 'sayDefault')
     this.sayIntervals = []
     this.workingIntervals = []
 
-    this.endText = 'Time\'s up'
-    this.startText = 'Ready. Set. Go.'
+    this.endText = this.getGlobal('Time\'s up!', 'endText')
+    this.startText = this.getGlobal('Ready. Set. Go!', 'startText')
 
     this.multipliers = { hours: 3600000, minutes: 60000, seconds: 1000, tenths: 100 }
 
@@ -1154,6 +1198,37 @@ class TalkingTimer extends HTMLElement {
         this.config.autoDestruct = -1
       }
     }
+  }
+
+  /**
+   * getGlobal() checks to see if `talkingTimerExternalDefaults`
+   * object exists then checks to see if it has the `prop` property
+   * and (if defined) the `subProp` exists on the `prop`. If the type
+   * of the prop/subProp matches the default value supplied, then it
+   * is returned. Otherwise the supplied default is returned.
+   *
+   * @param {any} talkingTimerdefault value to be used as default
+   * @param {string} prop property of `talkingTimerExternalDefaults`
+   *                 to be tested.
+   * @param {string} subProp property of `talkingTimerExternalDefaults[prop]`
+   *                 to be tested.
+   *
+   * @returns {any} a value with the same type as `talkingTimerdefault`
+   */
+  getGlobal (talkingTimerdefault, prop, subProp) {
+    if (typeof talkingTimerExternalDefaults !== 'undefined' && typeof prop !== 'undefined') {
+      const propType = typeof talkingTimerExternalDefaults[prop]
+      const defaultType = typeof talkingTimerdefault
+      if (propType !== 'undefined') {
+        if (typeof subProp !== 'undefined') {
+          const subPropType = typeof talkingTimerExternalDefaults[prop][subProp]
+          return (subPropType !== 'undefined' && defaultType === subPropType) ? talkingTimerExternalDefaults[prop][subProp] : talkingTimerdefault
+        } else if (propType === defaultType) {
+          return talkingTimerExternalDefaults[prop]
+        }
+      }
+    }
+    return talkingTimerdefault
   }
 
   //  END:  utility methods

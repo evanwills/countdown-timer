@@ -2,6 +2,7 @@
 
 
 - [`<talking-timer>`](#talking-timer)
+  - [Introduction](#introduction)
   - [How it works](#how-it-works)
   - [Attributes](#attributes)
     - [`time` (required)](#time-required)
@@ -23,6 +24,7 @@
       - [`priority` options:](#priority-options)
     - [`start-message`](#start-message)
     - [`selfdestruct`](#selfdestruct)
+  - [External default config](#external-default-config)
   - [Styling](#styling)
     - [Heading (`<h1>`)](#heading-h1)
       - [Heading (no close button) (`h1.noclosebtn`)](#heading-no-close-button-h1noclosebtn)
@@ -38,59 +40,35 @@
 
 -----
 
-A custom element for visual and audio countdown timing. (For when my kids need to stop doing a thing they don't want to stop. And for when I'm teaching and running a time sensitive exercise)
+## Introduction
 
-`<talking-timer>` uses the [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API), the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) and custom elements to build a [Web component](https://developer.mozilla.org/en-US/docs/Web/Web_Components) that provides audio and visual representation of the progress of a timer.
+A custom element for visual and audio countdown timing. (For when my
+kids need to stop doing a thing they don't want to stop. And for when
+I'm teaching and running a time sensitive exercise)
+
+`<talking-timer>` uses the [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API),
+the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
+and custom elements to build a
+[Web component](https://developer.mozilla.org/en-US/docs/Web/Web_Components)
+that provides audio and visual representation of the progress of a timer.
 
 You can see it in action on [CodePen](https://codepen.io/evanwills/pen/jgYVMR)
 
 -----
 
-- [`<talking-timer>`](#talking-timer)
-  - [How it works](#how-it-works)
-  - [Attributes](#attributes)
-    - [`time` (required)](#time-required)
-    - [`end-message`](#end-message)
-    - [`speak`](#speak)
-      - [`speak` options](#speak-options)
-        - [speak option pattern:](#speak-option-pattern)
-        - [Time interval: Seconds, Minutes & Hours](#time-interval-seconds-minutes--hours)
-        - [Second pattern: Fractions](#second-pattern-fractions)
-    - [`nopause`](#nopause)
-    - [`norestart`](#norestart)
-    - [`noreset`](#noreset)
-    - [`nosayend`](#nosayend)
-    - [`noendchime`](#noendchime)
-    - [`noclosebtn`](#noclosebtn)
-    - [`autoreset`](#autoreset)
-    - [`saystart`](#saystart)
-    - [`priority`](#priority)
-      - [`priority` options:](#priority-options)
-    - [`start-message`](#start-message)
-    - [`selfdestruct`](#selfdestruct)
-  - [Styling](#styling)
-    - [Heading (`<h1>`)](#heading-h1)
-      - [Heading (no close button) (`h1.noclosebtn`)](#heading-no-close-button-h1noclosebtn)
-    - [Timer text (`.timer-text`)](#timer-text-timer-text)
-      - [Timer text (completed) (`.timer-text.finished`)](#timer-text-completed-timer-textfinished)
-    - [Progress bar (`<progress>`)](#progress-bar-progress)
-    - [Default buttons (`<button>`)](#default-buttons-button)
-      - [Default buttons (hover) (`<button>:hover`)](#default-buttons-hover-buttonhover)
-    - [Play/Pause button (`.playPauseBtn`)](#playpause-button-playpausebtn)
-      - [Play/Pause button (hover) (`.playPauseBtn:hover`)](#playpause-button-hover-playpausebtnhover)
-    - [Close button (`.closeBtn`)](#close-button-closebtn)
-      - [Close button (hover) (`.closeBtn:hover`)](#close-button-hover-closebtnhover)
-
------
-
 ## How it works
 
-1. You create a `<talking-timer time="HH:MM:SS"></talking-timer>` element.
-2. When you're ready you press the "Start" button and the timer begins counting down
-3. Then as it reaches defined times it announces the time reached (e.g. "Half way.")
-4. When it reaches zero, it says "Time's up." (or whatever you've set `end-message` to and plays a chime
+1. You create a `<talking-timer time="HH:MM:SS"></talking-timer>`
+   element.
+2. When you're ready you press the "Start" button and the timer
+   begins counting down
+3. Then as it reaches defined times it announces the time reached
+   (e.g. "Half way.")
+4. When it reaches zero, it says "Time's up." (or whatever you've
+   set `end-message` to and plays a chime
 
-At it's most basic you can configure a reusable timer like so: (this is a three minute timer)
+At it's most basic you can configure a reusable timer like so:
+(this is a three minute timer)
 ``` html
 <talking-timer time="03:00">Egg timer</talking-timer>
 ```
@@ -103,7 +81,10 @@ The text within the element wrapper is used a the title for the time.
 
 Duration of the timer. 
 
-The `time` attribute is required and can either be the total number of seconds or a time string (`HH:MM:SS` - hours & minutes are optional)
+The `time` attribute is required and can either be the total number
+of seconds or a time string (`HH:MM:SS`)
+
+> __NOTE:__  hours & minutes are optional
 
 ``` HTML
 <talking-timer time="03:00">
@@ -123,7 +104,11 @@ The `time` attribute is required and can either be the total number of seconds o
 
 `end-message` allows you to control what is spoken when a timer completes.
 
-__NOTE:__ If you use the [`nosayend`](#nosayend) attribute and `end-message`, [`nosayend`](#nosayend) will be ignored on the assumption that if you're going to the trouble to specify a custom end message, then you want it to be spoken, thus [`nosayend`](#nosayend) is a mistake.'
+> __NOTE:__ If you use the [`nosayend`](#nosayend) attribute and
+>           `end-message`, [`nosayend`](#nosayend) will be ignored on
+>           the assumption that if you're going to the trouble to
+>           specify a custom end message, then you want it to be
+>           spoken, thus [`nosayend`](#nosayend) is a mistake.'
 
 ``` HTML
 <talking-timer time="03:00" end-message="What??? Still not loaded???">
@@ -147,7 +132,9 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
 
 #### `speak` options
 
-> __NOTE:__ `speak` options are __not__ case sensitive, and their parts can be hyphen or underscore separated for better readability.
+> __NOTE:__ `speak` options are __not__ case sensitive, and their
+>           parts can be hyphen or underscore separated for better
+>           readability.
 
 ##### speak option pattern:
 
@@ -162,17 +149,24 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
 
 
 
-* __`all`__ - is a modifier for `last` & `first`. `all` is assumed if `last`/`last` is not present. All of these intervals are spoken (e.g. **`all`**`Last5m`: speak 5, 4, 3, 2 & 1 minutes to go) or (e.g **`all`**`5m` = `5m`: if timer if 25 minutes speak 20, 15, 10 & 5 minutes to go)
+* __`all`__ - is a modifier for `last` & `first`. `all` is assumed if
+  `last`/`last` is not present. All of these intervals are spoken
+  (e.g. **`all`**`Last5m`: speak 5, 4, 3, 2 & 1 minutes to go) or
+  (e.g **`all`**`5m` = `5m`: if timer if 25 minutes speak 20, 15, 10
+   & 5 minutes to go)
 
-* __`X`__ (represents a number) is a modifier for `last` & `first`. When present, it multiplies the number of times a give interval is announced
+* __`X`__ (represents a number) is a modifier for `last` & `first`.
+  When present, it multiplies the number of times a give interval is announced
   (e.g. `3last15` - same as `last15` & `last30` & `last45` - would result in "45 seconds to go.", "30 seconds to go." & "15 Seconds") or
   (e.g. 2last1/5 - would result in both "Two fifths to go." & "One fifth to go" being announced)
 
-* __`every`__ - works in the same way as `X` but every interval is spoken for the duration of the timer relative to `last` / `first`.
+* __`every`__ - works in the same way as `X` but every interval is
+  spoken for the duration of the timer relative to `last` / `first`.
   (e.g. everyLast30 - for a three minute timer: "2 minutes and 30 seconds to go.", "2 minutes to go.", "1 minute and 30 seconds to go.", "1 minute to go.", "30 seconds to go.") or
   (e.g. everyLast1/4 - # a three minute timer: "3 quarters to go.", "Half way.", "1 quarter to go.")
 
-* __`last`|`first`__ - this interval is spoken when its based on the time remaining (for last) or time ellapsed (for first).
+* __`last`|`first`__ - this interval is spoken when its based on the
+  time remaining (for last) or time ellapsed (for first).
   (e.g. **`last`**`5m`: speak the interval five minutes from the end of the timer.) or
   (e.g. **`first`**`1m`: speak "One minute passed." after the time has run for a minute.)
   __NOTE:__ When `all` & `first`/`last` are combined with a fraction, the fractions are spoken after or before the halfway mark respectively.
@@ -249,13 +243,17 @@ By default `speak` is set to `"1/2 30s last20 last15 allLast10"`:
 </talking-timer>
 ```
 
-> __NOTE:__ When announcements overlap (e.g. 3 minute time with minutes and thirds) Minute announcements are spoken and fractions are skipped
+> __NOTE:__ When announcements overlap (e.g. 3 minute time with
+>           minutes and thirds) Minute announcements are spoken and
+>           fractions are skipped
 
 ### `nopause`
 
-Hide the "Pause" from the user interface (UI) button while the timer is counting.
+Hide the "Pause" from the user interface (UI) button while the timer
+is counting.
 
-> __NOTE:__ `nopause` also hides the "Start again", "Reset" & "Close X" buttons during time activity
+> __NOTE:__ `nopause` also hides the "Start again", "Reset" &
+>           "Close X" buttons during time activity
 
 ### `norestart`
 
@@ -267,61 +265,97 @@ Hides the `Reset` button from the UI
 
 ### `nosayend`
 
-By default "*Time's up!*" is spoken when a timer ends. By including `nosayend` you can block this behaviour.
+By default "*Time's up!*" is spoken when a timer ends. By including
+`nosayend` you can block this behaviour.
 
 > __NOTE:__ You can configure what is spoken at the end of a timer by using the [`end-message`](#end-message) attributes.
 
-> __Note also:__ if [`end-message`](#end-message) is present, nosayend is ignored on the basis that if you go to the trouble of specifying [`end-message`](#end-message), then nosayend is probably a mistake
+> __Note also:__ if [`end-message`](#end-message) is present, nosayend
+>           is ignored on the basis that if you go to the trouble of
+>           specifying [`end-message`](#end-message), then nosayend
+>           is probably a mistake
 
 ### `noendchime`
 
-By default, a short 5 second chime is played upon timer completion. If you're using the timer on Firefox mobile the chime sounds __*TERRIBLE*__ you can use no `noendchime` to disable it.
+By default, a short 5 second chime is played upon timer completion.
+If you're using the timer on Firefox mobile the chime sounds
+__*TERRIBLE*__ you can use no `noendchime` to disable it.
 
 ### `noclosebtn`
 
 If you don't want the timer to be able to be dismissed, use `noclosebtn`
 
-> __NOTE:__ `noclosebtn` & [`selfdestruct`](#selfdestruct) are mutually exclusive. if [`selfdestruct`](#selfdestruct) is simply boolean then `noclosebtn` will override it and prevent the node from being automatically removed after completion of timer.<br />Conversly, if [`selfdestruct`](#selfdestruct) is set with a numeric value (e.g. `selfdestruct="5"`) then it assumes that `noclosebutton` is a mistake, so `noclosebutton` is ignored
+> __NOTE:__ `noclosebtn` & [`selfdestruct`](#selfdestruct) are mutually
+>           exclusive. if [`selfdestruct`](#selfdestruct) is simply
+>           boolean then `noclosebtn` will override it and prevent
+>           the node from being automatically removed after
+>           completion of timer.<br />
+>           Conversly, if [`selfdestruct`](#selfdestruct) is set with
+>           a numeric value (e.g. `selfdestruct="5"`) then it assumes
+>           that `noclosebutton` is a mistake, so `noclosebutton` is ignored
 
 ### `autoreset`
 
 `autoreset` causes the timer to automatically reset itself when it completes.
 
->
-
 ### `saystart`
 
-By default nothing is spoken when a timer starts by the including `saystart` attribute "*Ready! Set! Go!*" is spoken.
+By default nothing is spoken when a timer starts by the including
+`saystart` attribute "*Ready! Set! Go!*" is spoken.
 
-> __NOTE:__ Start text can be configured using the [`start-message`](#start-message) attribute (see below)
+> __NOTE:__ Start text can be configured using the [`start-message`]
+>           (#start-message) attribute (see below)
 
 ### `priority`
 
-To reduce the amount of talking, announcements can only be made if they are seven seconds later or earlier than another anouncement. By default fraction anouncements have priority e.g. when the timer is set to 3 minutes, the "Half way" announcement is also the same as the "One minute, thirty seconds to go" anouncement so the "Half way" announcement is spoken but the "One minute, thirty seconds to go." is skipped.
+To reduce the amount of talking, announcements can only be made if
+they are seven seconds later or earlier than another anouncement.
+By default fraction anouncements have priority e.g. when the timer is
+set to 3 minutes, the "Half way" announcement is also the same as the
+"One minute, thirty seconds to go" anouncement so the "Half way"
+announcement is spoken but the "One minute, thirty seconds to go."
+is skipped.
 
 #### `priority` options:
 
-It's possible (even probable) that, when using fraction intervals (like `1/2`) and time intervals (like `30s`) you will get two announcements for the same interval. In this case, the priority decides which is spoken.
+It's possible (even probable) that, when using fraction intervals
+(like `1/2`) and time intervals (like `30s`) you will get two
+announcements for the same interval. In this case, the priority
+decides which is spoken.
 
-* `fraction` (default) Fraction intervals are spoken if there's a confilict between a time and a fraction announcement.
-* `time` time intervals are spoken if there's a confilict between a time and a fraction announcement.
-* `order` order they're defined in `speak` - the one defined first over-rides one spoken at a similar time but defined later.
+* `fraction` (default) Fraction intervals are spoken if there's a
+             confilict between a time and a fraction announcement.
+* `time` time intervals are spoken if there's a confilict between a
+             time and a fraction announcement.
+* `order` order they're defined in `speak` - the one defined first
+             over-rides one spoken at a similar time but defined later.
 
 ``` HTML
 <talking-timer time="03:00">
-  When the timer is set to 3 minutes, the "Half way." announcement is also the same as the "One minute, thirty seconds to go." anouncement so the "Half way." announcement is spoken but the "One minute, thirty seconds to go." is skipped.
+  When the timer is set to 3 minutes, the "Half way." announcement is
+  also the same as the "One minute, thirty seconds to go." anouncement
+  so the "Half way." announcement is spoken but the "One minute,
+  thirty seconds to go." is skipped.
 </talking-timer>
 
 <talking-timer time="03:00" priority="time">
-  When the timer is set to 3 minutes, the "Half way." announcement is also the same as the "One minute, thirty seconds to go." anouncement so the "One minute, thirty seconds to go." announcement is spoken but the "Half way" is skipped.
+  When the timer is set to 3 minutes, the "Half way." announcement is
+  also the same as the "One minute, thirty seconds to go." anouncement
+  so the "One minute, thirty seconds to go." announcement is spoken
+  but the "Half way" is skipped.
 </talking-timer>
 
 <talking-timer time="03:00" priority="fraction">
-  The "Half way." announcement is also the same as the "One minute, thirty seconds to go." anouncement so the "Half way" announcement is spoken but the "One minute, thirty seconds to go." is skipped.
+  The "Half way." announcement is also the same as the "One minute,
+  thirty seconds to go." anouncement so the "Half way" announcement
+  is spoken but the "One minute, thirty seconds to go." is skipped.
 </talking-timer>
 
 <talking-timer time="03:00" priority="order" speak="1/3 30s 1/4 last20 last15 allLast10">
-  The "Half way." (2/4) announcement is also the same as the "One minute, thirty seconds to go." anouncement but since `30s` is defined before `1/4`, "One minute, thirty seconds to go." is spoken and "Half way." is skipped.
+  The "Half way." (2/4) announcement is also the same as the
+  "One minute, thirty seconds to go." anouncement but since `30s` is
+  defined before `1/4`, "One minute, thirty seconds to go." is spoken
+  and "Half way." is skipped.
 </talking-timer>
 ```
 
@@ -329,11 +363,15 @@ It's possible (even probable) that, when using fraction intervals (like `1/2`) a
 
 `start-message` allows you to control what is spoken when a timer starts.
 
-> __NOTE:__ by default nothing is spoken when a timer starts `start-message` has the same result as `saystart` with the added advantage that you can control what is spoken
+> __NOTE:__ by default nothing is spoken when a timer starts
+>           `start-message` has the same result as `saystart` with
+>           the added advantage that you can control what is spoken
 
 ### `selfdestruct`
 
-If `selfdestruct` is set, then the timer will remove itself thirty seconds after completion or as many seconds as the timer ran for (which ever is shorter).
+If `selfdestruct` is set, then the timer will remove itself thirty
+seconds after completion or as many seconds as the timer ran for
+(which ever is shorter).
 
 ``` HTML
 <talking-timer time="03:00" selfdestruct>
@@ -349,12 +387,57 @@ If `selfdestruct` is set, then the timer will remove itself thirty seconds after
 </talking-timer>
 ```
 
-> __NOTE:__ If `selfdestruct` has a numeric value, then that number will set the number of seconds, after timer finishes, when the node will remove itself.
+> __NOTE:__ If `selfdestruct` has a numeric value, then that number
+>           will set the number of seconds, after timer finishes,
+>           when the node will remove itself.
 
-> __NOTE ALSO:__ If the value of `selfdestruct` is greater than 43200 (12 hours) 43200 will be used.
+> __NOTE ALSO:__ If the value of `selfdestruct` is greater than
+>           43200 (12 hours) 43200 will be used.
 
-> __FINAL NOTE:__ `noclosebtn` & [`selfdestruct`](#selfdestruct) are mutually exclusive. if [`selfdestruct`](#selfdestruct) is has a numeric value it will override `noclosebtn` will override it and will force the node to be automatically removed after completion of timer.
+> __FINAL NOTE:__ `noclosebtn` & [`selfdestruct`](#selfdestruct) are
+>           mutually exclusive. if [`selfdestruct`](#selfdestruct) is
+>           has a numeric value it will override `noclosebtn` will
+>           override it and will force the node to be automatically
+>           removed after completion of timer.
 
+## External default config
+
+To make it easier to just drop the `<taking-timer>` code into your
+project, I've set up a way to allow you to customise the some of the
+defaults so you don't have to configure via attributes.
+
+If you define `talkingTimerExternalDefaults` in the global scope,
+then its properties can be used to define `<taking-timer>`'s
+default values.
+
+> __NOTE:__ the type of the value you define __*must*__ match the
+>           default value's type listed below or they will be ignored
+
+> __Note also:__ You only need to define the properties you wish
+>           to over-ride.
+
+``` javascript
+var talkingTimerExternalDefaults = {
+  priority: 'fraction',
+  pre: {
+    10000: 200,
+    15000: 600,
+    20000: 1200,
+  },
+  preSpeakStart: 2300,
+  preSpeakEnd: 3300,
+  chimeDelay: 5000,
+  suffixes: {
+    first: ' gone.',
+    last: ' to go.',
+    half: 'Half way.',
+  },
+  intervalTime: 20,
+  sayDefault: '1/2 30s last20 last15 allLast10',
+  endText: 'Time\'s up!',
+  startText: 'Ready. Set. Go!',
+}
+```
 
 ## Styling
 
