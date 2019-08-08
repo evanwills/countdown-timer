@@ -40,6 +40,50 @@ class TalkingTimer extends HTMLElement {
       priority: 'fraction'
     }
 
+    /**
+     * @var {array} pre defines the time before a spoken interval
+     *                  when the `<talking-timer>` component should
+     *                  start speaking
+     *
+     * This is used to account for the length of time it takes to
+     * speak the interval. The intention is to have the speaking
+     * finish as close to the interval time as possible.
+     *
+     * `remaining` - represents the time left until the current timer
+     *               completes
+     * `delay`     - the amount of time the text-to-speech is
+     *               estimated to take
+     */
+    this.pre = [
+      { remaining: 10000, delay: 200 },
+      { remaining: 15000, delay: 600 },
+      { remaining: 20000, delay: 1200 }
+    ]
+
+    /**
+     * @var {integer} preSpeakStart the number of millisecond it is
+     *                estimated to complete the text-to-speach intro
+     *                before starting the timer.
+     */
+    this.preSpeakStart = 2300
+
+    /**
+     * @var {integer} preSpeakEnd the number of millisecond it is
+     *                estimated to complete the end text-to-speach
+     *                when the timer finishes.
+     *
+     * Used to delay the endChime so it doesn't start while end
+     * text-to-speach is in progress.
+     */
+    this.preSpeakEnd = 3300
+    this.chimeDelay = 5000
+
+    this.suffixes = {
+      first: ' gone.',
+      last: ' to go.',
+      half: 'Half way.'
+    }
+
     this.intervalTime = 20 // milliseconds
 
     this.play = false
@@ -51,7 +95,7 @@ class TalkingTimer extends HTMLElement {
     this.progressTicker = null
     this.h1 = null
     this.sayDefault = '1/2 30s last20 last15 allLast10'
-    this.speakIntervals = []
+    this.sayIntervals = []
     this.workingIntervals = []
 
     this.endText = 'Time\'s up'
@@ -150,7 +194,7 @@ class TalkingTimer extends HTMLElement {
   startPlaying () {
     if (this.endTime === 0 && this.config.sayStart === true) {
       this.saySomething(this.startText)
-      window.setTimeout(this.startPlayingInner, 2800, this)
+      window.setTimeout(this.startPlayingInner, this.preSpeakStart, this)
     } else {
       this.startPlayingInner(this)
     }
@@ -220,11 +264,11 @@ class TalkingTimer extends HTMLElement {
     let delay = 0
     if (this.config.noSayEnd === false) {
       this.saySomething(this.endText)
-      delay = 3800
+      delay = this.preSpeakEnd
     }
     if (this.config.noEndChime === false) {
       window.setTimeout(this.endSound, delay)
-      delay = 5000
+      delay = this.chimeDelay
     }
 
     this.numbers.classList.add('finished')
@@ -777,12 +821,13 @@ class TalkingTimer extends HTMLElement {
       }
 
       const promise1 = new Promise((resolve, reject) => {
+        const preOffset = this.getSpeakPreOffset(this.remainingMilliseconds)
         this.progress.value = (1 - (this.remainingMilliseconds / this.initialMilliseconds))
         this.currentValue = this.millisecondsToTimeObj(this.remainingMilliseconds)
 
         if (Math.floor(this.remainingMilliseconds) <= 0) {
           this.endPlaying()
-        } else if (this.workingIntervals.length > 0 && (this.workingIntervals[0].offset + 1250) > this.remainingMilliseconds) {
+        } else if (this.workingIntervals.length > 0 && (this.workingIntervals[0].offset + preOffset) > this.remainingMilliseconds) {
           const sayThis = this.workingIntervals.shift()
           if (this.posMinus(sayThis.offset, this.remainingMilliseconds) < 2000) {
             // This ensures that if for some reason, there is a
@@ -796,6 +841,25 @@ class TalkingTimer extends HTMLElement {
       const promise3 = new Promise((resolve, reject) => { this.setTimeText() })
     }
     this.progressTicker = setInterval(progressTickTock, interval)
+  }
+
+  /**
+   * getSpeakPreOffset() gets the number of milliseconds the text-to-speech should take
+   *
+   * @param {integer} timeRemaining number of Milliseconds
+   *                 remaining until the end of the timer
+   *.
+   * @returns {integer}
+   */
+  getSpeakPreOffset (timeRemaining) {
+    const c = this.pre.length
+    for (let a = 0; a < c; a += 1) {
+      if (timeRemaining <= this.pre[a].remaining) {
+        return this.pre[a].delay
+      }
+    }
+    const b = c - 1
+    return this.pre[b].delay
   }
 
   //  END:  timer callbacks
@@ -1004,8 +1068,8 @@ class TalkingTimer extends HTMLElement {
     this.endTime = 0
     this.clearTimerInterval()
 
-    // Clone speakIntervals so you have something to use next time
-    this.workingIntervals = this.speakIntervals.map(interval => { return { ...interval } })
+    // Clone sayIntervals so you have something to use next time
+    this.workingIntervals = this.sayIntervals.map(interval => { return { ...interval } })
   }
 
   /**
@@ -1044,7 +1108,7 @@ class TalkingTimer extends HTMLElement {
     }
 
     const endText = this.getAttribute('end-message')
-    if (typeof endText !== 'undefined' && endText !== null && endText !== '') {
+    if (typeof endText !== 'undefined' && endText !== null) {
       this.config.noSayEnd = false
       this.endText = endText
     }
@@ -1173,7 +1237,6 @@ class TalkingTimer extends HTMLElement {
     }
 
     const output = (this.config.priority === 'order') ? orderIntervals : (this.config.priority === 'time') ? timeIntervals.concat(fractionIntervals) : fractionIntervals.concat(timeIntervals)
-
     return this.sortOffsets(this.filterOffsets(output, durationMilli))
   }
 
@@ -1205,7 +1268,7 @@ class TalkingTimer extends HTMLElement {
     const count = (intervalObj.multiplier === 0 || intervalObj.multiplier >= intervalObj.denominator) ? intervalObj.denominator : intervalObj.multiplier
 
     if (intervalObj.relative !== '') {
-      const suffix = (intervalObj.relative === 'first') ? ' gone.' : ' to go.'
+      const suffix = (intervalObj.relative === 'first') ? this.suffixes.first : this.suffixes.last
       const minus = (intervalObj.relative === 'first') ? milliseconds : 0
 
       for (let a = 1; a <= count; a += 1) {
@@ -1220,12 +1283,12 @@ class TalkingTimer extends HTMLElement {
         const message = this.makeFractionMessage(a, intervalObj.denominator)
         offsets.push({
           offset: (milliseconds - (interval * a)),
-          message: message + ' to go.'
+          message: message + this.suffixes.last
           // raw: intervalObj.raw
         },
         {
           offset: (interval * a),
-          message: message + ' gone.'
+          message: message + this.suffixes.first
           // raw: intervalObj.raw
         })
       }
@@ -1235,7 +1298,7 @@ class TalkingTimer extends HTMLElement {
       if (this.tooClose(item.offset, half)) {
         return {
           offset: half,
-          message: 'Half way'
+          message: this.suffixes.half
           // raw: item.raw
         }
       } else {
@@ -1261,7 +1324,7 @@ class TalkingTimer extends HTMLElement {
    *                 message properties used for announcing intervals
    */
   getTimeOffsetAndMessage (intervalObj, milliseconds, raw) {
-    const suffix = (intervalObj.relative === 'first') ? ' gone.' : ' to go.'
+    const suffix = (intervalObj.relative === 'first') ? this.suffixes.first : this.suffixes.last
     let offsets = []
 
     if ((intervalObj.all === true || intervalObj.every === true) || intervalObj.multiplier > 1) {
@@ -1274,16 +1337,17 @@ class TalkingTimer extends HTMLElement {
           for (let offset = interval; offset <= half; offset += interval) {
             offsets.push({
               offset: offset,
-              message: this.makeTimeMessage(offset, ' to go.'),
+              message: this.makeTimeMessage(offset, this.suffixes.last),
               raw: intervalObj.raw
             }, {
               offset: milliseconds - offset,
-              message: this.makeTimeMessage(offset, ' gone.'),
+              message: this.makeTimeMessage(offset, this.suffixes.first),
               raw: intervalObj.raw
             })
           }
         } else {
           // interval relative === false
+          // i.e. relative = "first" or "last"
           let interval = 0
           let count = 0
           switch (intervalObj.unit) {
@@ -1297,18 +1361,20 @@ class TalkingTimer extends HTMLElement {
             default:
               interval = 1000
           }
+
           if (intervalObj.every === true) {
+            interval *= intervalObj.time
             count = milliseconds / interval
           } else {
             count = intervalObj.time
           }
           const modifier = (intervalObj.relative !== 'first') ? 0 : milliseconds
-
-          for (let a = count - 1; a > 0; a -= 1) {
+          const forceSufix = (intervalObj.relative === 'first')
+          for (let a = count; a > 0; a -= 1) {
             const offset = a * interval
             offsets.push({
               offset: this.posMinus(modifier, offset),
-              message: this.makeTimeMessage(offset, suffix),
+              message: this.makeTimeMessage(offset, suffix, forceSufix),
               raw: intervalObj.raw
             })
           }
@@ -1395,14 +1461,16 @@ class TalkingTimer extends HTMLElement {
    *
    * @returns {string} textual representation of offset
    */
-  makeTimeMessage (offset, suffix) {
+  makeTimeMessage (offset, suffix, forceSufix) {
     let output = ''
     let working = offset
     let comma = ''
 
+    forceSufix = (typeof forceSufix !== 'boolean') ? false : forceSufix
+
     if (working < 20000) {
       // Do not append unit if 10 seconds or less
-      const tmpSuffix = (working > 10000) ? ' seconds' : ''
+      const tmpSuffix = (forceSufix) ? ' seconds' + suffix : (working > 10000) ? ' seconds' : ''
       return Math.round(working / 1000) + tmpSuffix
     }
 
@@ -1447,7 +1515,7 @@ class TalkingTimer extends HTMLElement {
     // reduce the denominator to its
     const newDenominator = (Number.isInteger(denominator / numerator)) ? (denominator / numerator) : denominator
     switch (newDenominator) {
-      case 2: return 'Half way'
+      case 2: return this.suffixes.half
       case 3: fraction = 'third'; break
       case 4: fraction = 'quarter'; break
       case 5: fraction = 'fifth'; break
@@ -1495,7 +1563,7 @@ class TalkingTimer extends HTMLElement {
   filterOffsets (offsets, max) {
     let found = []
     return offsets.filter(item => {
-      if (found.indexOf(item.offset) === -1 && (item.offset <= 30000 || !this.tooCloseAny(item.offset, found)) && item.offset < max) {
+      if (found.indexOf(item.offset) === -1 && (item.offset <= 30000 || !this.tooCloseAny(item.offset, found)) && item.offset < max && item.offset > 0) {
         found.push(item.offset)
         return true
       } else {
@@ -1579,7 +1647,7 @@ class TalkingTimer extends HTMLElement {
      * @var {number} interval the number of seconds between sounds
      *               starting
      */
-    const interval = 0.5
+    const interval = 0.425
     /**
      * @var {number} ramp no idea what this is for. See MDN docs
      * https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/exponentialRampToValueAtTime

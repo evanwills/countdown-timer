@@ -11,29 +11,16 @@
 		<h1><code style="font-size:1.35em; padding-right: 0.5rem;">&lt;talking-timer&gt;</code> Custom element</h1>
 
 		<div class="timer-wrap">
-			<talking-timer time="03:00" id="short" end-message="Your egg is cooked" saystart>Simple Egg timer</talking-timer>
-
-			<talking-timer time="02:00" id="nopause" nopause>Timer with <em>pause</em> functionality hidden<br /><span class="sub">(i.e. can't reset, restart or close timer while in progress)</span></talking-timer>
-
-			<talking-timer time="02:00" id="autoreset" autoreset>Timer that auto-resets itself after completion</talking-timer>
-
-			<talking-timer time="02:00" id="selfdestruct" selfdestruct="5">Timer that selfdestructs five seconds after completion</talking-timer>
-
-			<talking-timer time="02:00" id="saystart" saystart>Timer warns before starting<span class="sub">(i.e. says "<em>Ready. Set. Go!</em>" before starting)</span></talking-timer>
-
-			<talking-timer time="02:00" id="silent" say="" nosayend noendchime>Silent timer (Visual timer only)
-				<span class="sub">(i.e. does not make any announcements &mdash; You're better off just using <a href="https://www.google.com/search?q=2+minute+timer">Google</a>)</span>
-			</talking-timer>
-
-			<talking-timer time="05:00" id="eveylastminute" say="everyLast1m last30 last15 allLast10">Every minute from the end
-				<span class="sub">(i.e. says
-					"<em>Four minutes to go</em>",
-					"<em>Three minutes to go</em>",
-					"<em>Two minutes to go</em>",
+			<talking-timer time="03:00" id="egg" end-message="Your egg is cooked" saystart>
+				Simple Egg timer
+				<span class="sub">
+					(i.e. says:
+					"<em>Thirty seconds gone.</em>",
+					"<em>One minute gone.</em>",
+					"<em>Half way.</em>",
 					"<em>One minute to go</em>",
-					"<em>Four minutes to go</em>",
 					"<em>Thirty seconds to go</em>",
-					"<em>Fifteen seconds to go</em>",
+					"<em>Fifteen seconds</em>",
 					"<em>Ten</em>",
 					"<em>Nine</em>",
 					"<em>Eight</em>",
@@ -44,16 +31,53 @@
 					"<em>Three</em>",
 					"<em>Two</em>",
 					"<em>One</em>",
-					"<em>Time's up</em>"
+					"<em>Time's up</em>")
 				</span>
 			</talking-timer>
 
-			<talking-timer time="0:30" id="short30"l saystart say="everyLast10s allLast10">
-				Short (30 seconds) every 10 from end
+			<talking-timer time="02:00" id="nopause" nopause>Timer with <em>pause</em> functionality hidden<br /><span class="sub">(i.e. can't reset, restart or close timer while in progress)</span></talking-timer>
 
-				<span class="sub">(i.e. says
-						"<em>Fourty seconds to go</em>",
-						"<em>Thirty seconds to go</em>",
+			<talking-timer time="02:00" id="autoreset" autoreset>Timer that auto-resets itself after completion</talking-timer>
+
+			<talking-timer time="02:00" id="selfdestruct" selfdestruct="5">Timer that selfdestructs five seconds after completion</talking-timer>
+
+			<talking-timer time="02:00" id="saystart" saystart>
+				Timer warns before starting
+				<span class="sub">(i.e. says "<em>Ready. Set. Go!</em>" before starting)</span>
+			</talking-timer>
+
+			<talking-timer time="02:00" id="silent" say="" nosayend noendchime>Silent timer (Visual timer only)
+				<span class="sub">(i.e. does not make any announcements &mdash; You're better off just using <a href="https://www.google.com/search?q=2+minute+timer">Google</a>)</span>
+			</talking-timer>
+
+			<talking-timer time="05:00" id="eveylastminute" say="everyLast1m last30 last15 allLast10">
+				Every minute from the end
+				<span class="sub">
+					(i.e. says:
+					"<em>Four minutes to go</em>",
+					"<em>three minutes to go</em>",
+					"<em>Two minutes to go</em>",
+					"<em>One minute to go</em>",
+					"<em>Thirty seconds to go</em>",
+					"<em>Fifteen seconds</em>",
+					"<em>Ten</em>",
+					"<em>Nine</em>",
+					"<em>Eight</em>",
+					"<em>Seven</em>",
+					"<em>Six</em>",
+					"<em>Five</em>",
+					"<em>Four</em>",
+					"<em>Three</em>",
+					"<em>Two</em>",
+					"<em>One</em>",
+					"<em>Time's up</em>")
+				</span>
+			</talking-timer>
+
+			<talking-timer time="0:30" id="everyLast10s" saystart say="everyLast10s allLast10">
+				Every 10 seconds to go
+
+				<span class="sub">(i.e. says:
 						"<em>Twenty seconds to go</em>",
 						"<em>Ten</em>",
 						"<em>Nine</em>",
@@ -65,7 +89,28 @@
 						"<em>Three</em>",
 						"<em>Two</em>",
 						"<em>One</em>",
-						"<em>Time's up</em>"
+						"<em>Time's up</em>")
+					</span>
+			</talking-timer>
+
+			<talking-timer time="0:50" id="every3first10s" say="every3first10s allLast10">
+				Every 10 seconds from start plus count down last 10 seconds
+
+				<span class="sub">(i.e. says:
+						"<em>Ten seconds gone.</em>",
+						"<em>Twenty seconds gone.</em>",
+						"<em>Thirty seconds gone.</em>",
+						"<em>Ten</em>",
+						"<em>Nine</em>",
+						"<em>Eight</em>",
+						"<em>Seven</em>",
+						"<em>Six</em>",
+						"<em>Five</em>",
+						"<em>Four</em>",
+						"<em>Three</em>",
+						"<em>Two</em>",
+						"<em>One</em>",
+						"<em>Time's up</em>")
 					</span>
 			</talking-timer>
 		</div>
