@@ -40,6 +40,16 @@ class TalkingTimer extends HTMLElement {
       priority: 'fraction'
     }
 
+    this.pre = [
+							{remaining: 10000, delay: 100},
+							{remaining: 15000, delay: 500},
+							{remaining: 20000, delay: 1000},
+    ]
+    this.preSpeakStart = 2300
+    this.preSpeakEnd = 3300
+    this.chimeDelay = 5000
+     
+
     this.intervalTime = 20 // milliseconds
 
     this.play = false
@@ -150,7 +160,7 @@ class TalkingTimer extends HTMLElement {
   startPlaying () {
     if (this.endTime === 0 && this.config.sayStart === true) {
       this.saySomething(this.startText)
-      window.setTimeout(this.startPlayingInner, 2800, this)
+      window.setTimeout(this.startPlayingInner, this.preSpeakStart, this)
     } else {
       this.startPlayingInner(this)
     }
@@ -220,11 +230,11 @@ class TalkingTimer extends HTMLElement {
     let delay = 0
     if (this.config.noSayEnd === false) {
       this.saySomething(this.endText)
-      delay = 3800
+      delay = this.preSpeakEnd
     }
     if (this.config.noEndChime === false) {
       window.setTimeout(this.endSound, delay)
-      delay = 5000
+      delay = this.chimeDelay
     }
 
     this.numbers.classList.add('finished')
@@ -771,6 +781,7 @@ class TalkingTimer extends HTMLElement {
 
     const progressTickTock = () => {
       this.remainingMilliseconds = this.endTime - Date.now()
+      const preOffset = this.getSpeakPreOffset(this.remainingMilliseconds)
 
       if (this.remainingMilliseconds < 0) {
         this.remainingMilliseconds = 0
@@ -782,7 +793,7 @@ class TalkingTimer extends HTMLElement {
 
         if (Math.floor(this.remainingMilliseconds) <= 0) {
           this.endPlaying()
-        } else if (this.workingIntervals.length > 0 && (this.workingIntervals[0].offset + 1250) > this.remainingMilliseconds) {
+        } else if (this.workingIntervals.length > 0 && (this.workingIntervals[0].offset + preOffset) > this.remainingMilliseconds) {
           const sayThis = this.workingIntervals.shift()
           if (this.posMinus(sayThis.offset, this.remainingMilliseconds) < 2000) {
             // This ensures that if for some reason, there is a
@@ -796,6 +807,25 @@ class TalkingTimer extends HTMLElement {
       const promise3 = new Promise((resolve, reject) => { this.setTimeText() })
     }
     this.progressTicker = setInterval(progressTickTock, interval)
+  }
+
+  /**
+   * getSpeakPreOffset() gets the number of milliseconds the text-to-speech should take
+   *
+   * @param {integer} timeRemaining number of Milliseconds
+   *                 remaining until the end of the timer
+   *.
+   * @returns {integer}
+   */
+  getSpeakPreOffset (timeRemaining) {
+    const c = this.pre.length
+    for (let a = 0; a < c; a+= 1) {
+      if (timeRemaining <= this.pre[a].remaining) {
+        return this.pre[a].pre
+      }
+    }
+    const b = c - 1
+    return this.pre[b].pre
   }
 
   //  END:  timer callbacks
@@ -1304,7 +1334,7 @@ class TalkingTimer extends HTMLElement {
           }
           const modifier = (intervalObj.relative !== 'first') ? 0 : milliseconds
 
-          for (let a = count - 1; a > 0; a -= 1) {
+          for (let a = count; a > 0; a -= 1) {
             const offset = a * interval
             offsets.push({
               offset: this.posMinus(modifier, offset),
@@ -1579,7 +1609,7 @@ class TalkingTimer extends HTMLElement {
      * @var {number} interval the number of seconds between sounds
      *               starting
      */
-    const interval = 0.5
+    const interval = 0.425
     /**
      * @var {number} ramp no idea what this is for. See MDN docs
      * https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/exponentialRampToValueAtTime
