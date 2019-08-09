@@ -100,8 +100,8 @@ class TalkingTimer extends HTMLElement {
      */
     this.pre = [
       { remaining: 10000, delay: this.getGlobal(200, 'pre', 10000) },
-      { remaining: 15000, delay: this.getGlobal(600, 'pre', 15000) },
-      { remaining: 20000, delay: this.getGlobal(1200, 'pre', 20000) }
+      { remaining: 19999, delay: this.getGlobal(600, 'pre', 19999) },
+      { remaining: 86400, delay: this.getGlobal(1200, 'pre', 86400) }
     ]
 
     /**

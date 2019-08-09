@@ -25,6 +25,16 @@
     - [`start-message`](#start-message)
     - [`selfdestruct`](#selfdestruct)
   - [External default config](#external-default-config)
+    - [`priority`](#priority-1)
+    - [`pre`](#pre)
+    - [`preSpeakStart`](#prespeakstart)
+    - [`preSpeakEnd`](#prespeakend)
+    - [`chimeDelay`](#chimedelay)
+    - [`suffixes`](#suffixes)
+    - [`intervalTime`](#intervaltime)
+    - [`sayDefault`](#saydefault)
+    - [`endText`](#endtext)
+    - [`startText`](#starttext)
   - [Styling](#styling)
     - [Heading (`<h1>`)](#heading-h1)
       - [Heading (no close button) (`h1.noclosebtn`)](#heading-no-close-button-h1noclosebtn)
@@ -421,8 +431,8 @@ var talkingTimerExternalDefaults = {
   priority: 'fraction',
   pre: {
     10000: 200,
-    15000: 600,
-    20000: 1200,
+    19999: 600,
+    86400: 1200,
   },
   preSpeakStart: 2300,
   preSpeakEnd: 3300,
@@ -438,6 +448,74 @@ var talkingTimerExternalDefaults = {
   startText: 'Ready. Set. Go!',
 }
 ```
+
+### `priority`
+
+See [`priority`](#priority) attribute documentation above
+
+### `pre`
+
+`pre` controls the amount of time (in milliseconds) speaking an interval should start before the actual interval occurs
+
+* `10000` = 10 seconds (10k milliseconds)
+ This is for spoken intervals where the time remaining is 10 seconds
+ or less (i.e. only the number of seconds is spoken - e.g. "Eight")
+
+* `19999` = 20 seconds (20k milliseconds)
+  This is for spoken intervals where the time remaining greater than
+  10 seconds and less than 20 seconds. It needs to be a bit longer to
+  account for saying the word "seconds" after the number of seconds
+  is spoken. (i.e. the number plus "seconds" is spoken but "to go."
+  is omitted - e.g. "Fifteen seconds")
+
+* `86400` = 1 day
+  This is for everything else. It accounts for the extra time taken to
+  say "to go." or "gone"
+  (e.g. "One minute, Thirty seconds to go.")
+
+### `preSpeakStart`
+
+This provides a delay to starting the timer when "Ready. Set. Go!" is
+spoken before the timer starts.
+
+### `preSpeakEnd`
+
+If the end chime is to be played along after "Time's up!" is spoken, this provides the delay so the chime doesn't start before the browser has finished announcing "Time's up!".
+
+### `chimeDelay`
+
+If the end chime is played when the timer finishes and the timer is set to self destruct or auto reset, this provides the delay so that the chime finishes playing before the `<talking-timer>` block is removed or reset.
+
+### `suffixes`
+
+Suffixes are what is said to denote the interval's relation to the begining or end of the timer.
+
+* `first` (default: *" gone."*) defines what is spoken when an
+  interval is relative to the start of the timer.
+  
+* `last` (default: *" to go."*) defines what is spoken when an
+  interval is relative to the finish of the timer.
+
+* `half` (default: *"Half way."*) what is spoken when the timer is
+  exactly half way.
+
+### `intervalTime`
+
+The time ellapsed for timer takes to check where it's at and do the stuff it needs to do (like updating the timer coundown.)
+
+### `sayDefault`
+
+The codes for the intervals that are spoken when the `<talking-timer>` doesn't specify them specifically.
+
+### `endText`
+
+What is spoken when the timer finishes
+
+### `startText`
+
+What is spoken just before the timer starts.
+
+-----
 
 ## Styling
 
