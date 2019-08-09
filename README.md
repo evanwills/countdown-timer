@@ -291,6 +291,12 @@ By default, a short 5 second chime is played upon timer completion.
 If you're using the timer on Firefox mobile the chime sounds
 __*TERRIBLE*__ you can use no `noendchime` to disable it.
 
+### `noedit`
+
+Removed the ability to configure `<talking-timer>`
+
+> __NOTE:__ When the timer is active changing the configuration functionality is disabled. (i.e. changing configuration is only possible before the timer starts and after the timer has finished.)
+
 ### `noclosebtn`
 
 If you don't want the timer to be able to be dismissed, use `noclosebtn`
