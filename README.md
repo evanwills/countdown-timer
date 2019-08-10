@@ -17,6 +17,7 @@
     - [`noreset`](#noreset)
     - [`nosayend`](#nosayend)
     - [`noendchime`](#noendchime)
+    - [`noedit`](#noedit)
     - [`noclosebtn`](#noclosebtn)
     - [`autoreset`](#autoreset)
     - [`saystart`](#saystart)
@@ -36,6 +37,7 @@
     - [`endText`](#endtext)
     - [`startText`](#starttext)
   - [Styling](#styling)
+    - [talking timer wrapper (`.TalkingTimer-wrapper`)](#talking-timer-wrapper-talkingtimer-wrapper)
     - [Heading (`<h1>`)](#heading-h1)
       - [Heading (no close button) (`h1.noclosebtn`)](#heading-no-close-button-h1noclosebtn)
     - [Timer text (`.timer-text`)](#timer-text-timer-text)
@@ -45,8 +47,10 @@
       - [Default buttons (hover) (`<button>:hover`)](#default-buttons-hover-buttonhover)
     - [Play/Pause button (`.playPauseBtn`)](#playpause-button-playpausebtn)
       - [Play/Pause button (hover) (`.playPauseBtn:hover`)](#playpause-button-hover-playpausebtnhover)
+    - [Small button (`.smallBtn`)](#small-button-smallbtn)
+      - [Small button (hover) (`.smallBtn:hover`)](#small-button-hover-smallbtnhover)
     - [Close button (`.closeBtn`)](#close-button-closebtn)
-      - [Close button (hover) (`.closeBtn:hover`)](#close-button-hover-closebtnhover)
+    - [Config button (`.configBtn`)](#config-button-configbtn)
 
 -----
 
@@ -534,6 +538,17 @@ Below are tables for the variables controlling the style of each element in the 
 
 -----
 
+### talking timer wrapper (`.TalkingTimer-wrapper`)
+
+Grid setup for talking timer
+
+| Variable name          | CSS attribute         | default value               |
+|------------------------|-----------------------|-----------------------------|
+| --talkingTimer-columns | grid-template-columns | auto 2em                    |
+| --talkingTimer-rows    | grid-template-rows    | 2em auto auto 2em auto auto |
+
+-----
+
 ### Heading (`<h1>`)
 
 | Variable name          | CSS attribute | default value           |
@@ -563,7 +578,7 @@ Timer text is the text that changes (counts down) as the timer progresses
 | --timertext-family  | family              | verdana, arial, helvetica, sans-serif |
 | --timertext-size    | font-size           | 6em                                   |
 | --timertext-weight  | font-weight         | bold                                  |
-| --timertext-padding | padding             | 0.1em 1em 0.2em                       |
+| --timertext-padding | padding             | 0.1em 0.25em 0.2em                    |
 | --timertext-align   | text-align          | center                                |
 
 #### Timer text (completed) (`.timer-text.finished`)
@@ -639,34 +654,55 @@ Button that triggers Play/Pause (Green with white text by default)
 
 -----
 
-### Close button (`.closeBtn`)
+### Small button (`.smallBtn`)
 
 By defaul the close button sits on the top right of the `<talking-timer>` box
 
-| Variable name           | CSS attribute       | default value |
-|-------------------------|---------------------|---------------|
-| --closebtn-color        | color (font colour) | inherit       |
-| --closebtn-background   | background-color    | transparent   |
-| --closebtn-border-width | border-width        | 0             |
-| --closebtn-border-style | border-style        | none          |
-| --closebtn-border-color | border-color        | transparent   |
-| --closebtn-size         | font-size           | 2em           |
-| --closebtn-left         | left (position)     | auto          |
-| --closebtn-right        | right (position)    | 0             |
-| --closebtn-top          | top (position)      | 0             |
-| --closebtn-position     | position            | absolute      |
-| --closebtn-padding      | padding             | 0.2em 0.25em  |
-| --closebtn-weight       | font-weight         | normal        |
+| Variable name           | CSS attribute            | default value |
+|-------------------------|--------------------------|---------------|
+| --smallbtn-background   | background-color         | transparent   |
+| --smallbtn-border-color | border-color             | transparent   |
+| --smallbtn-border-style | border-style             | none          |
+| --smallbtn-border-width | border-width             | 0             |
+| --smallbtn-color        | color (font colour)      | inherit       |
+| --smallbtn-left         | left (grid-column-start) | 2             |
+| --smallbtn-padding      | padding                  | 0.2em 0.25em  |
+| --smallbtn-position     | position                 | absolute      |
+| --smallbtn-right        | right (grid-column-end   | 3             |
+| --smallbtn-size         | font-size                | 2em           |
+| --smallbtn-weight       | font-weight              | normal        |
 
-#### Close button (hover) (`.closeBtn:hover`)
+#### Small button (hover) (`.smallBtn:hover`)
 
 | Variable name                 | CSS attribute       | default value |
 |-------------------------------|---------------------|---------------|
-| --closebtn-hover-color        | color (font colour) | #c00          |
-| --closebtn-hover-weight       | font-weight         | bold          |
-| --closebtn-hover-background   | hover-background    | transparent   |
-| --closebtn-hover-border-width | border-width        | 0             |
-| --closebtn-hover-border-style | border-style        | none          |
-| --closebtn-hover-border-color | border-color        | transparent   |
+| --smallbtn-hover-color        | color (font colour) | #c00          |
+| --smallbtn-hover-weight       | font-weight         | bold          |
+| --smallbtn-hover-background   | hover-background    | transparent   |
+| --smallbtn-hover-border-width | border-width        | 0             |
+| --smallbtn-hover-border-style | border-style        | none          |
+| --smallbtn-hover-border-color | border-color        | transparent   |
+
+-----
+
+### Close button (`.closeBtn`)
+
+Position of the close button (using Grid columns) `<talking-timer>`
+
+| Variable name           | CSS attribute            | default value |
+|-------------------------|--------------------------|---------------|
+| --closebtn-top          | top (grid-row-start)     | 1             |
+| --closebtn-bottom       | bottom (grid-row-end)    | 2             |
+
+-----
+
+### Config button (`.configBtn`)
+
+Position of the config button (using Grid columns) `<talking-timer>`
+
+| Variable name           | CSS attribute            | default value |
+|-------------------------|--------------------------|---------------|
+| --configbtn-top         | top (grid-row-start)     | 3             |
+| --configbtn-bottom      | bottom (grid-row-end)    | 4             |
 
 -----

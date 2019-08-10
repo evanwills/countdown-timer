@@ -73,6 +73,7 @@ class TalkingTimer extends HTMLElement {
       autoDestruct: -1,
       autoReset: false,
       noCloseBtn: false,
+      noEdit: false,
       noEndChime: false,
       noPause: false,
       noReconfigure: false,
@@ -476,7 +477,10 @@ class TalkingTimer extends HTMLElement {
     const numbers = document.createElement('span')
     numbers.setAttribute('class', 'timer-text')
     // numbers.appendChild(document.createTextNode(startTime))
-    wrap.appendChild(numbers)
+    const numbersWrap = document.createElement('div')
+    numbersWrap.setAttribute('class', 'timer-text--wrap')
+    numbersWrap.appendChild(numbers)
+    wrap.appendChild(numbersWrap)
 
     this.numbers = numbers
 
@@ -501,11 +505,10 @@ class TalkingTimer extends HTMLElement {
     closeSR.setAttribute('class', 'sr-only')
     closeSR.appendChild(document.createTextNode('Close'))
 
-    closeIcon.setAttribute('class', 'non-sr')
+    closeIcon.setAttribute('class', 'smallBtn__icon')
     closeIcon.innerHTML = '&CircleTimes;'
 
-    close.setAttribute('class', 'closeBtn')
-    close.setAttribute('class', 'closeBtn')
+    close.setAttribute('class', 'closeBtn smallBtn')
     close.appendChild(closeSR)
     close.appendChild(closeIcon)
 
@@ -526,7 +529,7 @@ class TalkingTimer extends HTMLElement {
    */
   initMainBtns () {
     const btnWrap = document.createElement('div')
-    btnWrap.setAttribute('class', 'wrapper')
+    btnWrap.setAttribute('class', 'btn-wrapper')
 
     const playPauseIcon = document.createElement('span')
     playPauseIcon.innerHTML = '&bigtriangledown;'
@@ -583,6 +586,16 @@ class TalkingTimer extends HTMLElement {
   initStyle () {
     return document.createTextNode(`
       :host {
+        --closebtn-left: 2;
+        --closebtn-right: 3;
+        --closebtn-top: 1;
+        --closebtn-bottom: 2;
+
+        --configbtn-left: -2;
+        --configbtn-right: -1;
+        --configbtn-top: 3;
+        --configbtn-bottom: 4;
+
         --btn-color: inherit;
         --btn-background: #fff;
         --btn-size: 1.25em;
@@ -593,6 +606,11 @@ class TalkingTimer extends HTMLElement {
         --btn-hover-background: #eee;
         --btn-hover-border-color: #eee;
         --btn-hover-border-width: 0.05em;
+
+        --h1-size: 1.5em;
+        --h1-padding: 0.5em 2.5em 0.5em 0.5em;
+        --h1-noclosebtn-padding: 0.5em;
+        --h1-align: center;
 
         --playpause-color: #fff;
         --playpause-size: 1.25em;
@@ -606,32 +624,6 @@ class TalkingTimer extends HTMLElement {
         --playpause-hover-border-width: #fff;
         --playpause-hover-border-color: #020;
 
-        --closebtn-color: inherit;
-        --closebtn-background: transparent;
-        --closebtn-border-width: 0;
-        --closebtn-border-style: none;
-        --closebtn-border-color: transparent;
-        --closebtn-size: 2em;
-        --closebtn-left: auto;
-        --closebtn-right: 0;
-        --closebtn-top: 0;
-        --closebtn-position: absolute;
-        --closebtn-padding: 0.2em 0.25em;
-        --closebtn-weight: normal;
-        --closebtn-hover-color: #c00;
-        --closebtn-hover-weight: bold;
-        --closebtn-hover-background: transparent;
-        --closebtn-hover-border-width: 0;
-        --closebtn-hover-border-style: none;
-        --closebtn-hover-border-color: transparent;
-
-        --timertext-color: #222;
-        --timertext-family: verdana, arial, helvetica, sans-serif;
-        --timertext-size: 6em;
-        --timertext-weight: bold;
-        --timertext-padding: 0.1em 1em 0.2em;
-        --timertext-align: center;
-
         --progress-background: #fff;
         --progress-border-color: #ccc;
         --progress-border-width: 0.05em;
@@ -640,10 +632,33 @@ class TalkingTimer extends HTMLElement {
         --progress-left: -0.05em;
         --progress-right: auto;
 
-        --h1-size: 1.5em;
-        --h1-padding: 0.5em 2.5em 0.5em 0.5em;
-        --h1-noclosebtn-padding: 0.5em;
-        --h1-align: center;
+        --smallbtn-color: inherit;
+        --smallbtn-background: transparent;
+        --smallbtn-border-width: 0;
+        --smallbtn-border-style: none;
+        --smallbtn-border-color: transparent;
+        --smallbtn-size: 2em;
+        --smallbtn-left: 2;
+        --smallbtn-right: 2;
+        --smallbtn-position: absolute;
+        --smallbtn-padding: 0.2em 0.25em;
+        --smallbtn-weight: normal;
+        --smallbtn-hover-color: #c00;
+        --smallbtn-hover-weight: bold;
+        --smallbtn-hover-background: transparent;
+        --smallbtn-hover-border-width: 0;
+        --smallbtn-hover-border-style: none;
+        --smallbtn-hover-border-color: transparent;
+
+        --talkingTimer-columns: auto 2em;
+        --talkingTimer-rows: 2em auto auto 2em auto auto;
+
+        --timertext-color: #222;
+        --timertext-family: verdana, arial, helvetica, sans-serif;
+        --timertext-size: 6em;
+        --timertext-weight: bold;
+        --timertext-padding: 0.1em 0.25em 0.2em;
+        --timertext-align: center;
 
         --wrapper-border-width: 0.05em;
         --wrapper-border-color: #ccc;
@@ -655,6 +670,10 @@ class TalkingTimer extends HTMLElement {
       }
 
       h1 {
+        grid-column-start: 1;
+        grid-column-end: 3;
+        grid-row-start: 1;
+        grid-row-end: 3;
         font-size: var(--h1-size);
         margin: 0;
         padding: var(--h1-padding);
@@ -665,7 +684,11 @@ class TalkingTimer extends HTMLElement {
         padding: var(--h1-noclosebtn-padding);
       }
 
-      .wrapper {
+      .btn-wrapper {
+        grid-column-start: 1;
+        grid-column-end: 3;
+        grid-row-start: 6;
+        grid-row-end: 7;
         align-items: stretch;
         display: flex;
         justify-content: space-between;
@@ -747,36 +770,40 @@ class TalkingTimer extends HTMLElement {
         width: 1px;
       }
 
-      .closeBtn {
-        background: var(--closebtn-background);
-        border-width: var(--closebtn-border-width);
-        border-style: var(--closebtn-border-style);
-        border-color: var(--closebtn-border-color);
-        color: var(--closebtn-color);
-        font-size: var(--closebtn-size);
-        left: var(--closebtn-left);
-        line-height: 1em;
+      .smallBtn {
+        background: var(--smallbtn-background);
+        border-width: var(--smallbtn-border-width);
+        border-style: var(--smallbtn-border-style);
+        border-color: var(--smallbtn-border-color);
+        color: var(--smallbtn-color);
+        font-size: var(--smallbtn-size);
+        font-weight: var(--smallbtn-weight);
+        grid-column-start: var(--smallbtn-left);
+        grid-column-end: var(--smallbtn-right);
+        line-height: 0em;
         margin: 0;
-        position: var(--closebtn-position);
-        padding: var(--closebtn-padding);
-        right: var(--closebtn-right);
-        top: var(--closebtn-top);
-        font-weight: var(--closebtn-weight);
+        padding: var(--smallbtn-padding);
       }
 
-      .closeBtn:hover,
-      .closeBtn:focus {
-        background-color: var(--closebtn-hover-background);
-        border-width: var(--closebtn-hover-border-width);
-        border-style: var(--closebtn-hover-border-style);
-        border-color: var(--closebtn-hover-border-color);
-        color: var(--closebtn-hover-color);
-        font-weight: var(--closebtn-hover-weight);
+      .closeBtn {
+        grid-row-start: var(--closebtn-top);
+        grid-row-end: var(--closebtn-bottom);
       }
 
-      .closeBtn span {
+      .smallBtn:hover,
+      .smallBtn:focus {
+        background-color: var(--smallbtn-hover-background);
+        border-width: var(--smallbtn-hover-border-width);
+        border-style: var(--smallbtn-hover-border-style);
+        border-color: var(--smallbtn-hover-border-color);
+        color: var(--smallbtn-hover-color);
+        font-weight: var(--smallbtn-hover-weight);
+      }
+
+      .smallBtn__icon {
         position: relative;
-        top: -0.15em;
+        top: 0;
+        left: -0.25em;
       }
 
       .timer-text {
@@ -790,6 +817,11 @@ class TalkingTimer extends HTMLElement {
       }
 
       progress {
+        grid-column-start: 1;
+        grid-column-end: 3;
+        grid-row-start: 3;
+        grid-row-end: 4;
+        z-index: 10;
         background-color: #fff;
         border-width: var(--progress-border-width);
         border-style: solid;
@@ -815,15 +847,34 @@ class TalkingTimer extends HTMLElement {
 
       .hide {
         display: none;
-      }`
+      }
 
-      // .TalkingTimer-wrapper {
-      //   border-width: var(--wrapper-border-width);
-      //   border-style: solid;
-      //   border-color: var(--wrapper-border-color);
-      //   padding: 0;
-      //   position: relative;
-      // }
+      .TalkingTimer-wrapper {
+        display: grid;
+        grid-template-columns: var(--talkingTimer-columns);
+        grid-template-rows: var(--talkingTimer-rows);
+      }
+
+      .timer-text--wrap {
+        grid-column-start: 1;
+        grid-column-end: 3;
+        grid-row-start: 4;
+        grid-row-end: 6;
+      }
+      .config-btn {
+        grid-row-start: var(-configbtn-top);
+        grid-row-end: var(--configbtn-bottom);
+      }
+      .config-wrap {
+        grid-column-start: 1;
+        grid-column-end: 3;
+        grid-row-start: 1;
+        grid-row-end: 6;
+        z-index: 10;
+        overflow-y: auto;
+        background-color: rgba(255, 255, 255, 0.75);
+      }
+      `
     )
   }
 
