@@ -903,6 +903,34 @@ class TalkingTimer extends HTMLElement {
     )
   }
 
+  initEdit () {
+    const edit = document.createElement('button')
+    const editSR = document.createElement('span')
+    const editIcon = document.createElement('span')
+
+    editSR.setAttribute('class', 'sr-only')
+    editSR.appendChild(document.createTextNode('Configure'))
+
+    editIcon.innerHTML = '&circledast;'
+    editIcon.setAttribute('class', 'smallBtn__icon')
+
+    edit.setAttribute('class', 'configBtn smallBtn')
+    edit.appendChild(editSR)
+    edit.appendChild(editIcon)
+
+    this.configBtn = edit
+
+    return edit
+  }
+
+  activateEdit () {
+
+  }
+
+  deactivateEdit () {
+
+  }
+
   //  END:  DOM builders
   // ======================================================
   // START: timer callbacks
