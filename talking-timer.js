@@ -132,14 +132,22 @@ class TalkingTimer extends HTMLElement {
     this.intervalTime = this.getGlobal(20, 'intervalTime') // milliseconds
 
     this.play = false
-    this.playPauseBtn = null
-    this.resetBtn = null
-    this.restartBtn = null
+
     this.closeBtn = null
+    this.closeClick = null
+    this.editBtn = null
+    this.editClick = null
+    this.playPauseBtn = null
+    this.playPauseClick = null
+    this.resetBtn = null
+    this.resetClick = null
+    this.restartBtn = null
+    this.restartClick = null
     this.numbers = null
     this.progressTicker = null
     this.h1 = null
     this.sayDefault = this.getGlobal('1/2 30s last20 last15 allLast10', 'sayDefault')
+    this.say = ''
     this.sayIntervals = []
     this.workingIntervals = []
 
@@ -153,7 +161,12 @@ class TalkingTimer extends HTMLElement {
   }
 
   static get observedAttributes () {
-    return ['start', 'playing']
+    return [
+      'currentValue',
+      'endTime',
+      'playing',
+      'remainingMilliseconds'
+    ]
   }
 
   // ======================================================
@@ -187,6 +200,11 @@ class TalkingTimer extends HTMLElement {
         this.closeBtn.remove()
       }
 
+      if (this.config.noEdit === false) {
+        this.editClick = this.getEditClick()
+        this.editBtn.addEventListener('click', this.editClick)
+      }
+
       this.setTimeText()
       this.resetTimerValues()
 
@@ -198,6 +216,11 @@ class TalkingTimer extends HTMLElement {
   disconnectedCallback () {
     this.playPauseBtn.removeEventListener('click', this.playPauseClick)
     this.closeBtn.removeEventListener('click', this.closeClick)
+    this.resetBtn.removeEventListener('click', this.resetClick)
+    this.restartBtn.removeEventListener('click', this.restartClick)
+    if (this.config.noEdit === false) {
+      this.editBtn.removeEventListener('click', this.editClick)
+    }
   }
 
   //  END:  standard custom element callbacks
@@ -762,12 +785,14 @@ class TalkingTimer extends HTMLElement {
         font-weight: normal;
       }
 
-      .sr-only {
-        display: inline-block;
-        height: 1px;
-        margin: -1px 0 0 -1px;
-        opacity: 0;
-        width: 1px;
+      @media screen {
+        .sr-only {
+          display: inline-block;
+          height: 1px;
+          margin: -1px 0 0 -1px;
+          opacity: 0;
+          width: 1px;
+        }
       }
 
       .smallBtn {
@@ -1000,7 +1025,8 @@ class TalkingTimer extends HTMLElement {
    * @param {string} hoursMinutesSeconds the string value of the
    *                 element's `start` attribute
    *
-   * @returns {void}
+   * @returns {boolean} TRUE if hoursMinutesSeconds can be parsed.
+   *          FALSE otherwise
    */
   validateTimeDuration (hoursMinutesSeconds) {
     const regex = new RegExp('^(?:(?:(?:([0-1]?[0-9]|2[0-4]):)?([0-5]?[0-9]):)?([0-5]?[0-9])|([6-9][0-9]|[1-9][0-9]{2,5}))$')
@@ -1130,7 +1156,8 @@ class TalkingTimer extends HTMLElement {
   }
 
   /**
-   * getWholePart() (PURE) converts the number of milliseconds provided into the whole number of units
+   * getWholePart() (PURE) converts the number of milliseconds
+   * provided into the whole number of units
    *
    * @param {number} input the number of millseconds to be converted
    *                 into approprate time unit
@@ -1219,6 +1246,7 @@ class TalkingTimer extends HTMLElement {
 
     let say = this.getAttribute('say')
     say = (typeof say !== 'string') ? this.sayDefault : say
+    this.say = say
     this.sayIntervals = this.parseRawIntervals(say, this.initialMilliseconds)
 
     let selfDestructOverride = false
@@ -1258,28 +1286,28 @@ class TalkingTimer extends HTMLElement {
    * of the prop/subProp matches the default value supplied, then it
    * is returned. Otherwise the supplied default is returned.
    *
-   * @param {any} talkingTimerdefault value to be used as default
+   * @param {any} defaultValue value to be used as default
    * @param {string} prop property of `talkingTimerExternalDefaults`
    *                 to be tested.
    * @param {string} subProp property of `talkingTimerExternalDefaults[prop]`
    *                 to be tested.
    *
-   * @returns {any} a value with the same type as `talkingTimerdefault`
+   * @returns {any} a value with the same type as `defaultValue`
    */
-  getGlobal (talkingTimerdefault, prop, subProp) {
+  getGlobal (defaultValue, prop, subProp) {
     if (typeof talkingTimerExternalDefaults !== 'undefined' && typeof prop !== 'undefined') {
       const propType = typeof talkingTimerExternalDefaults[prop]
-      const defaultType = typeof talkingTimerdefault
+      const defaultType = typeof defaultValue
       if (propType !== 'undefined') {
         if (typeof subProp !== 'undefined') {
           const subPropType = typeof talkingTimerExternalDefaults[prop][subProp]
-          return (subPropType !== 'undefined' && defaultType === subPropType) ? talkingTimerExternalDefaults[prop][subProp] : talkingTimerdefault
+          return (subPropType !== 'undefined' && defaultType === subPropType) ? talkingTimerExternalDefaults[prop][subProp] : defaultValue
         } else if (propType === defaultType) {
           return talkingTimerExternalDefaults[prop]
         }
       }
     }
-    return talkingTimerdefault
+    return defaultValue
   }
 
   //  END:  utility methods
