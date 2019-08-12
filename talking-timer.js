@@ -200,11 +200,6 @@ class TalkingTimer extends HTMLElement {
         this.closeBtn.remove()
       }
 
-      if (this.config.noEdit === false) {
-        this.editClick = this.getEditClick()
-        this.editBtn.addEventListener('click', this.editClick)
-      }
-
       this.setTimeText()
       this.resetTimerValues()
 
